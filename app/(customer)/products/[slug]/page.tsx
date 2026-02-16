@@ -4,6 +4,10 @@ import { client } from "@/src/sanity/lib/client";
 import { PRODUCT_QUERY, PRODUCT_SLUGS_QUERY } from "@/src/sanity/lib/queries";
 import type { Product } from "@/src/sanity/lib/types";
 import ProductGallery from "@/components/customer/ProductGallery";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ShoppingCart, CheckCircle, XCircle } from "lucide-react";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -122,37 +126,15 @@ const ProductPage = async ({ params }: ProductPageProps) => {
           {/* Stock Status */}
           <div className="mb-6">
             {product.inStock ? (
-              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-sage">
-                <svg
-                  className="h-4 w-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <Badge variant="outline" className="gap-1.5 border-sage/30 bg-sage/10 text-sage">
+                <CheckCircle className="h-4 w-4" />
                 In Stock
-              </span>
+              </Badge>
             ) : (
-              <span className="inline-flex items-center gap-1.5 text-sm font-medium text-charcoal-light">
-                <svg
-                  className="h-4 w-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <Badge variant="outline" className="gap-1.5 border-charcoal-light/30 bg-charcoal/5 text-charcoal-light">
+                <XCircle className="h-4 w-4" />
                 Out of Stock
-              </span>
+              </Badge>
             )}
           </div>
 
@@ -167,63 +149,52 @@ const ProductPage = async ({ params }: ProductPageProps) => {
           </div>
 
           {/* Specifications */}
-          <div className="mb-8 rounded-lg border border-cream-dark bg-cream p-6">
-            <h2 className="mb-4 text-lg font-semibold text-walnut">
-              Specifications
-            </h2>
-            <dl className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <dt className="text-sm font-medium text-charcoal-light">
-                  Wood Type
-                </dt>
-                <dd className="text-charcoal">{woodTypeLabel}</dd>
-              </div>
-              {finishLabel && (
+          <Card className="mb-8 border-cream-dark bg-cream">
+            <CardContent className="p-6">
+              <h2 className="mb-4 text-lg font-semibold text-walnut">
+                Specifications
+              </h2>
+              <dl className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <dt className="text-sm font-medium text-charcoal-light">
-                    Finish
+                    Wood Type
                   </dt>
-                  <dd className="text-charcoal">{finishLabel}</dd>
+                  <dd className="text-charcoal">{woodTypeLabel}</dd>
                 </div>
-              )}
-              {dimensions && (
-                <div className="sm:col-span-2">
-                  <dt className="text-sm font-medium text-charcoal-light">
-                    Dimensions
-                  </dt>
-                  <dd className="text-charcoal">{dimensions}</dd>
-                </div>
-              )}
-            </dl>
-          </div>
+                {finishLabel && (
+                  <div>
+                    <dt className="text-sm font-medium text-charcoal-light">
+                      Finish
+                    </dt>
+                    <dd className="text-charcoal">{finishLabel}</dd>
+                  </div>
+                )}
+                {dimensions && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-sm font-medium text-charcoal-light">
+                      Dimensions
+                    </dt>
+                    <dd className="text-charcoal">{dimensions}</dd>
+                  </div>
+                )}
+              </dl>
+            </CardContent>
+          </Card>
 
           {/* Add to Cart Button (placeholder for Phase 3) */}
-          <button
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-amber px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-amber-light focus:outline-none focus:ring-2 focus:ring-amber focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          <Button
+            size="lg"
+            className="w-full rounded-full bg-amber text-lg text-white hover:bg-amber-light disabled:opacity-50"
             disabled={!product.inStock}
-            tabIndex={0}
             aria-label={
               product.inStock
                 ? `Add ${product.name} to cart`
                 : "Product out of stock"
             }
           >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
+            <ShoppingCart className="mr-2 h-5 w-5" />
             {product.inStock ? "Add to Cart" : "Out of Stock"}
-          </button>
+          </Button>
           <p className="mt-3 text-center text-sm text-charcoal-light">
             Cart functionality coming in Phase 3
           </p>

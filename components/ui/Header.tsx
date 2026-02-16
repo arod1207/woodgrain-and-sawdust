@@ -7,6 +7,8 @@ import {
   SignInButton,
   UserButton,
 } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 const Header = () => {
   return (
@@ -37,52 +39,42 @@ const Header = () => {
 
         {/* Navigation */}
         <nav className="flex items-center gap-6" aria-label="Main navigation">
-          <Link
-            href="/"
-            className="text-sm font-medium text-charcoal-light transition-colors hover:text-amber"
-            tabIndex={0}
-          >
-            Home
-          </Link>
-          <Link
-            href="/products"
-            className="text-sm font-medium text-charcoal-light transition-colors hover:text-amber"
-            tabIndex={0}
-          >
-            Products
-          </Link>
+          <Button variant="ghost" asChild className="text-charcoal-light hover:text-amber hover:bg-transparent">
+            <Link href="/">Home</Link>
+          </Button>
+          <Button variant="ghost" asChild className="text-charcoal-light hover:text-amber hover:bg-transparent">
+            <Link href="/products">Products</Link>
+          </Button>
 
           {/* Auth Section */}
-          <div className="ml-4 flex items-center gap-4 border-l border-cream-dark pl-4">
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button
-                  className="rounded-full bg-amber px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-light focus:outline-none focus:ring-2 focus:ring-amber focus:ring-offset-2"
-                  tabIndex={0}
-                  aria-label="Sign in to your account"
-                >
-                  Sign In
-                </button>
-              </SignInButton>
-            </SignedOut>
+          <div className="ml-4 flex items-center gap-4">
+            <Separator orientation="vertical" className="h-6 bg-cream-dark" />
+            <div className="flex items-center gap-4 pl-4">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <Button 
+                    className="rounded-full bg-amber text-white hover:bg-amber-light"
+                    aria-label="Sign in to your account"
+                  >
+                    Sign In
+                  </Button>
+                </SignInButton>
+              </SignedOut>
 
-            <SignedIn>
-              <Link
-                href="/admin"
-                className="text-sm font-medium text-charcoal-light transition-colors hover:text-amber"
-                tabIndex={0}
-              >
-                Admin
-              </Link>
-              <UserButton
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    avatarBox: "h-9 w-9",
-                  },
-                }}
-              />
-            </SignedIn>
+              <SignedIn>
+                <Button variant="ghost" asChild className="text-charcoal-light hover:text-amber hover:bg-transparent">
+                  <Link href="/admin">Admin</Link>
+                </Button>
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "h-9 w-9",
+                    },
+                  }}
+                />
+              </SignedIn>
+            </div>
           </div>
         </nav>
       </div>

@@ -2,7 +2,7 @@ import { SignUp } from "@clerk/nextjs";
 
 const SignUpPage = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-walnut to-walnut-dark px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-walnut to-walnut-dark px-4 py-12">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-cream">Create Account</h1>

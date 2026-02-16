@@ -8,7 +8,7 @@ A modern e-commerce platform to showcase and sell custom woodworking products. T
 
 - **Framework:** Next.js 14 (App Router, TypeScript)
 - **Language:** TypeScript
-- **Styling:** Tailwind CSS
+- **Styling:** Tailwind CSS + shadcn/ui (pre-built accessible components)
 - **CMS:** Sanity (product management, images, descriptions)
 - **Database:** Convex (real-time data for cart, orders, analytics)
 - **Auth:** Clerk (customer accounts + admin access control)

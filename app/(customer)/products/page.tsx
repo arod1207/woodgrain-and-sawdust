@@ -3,6 +3,10 @@ import { PRODUCTS_QUERY, CATEGORIES_QUERY } from "@/src/sanity/lib/queries";
 import type { ProductCard as ProductCardType, Category } from "@/src/sanity/lib/types";
 import ProductCard from "@/components/customer/ProductCard";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Package, ExternalLink } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -29,27 +33,31 @@ const ProductsPage = async () => {
 
       {/* Categories Filter */}
       {categories && categories.length > 0 && (
-        <div className="mb-8 flex flex-wrap items-center gap-3 border-b border-cream-dark pb-6">
-          <span className="text-sm font-medium text-charcoal">Filter by:</span>
-          <Link
-            href="/products"
-            className="rounded-full border border-amber bg-amber px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-light"
-            tabIndex={0}
-            aria-label="Show all products"
-          >
-            All
-          </Link>
-          {categories.map((category) => (
-            <Link
-              key={category._id}
-              href={`/products?category=${category.slug}`}
-              className="rounded-full border border-cream-dark px-4 py-2 text-sm font-medium text-charcoal-light transition-colors hover:border-amber hover:text-amber"
-              tabIndex={0}
-              aria-label={`Filter by ${category.name}`}
+        <div className="mb-8">
+          <div className="flex flex-wrap items-center gap-3 pb-6">
+            <span className="text-sm font-medium text-charcoal">Filter by:</span>
+            <Button
+              size="sm"
+              className="rounded-full bg-amber text-white hover:bg-amber-light"
+              asChild
             >
-              {category.name}
-            </Link>
-          ))}
+              <Link href="/products">All</Link>
+            </Button>
+            {categories.map((category) => (
+              <Button
+                key={category._id}
+                variant="outline"
+                size="sm"
+                className="rounded-full border-cream-dark text-charcoal-light hover:border-amber hover:text-amber"
+                asChild
+              >
+                <Link href={`/products?category=${category.slug}`}>
+                  {category.name}
+                </Link>
+              </Button>
+            ))}
+          </div>
+          <Separator className="bg-cream-dark" />
         </div>
       )}
 
@@ -61,51 +69,25 @@ const ProductsPage = async () => {
           ))}
         </div>
       ) : (
-        <div className="rounded-lg border border-amber/30 bg-amber/5 p-12 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber/10 text-amber">
-            <svg
-              className="h-8 w-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-              />
-            </svg>
-          </div>
-          <h3 className="mb-2 text-lg font-semibold text-walnut">
-            No Products Yet
-          </h3>
-          <p className="mb-4 text-charcoal-light">
-            Products will appear here once added via Sanity Studio.
-          </p>
-          <Link
-            href="/studio"
-            className="inline-flex items-center gap-2 rounded-full bg-amber px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-amber-light"
-            tabIndex={0}
-          >
-            Open Sanity Studio
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
-          </Link>
-        </div>
+        <Card className="border-amber/30 bg-amber/5">
+          <CardContent className="p-12 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber/10 text-amber">
+              <Package className="h-8 w-8" />
+            </div>
+            <CardTitle className="mb-2 text-walnut">
+              No Products Yet
+            </CardTitle>
+            <CardDescription className="mb-4">
+              Products will appear here once added via Sanity Studio.
+            </CardDescription>
+            <Button className="rounded-full bg-amber hover:bg-amber-light" asChild>
+              <Link href="/studio">
+                Open Sanity Studio
+                <ExternalLink className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
