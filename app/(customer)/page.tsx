@@ -19,30 +19,41 @@ const HomePage = async () => {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative flex min-h-[70vh] items-center justify-center bg-linear-to-br from-walnut to-walnut-dark px-4">
-        <div className="absolute inset-0 bg-[url('/grain-texture.png')] opacity-10" />
-        <div className="relative z-10 mx-auto max-w-4xl text-center">
-          <h1 className="mb-6 text-4xl font-bold tracking-tight text-cream sm:text-5xl md:text-6xl">
-            Handcrafted Wooden
-            <br />
-            <span className="text-amber-light">Furniture & Decor</span>
-          </h1>
-          <p className="mx-auto mb-8 max-w-2xl text-lg text-cream/80 sm:text-xl">
-            Each piece is meticulously crafted from premium hardwoods, bringing
-            warmth and character to your home. Discover the beauty of real wood.
-          </p>
-          <Button
-            size="lg"
-            className="rounded-full bg-amber px-8 py-6 text-lg hover:bg-amber-light hover:shadow-lg"
-            asChild
-          >
-            <Link href="/products">
-              Browse Collection
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
-        </div>
-      </section>
+<section className="relative flex min-h-[70vh] items-center justify-center bg-gradient-to-br from-walnut to-walnut-dark px-4 overflow-hidden">
+  {/* Background image layer – only this div gets the opacity */}
+  <div
+    className={`
+      absolute inset-0 
+      bg-[url('/hero.jpg')] 
+      bg-cover bg-center opacity-25
+    `}
+  />
+
+  {/* Optional: add a subtle dark overlay if text contrast still needs help */}
+  {/* <div className="absolute inset-0 bg-black/20" /> */}  {/* uncomment if needed */}
+
+  <div className="relative z-10 mx-auto max-w-4xl text-center">
+    <h1 className="mb-6 text-4xl font-bold tracking-tight text-cream sm:text-5xl md:text-6xl">
+      Handcrafted Wooden
+      <br />
+      <span className="text-amber-light">Furniture & Decor</span>
+    </h1>
+    <p className="mx-auto mb-8 max-w-2xl text-lg text-cream/80 sm:text-xl">
+      Each piece is meticulously crafted from premium hardwoods, bringing
+      warmth and character to your home. Discover the beauty of real wood.
+    </p>
+    <Button
+      size="lg"
+      className="rounded-full bg-amber px-8 py-6 text-lg hover:bg-amber-light hover:shadow-lg"
+      asChild
+    >
+      <Link href="/products">
+        Browse Collection
+        <ArrowRight className="ml-2 h-5 w-5" />
+      </Link>
+    </Button>
+  </div>
+</section>
 
       {/* Features Section */}
       <section className="py-16 sm:py-24">
