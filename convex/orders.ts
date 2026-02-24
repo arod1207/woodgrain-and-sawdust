@@ -1,4 +1,4 @@
-import { query, internalQuery, action } from "./_generated/server";
+import { query, internalQuery, action, internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import {
@@ -23,11 +23,10 @@ export const createPendingOrder = action({
   },
 });
 
-// Called by the Next.js Stripe webhook route after signature verification.
-// Uses orderId (stored in Stripe metadata, never shown in the browser UI)
-// rather than stripeSessionId (visible in the success URL), preventing a user
-// from calling this action on their own pending order to mark it paid without paying.
-export const processPaymentSuccess = action({
+// Called exclusively from the Convex HTTP action (convex/http.ts) after
+// Stripe signature verification inside Convex's own runtime.
+// internalAction ensures this cannot be invoked from any browser or external client.
+export const processPaymentSuccess = internalAction({
   args: {
     orderId: v.id("orders"),
     deviceId: v.string(),
