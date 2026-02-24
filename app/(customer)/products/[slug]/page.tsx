@@ -4,10 +4,11 @@ import { client } from "@/src/sanity/lib/client";
 import { PRODUCT_QUERY, PRODUCT_SLUGS_QUERY } from "@/src/sanity/lib/queries";
 import type { Product } from "@/src/sanity/lib/types";
 import ProductGallery from "@/components/customer/ProductGallery";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
+import AddToCartButton from "@/components/customer/AddToCartButton";
+import { urlFor } from "@/src/sanity/lib/image";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -181,23 +182,18 @@ const ProductPage = async ({ params }: ProductPageProps) => {
             </CardContent>
           </Card>
 
-          {/* Add to Cart Button (placeholder for Phase 3) */}
-          <Button
-            size="lg"
-            className="w-full rounded-full bg-amber text-lg text-white hover:bg-amber-light disabled:opacity-50"
-            disabled={!product.inStock}
-            aria-label={
-              product.inStock
-                ? `Add ${product.name} to cart`
-                : "Product out of stock"
+          {/* Add to Cart */}
+          <AddToCartButton
+            productId={product._id}
+            productName={product.name}
+            price={product.price}
+            inStock={product.inStock}
+            imageUrl={
+              product.images?.[0]
+                ? urlFor(product.images[0]).width(256).height(256).url()
+                : "/placeholder.png"
             }
-          >
-            <ShoppingCart className="mr-2 h-5 w-5" />
-            {product.inStock ? "Add to Cart" : "Out of Stock"}
-          </Button>
-          <p className="mt-3 text-center text-sm text-charcoal-light">
-            Cart functionality coming in Phase 3
-          </p>
+          />
         </div>
       </div>
     </div>
