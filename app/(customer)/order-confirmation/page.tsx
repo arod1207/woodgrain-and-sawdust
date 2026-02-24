@@ -1,42 +1,44 @@
 "use client";
 
+import { Suspense, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, Package } from "lucide-react";
+import { CheckCircle2, Clock, Package } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
 
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(amount);
-}
+const formatCurrency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
 
-export default function OrderConfirmationPage() {
+function OrderConfirmationContent() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
+  const orderId = searchParams.get("order_id");
   const { clearCart } = useCart();
+  // Prevent clearCart from firing more than once if the effect re-runs.
+  const cartClearedRef = useRef(false);
 
   const order = useQuery(
-    api.orders.getOrderBySessionId,
-    sessionId ? { stripeSessionId: sessionId } : "skip"
+    api.orders.getOrderById,
+    orderId ? { orderId: orderId as Id<"orders"> } : "skip"
   );
 
   // Belt-and-suspenders: clear local cart on confirmation
   useEffect(() => {
-    if (order?.status === "paid") {
-      clearCart();
+    if (order?.status === "paid" && !cartClearedRef.current) {
+      cartClearedRef.current = true;
+      clearCart().catch(console.error);
     }
   }, [order?.status, clearCart]);
 
-  if (!sessionId) {
+  if (!orderId) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 lg:px-8">
         <h1 className="mb-4 text-2xl font-bold text-walnut">
@@ -89,14 +91,26 @@ export default function OrderConfirmationPage() {
     );
   }
 
+  const isPaid = order.status === "paid";
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
       <div className="mb-8 text-center">
-        <CheckCircle2 className="mx-auto mb-4 h-16 w-16 text-sage" />
-        <h1 className="mb-2 text-3xl font-bold text-walnut">Thank you!</h1>
-        <p className="text-charcoal-light">
-          Your order has been {order.status === "paid" ? "confirmed" : "received"}.
-        </p>
+        {isPaid ? (
+          <>
+            <CheckCircle2 className="mx-auto mb-4 h-16 w-16 text-sage" />
+            <h1 className="mb-2 text-3xl font-bold text-walnut">Thank you!</h1>
+            <p className="text-charcoal-light">Your order has been confirmed.</p>
+          </>
+        ) : (
+          <>
+            <Clock className="mx-auto mb-4 h-16 w-16 text-amber" />
+            <h1 className="mb-2 text-3xl font-bold text-walnut">Order received</h1>
+            <p className="text-charcoal-light">
+              Your payment is being processed. This page will update automatically.
+            </p>
+          </>
+        )}
       </div>
 
       <Card className="mb-6 border-cream-dark bg-white">
@@ -117,7 +131,7 @@ export default function OrderConfirmationPage() {
                   </div>
                 </div>
                 <p className="font-medium text-charcoal">
-                  {formatCurrency(item.price * item.quantity)}
+                  {formatCurrency.format(item.price * item.quantity)}
                 </p>
               </div>
             ))}
@@ -128,16 +142,16 @@ export default function OrderConfirmationPage() {
           <div className="space-y-2">
             <div className="flex justify-between text-charcoal">
               <span>Subtotal</span>
-              <span>{formatCurrency(order.subtotal)}</span>
+              <span>{formatCurrency.format(order.subtotal)}</span>
             </div>
             <div className="flex justify-between text-charcoal">
               <span>Shipping</span>
-              <span>{formatCurrency(order.shipping)}</span>
+              <span>{formatCurrency.format(order.shipping)}</span>
             </div>
             <Separator className="my-2 bg-cream-dark" />
             <div className="flex justify-between text-lg font-semibold text-walnut">
               <span>Total</span>
-              <span>{formatCurrency(order.total)}</span>
+              <span>{formatCurrency.format(order.total)}</span>
             </div>
           </div>
         </CardContent>
@@ -174,5 +188,23 @@ export default function OrderConfirmationPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function OrderConfirmationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="space-y-6">
+            <Skeleton className="mx-auto h-12 w-12 rounded-full" />
+            <Skeleton className="mx-auto h-8 w-64" />
+            <Skeleton className="h-48 w-full rounded-lg" />
+          </div>
+        </div>
+      }
+    >
+      <OrderConfirmationContent />
+    </Suspense>
   );
 }

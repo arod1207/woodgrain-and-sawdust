@@ -23,6 +23,7 @@ export default function AddToCartButton({
   const { addItem } = useCart();
   const [isAdding, setIsAdding] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
+  const [addFailed, setAddFailed] = useState(false);
 
   if (!inStock) {
     return (
@@ -37,17 +38,24 @@ export default function AddToCartButton({
     );
   }
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     setIsAdding(true);
-    addItem({
-      productId,
-      name: productName,
-      price,
-      image: imageUrl,
-    });
-    setIsAdding(false);
-    setJustAdded(true);
-    setTimeout(() => setJustAdded(false), 2000);
+    try {
+      await addItem({
+        productId,
+        name: productName,
+        price,
+        image: imageUrl,
+      });
+      setJustAdded(true);
+      setTimeout(() => setJustAdded(false), 2000);
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+      setAddFailed(true);
+      setTimeout(() => setAddFailed(false), 3000);
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -63,6 +71,8 @@ export default function AddToCartButton({
           <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           Adding...
         </>
+      ) : addFailed ? (
+        "Failed — please try again"
       ) : justAdded ? (
         <>
           <Check className="mr-2 h-5 w-5" />

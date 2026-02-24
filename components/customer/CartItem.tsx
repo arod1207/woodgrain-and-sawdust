@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,6 +15,11 @@ interface CartItemProps {
   image: string;
 }
 
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
 export default function CartItem({
   productId,
   name,
@@ -22,18 +28,31 @@ export default function CartItem({
   image,
 }: CartItemProps) {
   const { updateQuantity, removeItem } = useCart();
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [isMutating, setIsMutating] = useState(false);
 
-  const lineTotal = price * quantity;
+  async function handleUpdateQuantity(newQty: number) {
+    setIsMutating(true);
+    try {
+      await updateQuantity(productId, newQty);
+      setMutationError(null);
+    } catch {
+      setMutationError("Failed to update. Please try again.");
+    } finally {
+      setIsMutating(false);
+    }
+  }
 
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(price);
-
-  const formattedLineTotal = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(lineTotal);
+  async function handleRemove() {
+    setIsMutating(true);
+    try {
+      await removeItem(productId);
+    } catch {
+      setMutationError("Failed to remove. Please try again.");
+    } finally {
+      setIsMutating(false);
+    }
+  }
 
   return (
     <Card className="border-cream-dark bg-white">
@@ -46,6 +65,7 @@ export default function CartItem({
             fill
             className="object-cover"
             sizes="(max-width: 640px) 96px, 128px"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
         </div>
 
@@ -55,11 +75,17 @@ export default function CartItem({
             <div>
               <h3 className="font-semibold text-walnut">{name}</h3>
               <p className="mt-1 text-sm text-charcoal-light">
-                {formattedPrice} each
+                {currencyFormatter.format(price)} each
               </p>
             </div>
-            <p className="font-semibold text-walnut">{formattedLineTotal}</p>
+            <p className="font-semibold text-walnut">
+              {currencyFormatter.format(price * quantity)}
+            </p>
           </div>
+
+          {mutationError && (
+            <p className="mt-1 text-sm text-red-600">{mutationError}</p>
+          )}
 
           {/* Quantity Controls */}
           <div className="mt-3 flex items-center justify-between">
@@ -68,7 +94,8 @@ export default function CartItem({
                 variant="outline"
                 size="icon"
                 className="h-8 w-8 border-cream-dark"
-                onClick={() => updateQuantity(productId, quantity - 1)}
+                onClick={() => handleUpdateQuantity(quantity - 1)}
+                disabled={isMutating}
                 aria-label={`Decrease quantity of ${name}`}
               >
                 <Minus className="h-3 w-3" />
@@ -83,7 +110,8 @@ export default function CartItem({
                 variant="outline"
                 size="icon"
                 className="h-8 w-8 border-cream-dark"
-                onClick={() => updateQuantity(productId, quantity + 1)}
+                onClick={() => handleUpdateQuantity(quantity + 1)}
+                disabled={isMutating}
                 aria-label={`Increase quantity of ${name}`}
               >
                 <Plus className="h-3 w-3" />
@@ -94,7 +122,8 @@ export default function CartItem({
               variant="ghost"
               size="sm"
               className="text-charcoal-light hover:text-red-600"
-              onClick={() => removeItem(productId)}
+              onClick={handleRemove}
+              disabled={isMutating}
               aria-label={`Remove ${name} from cart`}
             >
               <Trash2 className="mr-1 h-4 w-4" />

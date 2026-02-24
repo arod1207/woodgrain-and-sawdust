@@ -79,6 +79,10 @@ export const updateQuantity = mutation({
     quantity: v.number(),
   },
   handler: async (ctx, args) => {
+    if (!Number.isInteger(args.quantity) || args.quantity < 0) {
+      throw new Error("Quantity must be a non-negative integer");
+    }
+
     const cart = await ctx.db
       .query("cart")
       .withIndex("by_deviceId", (q) => q.eq("deviceId", args.deviceId))

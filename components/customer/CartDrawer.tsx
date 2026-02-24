@@ -14,41 +14,20 @@ import {
 } from "@/components/ui/sheet";
 import { Loader2, ShoppingCart, ShoppingBag } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { useCheckout } from "@/hooks/useCheckout";
 import CartDrawerItem from "@/components/customer/CartDrawerItem";
 
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
 export default function CartDrawer() {
-  const { items, subtotal, itemCount, isLoading, deviceId } = useCart();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const { items, subtotal, itemCount, isLoading } = useCart();
+  const { handleCheckout, isCheckingOut, checkoutError } = useCheckout();
   const [open, setOpen] = useState(false);
 
-  const formattedSubtotal = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(subtotal);
-
-  async function handleCheckout() {
-    setIsCheckingOut(true);
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, deviceId }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Checkout failed");
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      setIsCheckingOut(false);
-    }
-  }
+  const formattedSubtotal = currencyFormatter.format(subtotal);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -134,6 +113,10 @@ export default function CartDrawer() {
 
               <Separator className="my-3 bg-cream-dark" />
 
+              {checkoutError && (
+                <p className="mb-2 text-sm text-red-600">{checkoutError}</p>
+              )}
+
               <div className="space-y-2">
                 <Button
                   size="lg"
@@ -150,15 +133,13 @@ export default function CartDrawer() {
                     "Proceed to Checkout"
                   )}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full rounded-full border-cream-dark text-charcoal-light hover:text-amber"
-                  asChild
+                <Link
+                  href="/cart"
                   onClick={() => setOpen(false)}
+                  className="flex w-full items-center justify-center rounded-full border border-cream-dark px-8 py-2 text-lg text-charcoal-light transition-colors hover:text-amber"
                 >
-                  <Link href="/cart">View Full Cart</Link>
-                </Button>
+                  View Full Cart
+                </Link>
               </div>
             </div>
           </>

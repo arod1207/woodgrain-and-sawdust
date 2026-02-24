@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import Stripe from "stripe";
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
+  throw new Error("Missing required environment variable: NEXT_PUBLIC_CONVEX_URL");
+}
+
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL);
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -19,33 +24,45 @@ export async function POST(request: NextRequest) {
 
   let event: Stripe.Event;
 
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    console.error("Missing required environment variable: STRIPE_WEBHOOK_SECRET");
+    return NextResponse.json({ error: "Server misconfiguration" }, { status: 500 });
+  }
+
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
     console.error("Webhook signature verification failed:", err);
-    return NextResponse.json(
-      { error: "Invalid signature" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
+
+    // orderId is the Convex document ID stored in metadata at checkout time.
+    // Using orderId (never exposed in the browser UI) instead of stripeSessionId
+    // (visible in the success URL) closes the exploit where a user could call
+    // processPaymentSuccess with their own session_id to mark a pending order paid.
+    const orderId = session.metadata?.orderId;
     const deviceId = session.metadata?.deviceId;
 
-    if (!deviceId) {
-      console.error("No deviceId in session metadata");
-      return NextResponse.json({ received: true });
+    if (!orderId || !deviceId) {
+      // Return 5xx so Stripe retries the webhook — missing metadata is unexpected
+      // and may indicate a bug on our side, not a bad request from Stripe.
+      console.error("Missing orderId or deviceId in session metadata", session.id);
+      return NextResponse.json(
+        { error: "Missing required metadata" },
+        { status: 500 }
+      );
     }
 
     const shippingDetails = session.shipping_details;
 
     try {
-      await convex.mutation(api.orders.fulfillOrder, {
+      await convex.action(api.orders.processPaymentSuccess, {
+        orderId: orderId as Id<"orders">,
+        deviceId,
         stripeSessionId: session.id,
         customerEmail: session.customer_details?.email ?? undefined,
         shippingAddress: shippingDetails?.address
@@ -64,8 +81,6 @@ export async function POST(request: NextRequest) {
             ? session.payment_intent
             : undefined,
       });
-
-      await convex.mutation(api.cart.clearCart, { deviceId });
     } catch (err) {
       console.error("Error fulfilling order:", err);
       return NextResponse.json(

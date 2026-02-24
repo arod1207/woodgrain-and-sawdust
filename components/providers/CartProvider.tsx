@@ -21,10 +21,10 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Omit<CartItem, "quantity">) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
-  removeItem: (productId: string) => void;
-  clearCart: () => void;
+  addItem: (product: Omit<CartItem, "quantity">) => Promise<void>;
+  updateQuantity: (productId: string, quantity: number) => Promise<void>;
+  removeItem: (productId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
   itemCount: number;
   subtotal: number;
   isLoading: boolean;
@@ -71,32 +71,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const addItem = useCallback(
-    (product: Omit<CartItem, "quantity">) => {
+    async (product: Omit<CartItem, "quantity">): Promise<void> => {
       if (!deviceId) return;
-      addToCartMutation({ deviceId, ...product });
+      await addToCartMutation({ deviceId, ...product });
     },
     [deviceId, addToCartMutation]
   );
 
   const updateQuantity = useCallback(
-    (productId: string, quantity: number) => {
+    async (productId: string, quantity: number): Promise<void> => {
       if (!deviceId) return;
-      updateQuantityMutation({ deviceId, productId, quantity });
+      await updateQuantityMutation({ deviceId, productId, quantity });
     },
     [deviceId, updateQuantityMutation]
   );
 
   const removeItem = useCallback(
-    (productId: string) => {
+    async (productId: string): Promise<void> => {
       if (!deviceId) return;
-      removeFromCartMutation({ deviceId, productId });
+      await removeFromCartMutation({ deviceId, productId });
     },
     [deviceId, removeFromCartMutation]
   );
 
-  const clearCart = useCallback(() => {
+  const clearCart = useCallback(async (): Promise<void> => {
     if (!deviceId) return;
-    clearCartMutation({ deviceId });
+    await clearCartMutation({ deviceId });
   }, [deviceId, clearCartMutation]);
 
   return (

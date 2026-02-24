@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
@@ -13,6 +14,11 @@ interface CartDrawerItemProps {
   image: string;
 }
 
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
 export default function CartDrawerItem({
   productId,
   name,
@@ -21,16 +27,31 @@ export default function CartDrawerItem({
   image,
 }: CartDrawerItemProps) {
   const { updateQuantity, removeItem } = useCart();
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const [isMutating, setIsMutating] = useState(false);
 
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(price);
+  async function handleUpdateQuantity(newQty: number) {
+    setIsMutating(true);
+    try {
+      await updateQuantity(productId, newQty);
+      setMutationError(null);
+    } catch {
+      setMutationError("Failed to update. Please try again.");
+    } finally {
+      setIsMutating(false);
+    }
+  }
 
-  const formattedLineTotal = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(price * quantity);
+  async function handleRemove() {
+    setIsMutating(true);
+    try {
+      await removeItem(productId);
+    } catch {
+      setMutationError("Failed to remove. Please try again.");
+    } finally {
+      setIsMutating(false);
+    }
+  }
 
   return (
     <div className="flex gap-3 py-3">
@@ -41,6 +62,7 @@ export default function CartDrawerItem({
           fill
           className="object-cover"
           sizes="64px"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
         />
       </div>
 
@@ -48,9 +70,13 @@ export default function CartDrawerItem({
         <div className="flex justify-between gap-2">
           <h4 className="text-sm font-medium text-walnut leading-tight">{name}</h4>
           <p className="text-sm font-semibold text-walnut whitespace-nowrap">
-            {formattedLineTotal}
+            {currencyFormatter.format(price * quantity)}
           </p>
         </div>
+
+        {mutationError && (
+          <p className="text-xs text-red-600">{mutationError}</p>
+        )}
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
@@ -58,7 +84,8 @@ export default function CartDrawerItem({
               variant="outline"
               size="icon"
               className="h-6 w-6 border-cream-dark"
-              onClick={() => updateQuantity(productId, quantity - 1)}
+              onClick={() => handleUpdateQuantity(quantity - 1)}
+              disabled={isMutating}
               aria-label={`Decrease quantity of ${name}`}
             >
               <Minus className="h-2.5 w-2.5" />
@@ -70,13 +97,14 @@ export default function CartDrawerItem({
               variant="outline"
               size="icon"
               className="h-6 w-6 border-cream-dark"
-              onClick={() => updateQuantity(productId, quantity + 1)}
+              onClick={() => handleUpdateQuantity(quantity + 1)}
+              disabled={isMutating}
               aria-label={`Increase quantity of ${name}`}
             >
               <Plus className="h-2.5 w-2.5" />
             </Button>
             <span className="ml-1 text-xs text-charcoal-light">
-              {formattedPrice} ea
+              {currencyFormatter.format(price)} ea
             </span>
           </div>
 
@@ -84,7 +112,8 @@ export default function CartDrawerItem({
             variant="ghost"
             size="icon"
             className="h-6 w-6 text-charcoal-light hover:text-red-600"
-            onClick={() => removeItem(productId)}
+            onClick={handleRemove}
+            disabled={isMutating}
             aria-label={`Remove ${name} from cart`}
           >
             <Trash2 className="h-3.5 w-3.5" />

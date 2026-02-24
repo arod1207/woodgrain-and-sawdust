@@ -1,45 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
 import { useCart } from "@/hooks/useCart";
+import { useCheckout } from "@/hooks/useCheckout";
+
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
 
 export default function CartSummary() {
-  const { items, subtotal, itemCount, deviceId } = useCart();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const { subtotal, itemCount } = useCart();
+  const { handleCheckout, isCheckingOut, checkoutError } = useCheckout();
 
-  const formattedSubtotal = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(subtotal);
-
-  async function handleCheckout() {
-    setIsCheckingOut(true);
-    try {
-      const response = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, deviceId }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Checkout failed");
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error("Checkout error:", error);
-      setIsCheckingOut(false);
-    }
-  }
+  const formattedSubtotal = currencyFormatter.format(subtotal);
 
   return (
     <Card className="border-cream-dark bg-white">
@@ -65,6 +43,10 @@ export default function CartSummary() {
           <span>Total</span>
           <span>{formattedSubtotal}</span>
         </div>
+
+        {checkoutError && (
+          <p className="mt-4 text-sm text-red-600">{checkoutError}</p>
+        )}
 
         <div className="mt-6 space-y-3">
           <Button
