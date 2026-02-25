@@ -9,6 +9,7 @@ import {
 } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import CartDrawer from "@/components/customer/CartDrawer";
 
 const Header = () => {
   return (
@@ -46,13 +47,16 @@ const Header = () => {
             <Link href="/products">Products</Link>
           </Button>
 
+          {/* Cart Drawer */}
+          <CartDrawer />
+
           {/* Auth Section */}
           <div className="ml-4 flex items-center gap-4">
             <Separator orientation="vertical" className="h-6 bg-cream-dark" />
             <div className="flex items-center gap-4 pl-4">
               <SignedOut>
                 <SignInButton mode="modal">
-                  <Button 
+                  <Button
                     className="rounded-full bg-amber text-white hover:bg-amber-light"
                     aria-label="Sign in to your account"
                   >

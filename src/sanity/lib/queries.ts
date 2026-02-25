@@ -52,7 +52,6 @@ export const PRODUCT_QUERY = `*[_type == "product" && slug.current == $slug][0] 
   "slug": slug.current,
   description,
   price,
-  cost,
   woodType,
   finish,
   inStock,
@@ -90,6 +89,14 @@ export const CATEGORIES_QUERY = `*[_type == "category"] | order(name asc) {
   name,
   "slug": slug.current,
   description
+}`;
+
+export const PRODUCTS_BY_IDS_QUERY = `*[_type == "product" && _id in $ids] {
+  _id,
+  name,
+  price,
+  inStock,
+  "image": images[0].asset->url
 }`;
 
 export const PRODUCTS_BY_CATEGORY_QUERY = `*[_type == "product" && category->slug.current == $category && defined(slug.current)] | order(_createdAt desc) {
