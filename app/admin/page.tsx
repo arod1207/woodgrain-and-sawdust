@@ -13,6 +13,7 @@ import {
   Plus,
   ClipboardList,
   Settings,
+  AlertTriangle,
 } from "lucide-react";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -20,7 +21,7 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
-const STATUS_STYLES: Record<string, string> = {
+const STATUS_STYLES: Record<"paid" | "pending" | "failed", string> = {
   paid: "bg-sage/20 text-sage border-sage/30",
   pending: "bg-amber/20 text-amber border-amber/30",
   failed: "bg-red-100 text-red-600 border-red-200",
@@ -30,9 +31,20 @@ const AdminDashboard = async () => {
   const { getToken } = await auth();
   const token = await getToken({ template: "convex" });
 
+  let ordersError = false;
+  let productCountError = false;
+
   const [orders, productCount] = await Promise.all([
-    fetchQuery(api.orders.getAllOrders, {}, { token: token ?? undefined }).catch(() => []),
-    client.fetch<number>(`count(*[_type == "product" && defined(slug.current)])`).catch(() => 0),
+    fetchQuery(api.orders.getAllOrders, {}, { token: token ?? undefined }).catch(() => {
+      ordersError = true;
+      return [];
+    }),
+    client
+      .fetch<number>(`count(*[_type == "product" && defined(slug.current)])`)
+      .catch(() => {
+        productCountError = true;
+        return 0;
+      }),
   ]);
 
   const paidOrders = orders.filter((o) => o.status === "paid");
@@ -41,6 +53,18 @@ const AdminDashboard = async () => {
 
   return (
     <div>
+      {/* Error banners */}
+      {(ordersError || productCountError) && (
+        <div className="mb-6 flex items-center gap-3 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-amber">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span>
+            Some data failed to load.{" "}
+            {ordersError && "Orders could not be fetched — verify Convex auth is configured. "}
+            {productCountError && "Product count unavailable — check Sanity connection."}
+          </span>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-walnut sm:text-3xl">Dashboard</h1>
@@ -198,7 +222,7 @@ const AdminDashboard = async () => {
                   <div className="flex items-center gap-4">
                     <Badge
                       variant="outline"
-                      className={`capitalize ${STATUS_STYLES[order.status] ?? ""}`}
+                      className={`capitalize ${STATUS_STYLES[order.status]}`}
                     >
                       {order.status}
                     </Badge>

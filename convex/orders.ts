@@ -1,4 +1,4 @@
-import { query, internalQuery, action, internalAction } from "./_generated/server";
+import { query, mutation, internalQuery, action, internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import {
@@ -67,7 +67,31 @@ export const getAllOrders = query({
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Unauthorized");
+    // TODO: replace with paginate() once order volume warrants it
     return await ctx.db.query("orders").order("desc").collect();
+  },
+});
+
+// Admin mutation — requires an authenticated Clerk session token.
+export const updateOrderStatus = mutation({
+  args: {
+    orderId: v.id("orders"),
+    status: v.union(v.literal("pending"), v.literal("paid"), v.literal("failed")),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const order = await ctx.db.get(args.orderId);
+    if (!order) throw new Error("Order not found");
+    if (order.status === "paid" && args.status !== "paid") {
+      throw new Error("Cannot revert a paid order");
+    }
+
+    await ctx.db.patch(args.orderId, {
+      status: args.status,
+      updatedAt: Date.now(),
+    });
   },
 });
 
