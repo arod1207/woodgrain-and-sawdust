@@ -61,6 +61,16 @@ export const getOrderBySessionId = query({
   },
 });
 
+// Admin query — requires an authenticated Clerk session token.
+// Pass the token via fetchQuery(api.orders.getAllOrders, {}, { token }) in server components.
+export const getAllOrders = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+    return await ctx.db.query("orders").order("desc").collect();
+  },
+});
+
 // Internal — exposes PII (email, shipping address). Only safe to call from
 // authenticated contexts. Do not expose as a public query until admin auth exists.
 export const getOrdersByDeviceId = internalQuery({
