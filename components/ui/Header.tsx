@@ -1,14 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import CartDrawer from "@/components/customer/CartDrawer";
 
 const Header = () => {
@@ -49,37 +42,6 @@ const Header = () => {
 
           {/* Cart Drawer */}
           <CartDrawer />
-
-          {/* Auth Section */}
-          <div className="ml-4 flex items-center gap-4">
-            <Separator orientation="vertical" className="h-6 bg-cream-dark" />
-            <div className="flex items-center gap-4 pl-4">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <Button
-                    className="rounded-full bg-amber text-white hover:bg-amber-light"
-                    aria-label="Sign in to your account"
-                  >
-                    Sign In
-                  </Button>
-                </SignInButton>
-              </SignedOut>
-
-              <SignedIn>
-                <Button variant="ghost" asChild className="text-charcoal-light hover:text-amber hover:bg-transparent">
-                  <Link href="/admin">Admin</Link>
-                </Button>
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: "h-9 w-9",
-                    },
-                  }}
-                />
-              </SignedIn>
-            </div>
-          </div>
         </nav>
       </div>
     </header>
