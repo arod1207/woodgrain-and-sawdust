@@ -106,6 +106,7 @@ export const PRODUCTS_BY_CATEGORY_QUERY = `*[_type == "product" && category->slu
   price,
   woodType,
   inStock,
+  featured,
   "image": images[0] {
     asset->{
       _id,
@@ -116,5 +117,10 @@ export const PRODUCTS_BY_CATEGORY_QUERY = `*[_type == "product" && category->slu
       }
     },
     alt
+  },
+  category->{
+    _id,
+    name,
+    "slug": slug.current
   }
 }`;

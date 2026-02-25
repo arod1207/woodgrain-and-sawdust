@@ -1,5 +1,5 @@
 import { client } from "@/src/sanity/lib/client";
-import { PRODUCTS_QUERY, CATEGORIES_QUERY } from "@/src/sanity/lib/queries";
+import { PRODUCTS_QUERY, PRODUCTS_BY_CATEGORY_QUERY, CATEGORIES_QUERY } from "@/src/sanity/lib/queries";
 import type { ProductCard as ProductCardType, Category } from "@/src/sanity/lib/types";
 import ProductCard from "@/components/customer/ProductCard";
 import Link from "next/link";
@@ -10,9 +10,17 @@ import { Package, ExternalLink } from "lucide-react";
 
 export const revalidate = 60;
 
-const ProductsPage = async () => {
+interface ProductsPageProps {
+  searchParams: Promise<{ category?: string }>;
+}
+
+const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
+  const { category } = await searchParams;
+
   const [products, categories] = await Promise.all([
-    client.fetch<ProductCardType[]>(PRODUCTS_QUERY),
+    category
+      ? client.fetch<ProductCardType[]>(PRODUCTS_BY_CATEGORY_QUERY, { category })
+      : client.fetch<ProductCardType[]>(PRODUCTS_QUERY),
     client.fetch<Category[]>(CATEGORIES_QUERY),
   ]);
 
@@ -38,21 +46,22 @@ const ProductsPage = async () => {
             <span className="text-sm font-medium text-charcoal">Filter by:</span>
             <Button
               size="sm"
-              className="rounded-full bg-amber text-white hover:bg-amber-light"
+              className={`rounded-full ${!category ? "bg-amber text-white hover:bg-amber-light" : "border border-cream-dark text-charcoal-light hover:border-amber hover:text-amber"}`}
+              variant={!category ? "default" : "outline"}
               asChild
             >
               <Link href="/products">All</Link>
             </Button>
-            {categories.map((category) => (
+            {categories.map((cat) => (
               <Button
-                key={category._id}
+                key={cat._id}
                 variant="outline"
                 size="sm"
-                className="rounded-full border-cream-dark text-charcoal-light hover:border-amber hover:text-amber"
+                className={`rounded-full ${category === cat.slug ? "bg-amber text-white border-amber hover:bg-amber-light" : "border-cream-dark text-charcoal-light hover:border-amber hover:text-amber"}`}
                 asChild
               >
-                <Link href={`/products?category=${category.slug}`}>
-                  {category.name}
+                <Link href={`/products?category=${cat.slug}`}>
+                  {cat.name}
                 </Link>
               </Button>
             ))}

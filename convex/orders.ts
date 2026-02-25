@@ -1,10 +1,19 @@
 import { query, mutation, internalQuery, action, internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
+import type { UserIdentity } from "convex/server";
 import {
   orderItemsValidator,
   shippingAddressValidator,
 } from "./ordersInternal";
+
+// Throws if the caller is not an authenticated Clerk user with role "admin".
+// Set role via Clerk Dashboard → Users → <user> → Public metadata: { "role": "admin" }
+function assertAdmin(identity: UserIdentity | null): asserts identity is UserIdentity {
+  if (!identity) throw new Error("Unauthorized");
+  const role = (identity.publicMetadata as { role?: string } | undefined)?.role;
+  if (role !== "admin") throw new Error("Forbidden: admin role required");
+}
 
 // Called by the Next.js checkout API route.
 // Creates a pending order BEFORE the Stripe session so that a Stripe failure
@@ -61,26 +70,24 @@ export const getOrderBySessionId = query({
   },
 });
 
-// Admin query — requires an authenticated Clerk session token.
+// Admin query — requires an authenticated Clerk session token with role "admin".
 // Pass the token via fetchQuery(api.orders.getAllOrders, {}, { token }) in server components.
 export const getAllOrders = query({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    assertAdmin(await ctx.auth.getUserIdentity());
     // TODO: replace with paginate() once order volume warrants it
     return await ctx.db.query("orders").order("desc").collect();
   },
 });
 
-// Admin mutation — requires an authenticated Clerk session token.
+// Admin mutation — requires an authenticated Clerk session token with role "admin".
 export const updateOrderStatus = mutation({
   args: {
     orderId: v.id("orders"),
     status: v.union(v.literal("pending"), v.literal("paid"), v.literal("failed")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
+    assertAdmin(await ctx.auth.getUserIdentity());
 
     const order = await ctx.db.get(args.orderId);
     if (!order) throw new Error("Order not found");
