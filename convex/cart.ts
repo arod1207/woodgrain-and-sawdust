@@ -22,8 +22,10 @@ export const addToCart = mutation({
     name: v.string(),
     price: v.number(),
     image: v.string(),
+    quantity: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    const qty = args.quantity ?? 1;
     const cart = await ctx.db
       .query("cart")
       .withIndex("by_deviceId", (q) => q.eq("deviceId", args.deviceId))
@@ -38,14 +40,14 @@ export const addToCart = mutation({
       if (existingIndex >= 0) {
         updatedItems[existingIndex] = {
           ...updatedItems[existingIndex],
-          quantity: updatedItems[existingIndex].quantity + 1,
+          quantity: updatedItems[existingIndex].quantity + qty,
         };
       } else {
         updatedItems.push({
           productId: args.productId,
           name: args.name,
           price: args.price,
-          quantity: 1,
+          quantity: qty,
           image: args.image,
         });
       }
@@ -62,7 +64,7 @@ export const addToCart = mutation({
             productId: args.productId,
             name: args.name,
             price: args.price,
-            quantity: 1,
+            quantity: qty,
             image: args.image,
           },
         ],
