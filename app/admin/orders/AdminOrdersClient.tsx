@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { ShoppingBag, Loader2 } from "lucide-react";
+import { ShoppingBag, Loader2, AlertTriangle } from "lucide-react";
 import OrderStatusSelect from "./OrderStatusSelect";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -30,10 +30,28 @@ export default function AdminOrdersClient({
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
   const orders = useQuery(
     api.orders.getAllOrders,
-    authLoading || !isAuthenticated ? "skip" : undefined,
+    authLoading ? "skip" : undefined,
   );
 
-  if (authLoading || orders === undefined) {
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center py-24 text-charcoal-light">
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        Loading orders…
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center gap-3 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-amber">
+        <AlertTriangle className="h-4 w-4 shrink-0" />
+        Not authenticated. Verify Convex auth is configured (CLERK_JWT_ISSUER_DOMAIN).
+      </div>
+    );
+  }
+
+  if (orders === undefined) {
     return (
       <div className="flex items-center justify-center py-24 text-charcoal-light">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
