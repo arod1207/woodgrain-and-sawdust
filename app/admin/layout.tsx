@@ -1,4 +1,13 @@
+"use client";
+
+import { useAuth } from "@clerk/nextjs";
+import { ConvexProviderWithClerk } from "convex/react-clerk";
+import { ConvexReactClient } from "convex/react";
 import AdminSidebar from "@/components/ui/AdminSidebar";
+
+const convex = new ConvexReactClient(
+  process.env.NEXT_PUBLIC_CONVEX_URL as string
+);
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -6,12 +15,14 @@ interface AdminLayoutProps {
 
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
-    <div className="flex h-screen overflow-hidden bg-cream">
-      <AdminSidebar />
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-6 lg:p-8">{children}</div>
-      </main>
-    </div>
+    <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+      <div className="flex h-screen overflow-hidden bg-cream">
+        <AdminSidebar />
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-6 lg:p-8">{children}</div>
+        </main>
+      </div>
+    </ConvexProviderWithClerk>
   );
 };
 
