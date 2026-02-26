@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
@@ -21,7 +22,14 @@ interface CustomerSummary {
 }
 
 const CustomersPage = async () => {
-  const { getToken } = await auth();
+  const { sessionClaims, getToken } = await auth();
+  const role = (
+    (sessionClaims?.publicMetadata ?? sessionClaims?.metadata) as
+      | { role?: string }
+      | undefined
+  )?.role;
+  if (role !== "admin") redirect("/sign-in");
+
   const token = await getToken({ template: "convex" });
 
   let ordersError = false;
