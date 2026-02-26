@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { client } from "@/src/sanity/lib/client";
 import { PRODUCTS_QUERY } from "@/src/sanity/lib/queries";
 import type { ProductCard } from "@/src/sanity/lib/types";
@@ -16,6 +18,10 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 });
 
 const ProductsPage = async () => {
+  const user = await currentUser();
+  const role = user?.publicMetadata?.role as string | undefined;
+  if (role !== "admin") redirect("/sign-in");
+
   let productsError = false;
   const products = await client
     .fetch<ProductCard[]>(PRODUCTS_QUERY)

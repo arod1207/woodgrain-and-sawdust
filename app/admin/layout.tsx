@@ -5,9 +5,11 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient } from "convex/react";
 import AdminSidebar from "@/components/ui/AdminSidebar";
 
-const convex = new ConvexReactClient(
-  process.env.NEXT_PUBLIC_CONVEX_URL as string
-);
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+if (!convexUrl) {
+  throw new Error("Missing required environment variable: NEXT_PUBLIC_CONVEX_URL");
+}
+const convex = new ConvexReactClient(convexUrl);
 
 interface AdminLayoutProps {
   children: React.ReactNode;

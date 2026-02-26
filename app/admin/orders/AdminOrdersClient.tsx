@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { ShoppingBag, AlertTriangle, Loader2 } from "lucide-react";
+import { ShoppingBag, Loader2, AlertTriangle } from "lucide-react";
 import OrderStatusSelect from "./OrderStatusSelect";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -27,9 +27,13 @@ export default function AdminOrdersClient({
 }: {
   activeFilter: StatusFilter;
 }) {
-  const orders = useQuery(api.orders.getAllOrders);
+  const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
+  const orders = useQuery(
+    api.orders.getAllOrders,
+    authLoading ? "skip" : undefined,
+  );
 
-  if (orders === undefined) {
+  if (authLoading) {
     return (
       <div className="flex items-center justify-center py-24 text-charcoal-light">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -38,11 +42,20 @@ export default function AdminOrdersClient({
     );
   }
 
-  if (orders === null) {
+  if (!isAuthenticated) {
     return (
-      <div className="mb-6 flex items-center gap-3 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-amber">
+      <div className="flex items-center gap-3 rounded-lg border border-amber/30 bg-amber/10 px-4 py-3 text-sm text-amber">
         <AlertTriangle className="h-4 w-4 shrink-0" />
-        Failed to load orders. Verify Convex auth is configured (CLERK_JWT_ISSUER_DOMAIN).
+        Not authenticated. Verify Convex auth is configured (CLERK_JWT_ISSUER_DOMAIN).
+      </div>
+    );
+  }
+
+  if (orders === undefined) {
+    return (
+      <div className="flex items-center justify-center py-24 text-charcoal-light">
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        Loading orders…
       </div>
     );
   }
