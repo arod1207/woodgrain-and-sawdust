@@ -21,7 +21,7 @@ export interface CartItem {
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Omit<CartItem, "quantity">) => Promise<void>;
+  addItem: (product: Omit<CartItem, "quantity">, quantity?: number) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -71,9 +71,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const addItem = useCallback(
-    async (product: Omit<CartItem, "quantity">): Promise<void> => {
+    async (product: Omit<CartItem, "quantity">, quantity?: number): Promise<void> => {
       if (!deviceId) return;
-      await addToCartMutation({ deviceId, ...product });
+      await addToCartMutation({ deviceId, ...product, quantity });
     },
     [deviceId, addToCartMutation]
   );

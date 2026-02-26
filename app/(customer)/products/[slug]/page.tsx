@@ -7,7 +7,7 @@ import ProductGallery from "@/components/customer/ProductGallery";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle } from "lucide-react";
-import AddToCartButton from "@/components/customer/AddToCartButton";
+import ProductActions from "@/components/customer/ProductActions";
 import { urlFor } from "@/src/sanity/lib/image";
 
 interface ProductPageProps {
@@ -121,79 +121,77 @@ const ProductPage = async ({ params }: ProductPageProps) => {
             {product.name}
           </h1>
 
-          {/* Price */}
-          <p className="mb-6 text-3xl font-bold text-amber">{formattedPrice}</p>
-
-          {/* Stock Status */}
-          <div className="mb-6">
-            {product.inStock ? (
-              <Badge variant="outline" className="gap-1.5 border-sage/30 bg-sage/10 text-sage">
-                <CheckCircle className="h-4 w-4" />
-                In Stock
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="gap-1.5 border-charcoal-light/30 bg-charcoal/5 text-charcoal-light">
-                <XCircle className="h-4 w-4" />
-                Out of Stock
-              </Badge>
-            )}
-          </div>
-
-          {/* Description */}
-          <div className="mb-8">
-            <h2 className="mb-2 text-lg font-semibold text-walnut">
-              Description
-            </h2>
-            <p className="whitespace-pre-line text-charcoal-light">
-              {product.description}
-            </p>
-          </div>
-
-          {/* Specifications */}
-          <Card className="mb-8 border-cream-dark bg-cream">
-            <CardContent className="p-6">
-              <h2 className="mb-4 text-lg font-semibold text-walnut">
-                Specifications
-              </h2>
-              <dl className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <dt className="text-sm font-medium text-charcoal-light">
-                    Wood Type
-                  </dt>
-                  <dd className="text-charcoal">{woodTypeLabel}</dd>
-                </div>
-                {finishLabel && (
-                  <div>
-                    <dt className="text-sm font-medium text-charcoal-light">
-                      Finish
-                    </dt>
-                    <dd className="text-charcoal">{finishLabel}</dd>
-                  </div>
-                )}
-                {dimensions && (
-                  <div className="sm:col-span-2">
-                    <dt className="text-sm font-medium text-charcoal-light">
-                      Dimensions
-                    </dt>
-                    <dd className="text-charcoal">{dimensions}</dd>
-                  </div>
-                )}
-              </dl>
-            </CardContent>
-          </Card>
-
-          {/* Add to Cart */}
-          <AddToCartButton
+          {/* Price, Quantity + Add to Cart */}
+          <ProductActions
             productId={product._id}
             productName={product.name}
             price={product.price}
             inStock={product.inStock}
+            formattedPrice={formattedPrice}
             imageUrl={
               product.images?.[0]
                 ? urlFor(product.images[0]).width(256).height(256).url()
                 : "/placeholder.png"
             }
-          />
+          >
+            {/* Stock Status */}
+            <div className="mb-6">
+              {product.inStock ? (
+                <Badge variant="outline" className="gap-1.5 border-sage/30 bg-sage/10 text-sage">
+                  <CheckCircle className="h-4 w-4" />
+                  In Stock
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="gap-1.5 border-charcoal-light/30 bg-charcoal/5 text-charcoal-light">
+                  <XCircle className="h-4 w-4" />
+                  Out of Stock
+                </Badge>
+              )}
+            </div>
+
+            {/* Description */}
+            <div className="mb-8">
+              <h2 className="mb-2 text-lg font-semibold text-walnut">
+                Description
+              </h2>
+              <p className="whitespace-pre-line text-charcoal-light">
+                {product.description}
+              </p>
+            </div>
+
+            {/* Specifications */}
+            <Card className="mb-8 border-cream-dark bg-cream">
+              <CardContent className="p-6">
+                <h2 className="mb-4 text-lg font-semibold text-walnut">
+                  Specifications
+                </h2>
+                <dl className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-sm font-medium text-charcoal-light">
+                      Wood Type
+                    </dt>
+                    <dd className="text-charcoal">{woodTypeLabel}</dd>
+                  </div>
+                  {finishLabel && (
+                    <div>
+                      <dt className="text-sm font-medium text-charcoal-light">
+                        Finish
+                      </dt>
+                      <dd className="text-charcoal">{finishLabel}</dd>
+                    </div>
+                  )}
+                  {dimensions && (
+                    <div className="sm:col-span-2">
+                      <dt className="text-sm font-medium text-charcoal-light">
+                        Dimensions
+                      </dt>
+                      <dd className="text-charcoal">{dimensions}</dd>
+                    </div>
+                  )}
+                </dl>
+              </CardContent>
+            </Card>
+          </ProductActions>
         </div>
       </div>
     </div>
