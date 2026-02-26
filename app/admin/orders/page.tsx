@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import AdminOrdersClient from "./AdminOrdersClient";
 
@@ -11,12 +11,8 @@ const OrdersPage = async ({
   searchParams: Promise<{ status?: string }>;
 }) => {
   // Protect the route — non-admins are redirected to sign-in.
-  const { sessionClaims } = await auth();
-  const role = (
-    (sessionClaims?.publicMetadata ?? sessionClaims?.metadata) as
-      | { role?: string }
-      | undefined
-  )?.role;
+  const user = await currentUser();
+  const role = user?.publicMetadata?.role as string | undefined;
   if (role !== "admin") redirect("/sign-in");
 
   const { status: statusParam } = await searchParams;

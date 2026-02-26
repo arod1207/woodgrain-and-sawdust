@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
@@ -29,12 +29,8 @@ const STATUS_STYLES: Record<"paid" | "pending" | "failed", string> = {
 };
 
 const AdminDashboard = async () => {
-  const { sessionClaims, getToken } = await auth();
-  const role = (
-    (sessionClaims?.publicMetadata ?? sessionClaims?.metadata) as
-      | { role?: string }
-      | undefined
-  )?.role;
+  const [{ getToken }, user] = await Promise.all([auth(), currentUser()]);
+  const role = user?.publicMetadata?.role as string | undefined;
   if (role !== "admin") redirect("/sign-in");
 
   const token = await getToken({ template: "convex" });
