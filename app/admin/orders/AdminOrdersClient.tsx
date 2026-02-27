@@ -30,7 +30,7 @@ export default function AdminOrdersClient({
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
   const orders = useQuery(
     api.orders.getAllOrders,
-    authLoading ? "skip" : undefined,
+    authLoading || !isAuthenticated ? "skip" : undefined,
   );
 
   if (authLoading) {

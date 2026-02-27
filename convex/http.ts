@@ -71,7 +71,7 @@ http.route({
         return new Response('Missing required metadata', { status: 500 })
       }
 
-      const shippingDetails = session.collected_information?.shipping_details
+      const shippingDetails = session.shipping_details
 
       try {
         await ctx.runAction(internal.orders.processPaymentSuccess, {
