@@ -77,6 +77,23 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
             <ProductCard key={product._id} product={product} />
           ))}
         </div>
+      ) : category ? (
+        <Card className="border-cream-dark bg-cream/50">
+          <CardContent className="p-12 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cream-dark text-charcoal-light">
+              <Package className="h-8 w-8" />
+            </div>
+            <CardTitle className="mb-2 text-walnut">
+              No Products in This Category
+            </CardTitle>
+            <CardDescription className="mb-4">
+              Try browsing all products or selecting a different category.
+            </CardDescription>
+            <Button className="rounded-full bg-amber hover:bg-amber-light" asChild>
+              <Link href="/products">View All Products</Link>
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <Card className="border-amber/30 bg-amber/5">
           <CardContent className="p-12 text-center">
