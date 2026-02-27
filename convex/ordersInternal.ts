@@ -1,4 +1,4 @@
-import { internalMutation } from "./_generated/server";
+import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 
 export const orderItemsValidator = v.array(
@@ -22,6 +22,15 @@ export const shippingAddressValidator = v.optional(
     country: v.string(),
   })
 );
+
+// Internal-only order lookup — used by processPaymentSuccess to read order
+// data for the confirmation email without exposing PII via the public API.
+export const getOrderById = internalQuery({
+  args: { orderId: v.id("orders") },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.orderId);
+  },
+});
 
 // Creates a pending order before the Stripe session exists.
 // Returns the Convex orderId so it can be stored in Stripe session metadata.
