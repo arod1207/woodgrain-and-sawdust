@@ -45,9 +45,17 @@ export const processPaymentSuccess = internalAction({
     stripeSessionId: v.string(),
   },
   handler: async (ctx, args): Promise<void> => {
+    // Read pre-fulfillment status to detect Stripe webhook retries.
+    // fulfillOrder is idempotent (no-op if already paid), but we must only
+    // send the confirmation email on the first successful transition.
+    const preState = await ctx.runQuery(internal.ordersInternal.getOrderById, {
+      orderId: args.orderId,
+    });
+    const alreadyPaid = preState?.status === "paid";
+
     await ctx.runMutation(internal.ordersInternal.fulfillOrder, args);
 
-    if (args.customerEmail) {
+    if (!alreadyPaid && args.customerEmail) {
       const order = await ctx.runQuery(internal.ordersInternal.getOrderById, {
         orderId: args.orderId,
       });

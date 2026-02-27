@@ -2,11 +2,28 @@ import { internalAction } from "./_generated/server";
 import { v } from "convex/values";
 import { orderItemsValidator, shippingAddressValidator } from "./ordersInternal";
 
+const TIMEOUT_MS = 10_000;
+
 function formatCurrency(amount: number): string {
   return amount.toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
   });
+}
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
+function maskEmail(email: string): string {
+  const atIndex = email.indexOf("@");
+  if (atIndex <= 0) return "***";
+  return `${email[0]}***${email.slice(atIndex)}`;
 }
 
 function buildEmailHtml(args: {
@@ -30,7 +47,7 @@ function buildEmailHtml(args: {
     .map(
       (item) => `
       <tr>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e8ddd0; color: #3d2b1f;">${item.name}</td>
+        <td style="padding: 10px 8px; border-bottom: 1px solid #e8ddd0; color: #3d2b1f;">${escapeHtml(item.name)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e8ddd0; color: #3d2b1f; text-align: center;">${item.quantity}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e8ddd0; color: #3d2b1f; text-align: right;">${formatCurrency(item.price)}</td>
         <td style="padding: 10px 8px; border-bottom: 1px solid #e8ddd0; color: #3d2b1f; text-align: right;">${formatCurrency(item.price * item.quantity)}</td>
@@ -42,11 +59,11 @@ function buildEmailHtml(args: {
 
   const addressLines = args.shippingAddress
     ? `
-    <p style="margin: 0; color: #3d2b1f;">${args.shippingAddress.name}</p>
-    <p style="margin: 0; color: #3d2b1f;">${args.shippingAddress.line1}</p>
-    ${args.shippingAddress.line2 ? `<p style="margin: 0; color: #3d2b1f;">${args.shippingAddress.line2}</p>` : ""}
-    <p style="margin: 0; color: #3d2b1f;">${args.shippingAddress.city}, ${args.shippingAddress.state} ${args.shippingAddress.postalCode}</p>
-    <p style="margin: 0; color: #3d2b1f;">${args.shippingAddress.country}</p>
+    <p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.name)}</p>
+    <p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.line1)}</p>
+    ${args.shippingAddress.line2 ? `<p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.line2)}</p>` : ""}
+    <p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.city)}, ${escapeHtml(args.shippingAddress.state)} ${escapeHtml(args.shippingAddress.postalCode)}</p>
+    <p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.country)}</p>
     `
     : `<p style="color: #3d2b1f;">—</p>`;
 
@@ -81,7 +98,7 @@ function buildEmailHtml(args: {
 
               <!-- Greeting -->
               <p style="margin: 0 0 16px; font-size: 18px; color: #3d2b1f;">
-                Hello ${args.customerName},
+                Hello ${escapeHtml(args.customerName)},
               </p>
               <p style="margin: 0 0 32px; font-size: 15px; color: #5c4a3a; line-height: 1.6;">
                 Thank you for your order! We handcraft each piece with care and will be in touch
@@ -186,29 +203,42 @@ export const sendOrderConfirmationEmail = internalAction({
       shippingAddress: args.shippingAddress,
     });
 
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: fromEmail,
-        to: args.customerEmail,
-        subject: `Your Woodgrain & Sawdust order is confirmed (#${args.orderId.slice(-8).toUpperCase()})`,
-        html,
-      }),
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    let response: Response;
+    try {
+      response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: fromEmail,
+          to: args.customerEmail,
+          subject: `Your Woodgrain & Sawdust order is confirmed (#${args.orderId.slice(-8).toUpperCase()})`,
+          html,
+        }),
+        signal: controller.signal,
+      });
+    } catch (err) {
+      if (err instanceof Error && err.name === "AbortError") {
+        throw new Error(`Resend API request timed out after ${TIMEOUT_MS}ms`);
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
 
     if (!response.ok) {
-      const body = await response.text();
       throw new Error(
-        `Resend API error ${response.status}: ${body}`
+        `Resend API error ${response.status} [provider response omitted]`
       );
     }
 
     console.log(
-      `[email] Order confirmation sent to ${args.customerEmail} for order ${args.orderId}`
+      `[email] Order confirmation sent to ${maskEmail(args.customerEmail)} for order ${args.orderId}`
     );
   },
 });
