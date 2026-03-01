@@ -40,7 +40,7 @@ export default function CartPage() {
         </p>
         <Button
           size="lg"
-          className="rounded-full bg-amber text-white hover:bg-amber-light"
+          className="bg-amber text-white"
           asChild
         >
           <Link href="/products">Browse Products</Link>

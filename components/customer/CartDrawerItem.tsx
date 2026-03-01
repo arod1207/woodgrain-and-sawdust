@@ -55,7 +55,7 @@ export default function CartDrawerItem({
 
   return (
     <div className="flex gap-3 py-3">
-      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-cream">
+      <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-cream">
         <Image
           src={image}
           alt={name}

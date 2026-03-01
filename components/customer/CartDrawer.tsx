@@ -76,7 +76,7 @@ export default function CartDrawer() {
               </p>
             </div>
             <Button
-              className="rounded-full bg-amber text-white hover:bg-amber-light"
+              className="bg-amber text-white"
               asChild
               onClick={() => setOpen(false)}
             >
@@ -120,7 +120,7 @@ export default function CartDrawer() {
               <div className="space-y-2">
                 <Button
                   size="lg"
-                  className="w-full rounded-full bg-amber text-white hover:bg-amber-light"
+                  className="w-full bg-amber text-white"
                   disabled={isCheckingOut}
                   onClick={handleCheckout}
                 >
@@ -136,7 +136,7 @@ export default function CartDrawer() {
                 <Link
                   href="/cart"
                   onClick={() => setOpen(false)}
-                  className="flex h-11 w-full items-center justify-center rounded-full border border-cream-dark text-sm font-medium text-charcoal transition-colors hover:border-amber hover:text-amber"
+                  className="flex h-11 w-full items-center justify-center rounded-md border-2 border-cream-dark text-sm font-medium text-charcoal transition-colors hover:border-amber hover:text-amber"
                 >
                   View Full Cart
                 </Link>

@@ -58,7 +58,7 @@ export default function CartItem({
     <Card className="border-cream-dark bg-white">
       <CardContent className="flex gap-4 p-4 sm:gap-6 sm:p-6">
         {/* Product Image */}
-        <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-cream sm:h-32 sm:w-32">
+        <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-cream sm:h-32 sm:w-32">
           <Image
             src={image}
             alt={name}

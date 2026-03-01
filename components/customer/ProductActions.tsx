@@ -58,12 +58,12 @@ export default function ProductActions({
         <p className="text-3xl font-bold text-amber">{formattedPrice}</p>
 
         {inStock && (
-          <div className="flex items-center rounded-full border border-cream-dark bg-cream">
+          <div className="flex items-center rounded-md border-2 border-cream-dark bg-cream">
             <button
               type="button"
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
               disabled={quantity <= 1}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-charcoal transition-colors hover:bg-cream-dark disabled:opacity-30"
+              className="flex h-9 w-9 items-center justify-center rounded-sm text-charcoal transition-colors hover:bg-cream-dark disabled:opacity-30"
               aria-label="Decrease quantity"
             >
               <Minus className="h-4 w-4" />
@@ -75,7 +75,7 @@ export default function ProductActions({
               type="button"
               onClick={() => setQuantity((q) => Math.min(MAX_QTY, q + 1))}
               disabled={quantity >= MAX_QTY}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-charcoal transition-colors hover:bg-cream-dark disabled:opacity-30"
+              className="flex h-9 w-9 items-center justify-center rounded-sm text-charcoal transition-colors hover:bg-cream-dark disabled:opacity-30"
               aria-label="Increase quantity"
             >
               <Plus className="h-4 w-4" />
@@ -91,7 +91,7 @@ export default function ProductActions({
       {inStock ? (
         <Button
           size="lg"
-          className="w-full rounded-full bg-amber text-lg text-white hover:bg-amber-light disabled:opacity-50"
+          className="w-full bg-amber text-lg text-white disabled:opacity-50"
           onClick={handleAddToCart}
           disabled={isAdding}
           aria-label={`Add ${productName} to cart`}
@@ -118,7 +118,7 @@ export default function ProductActions({
       ) : (
         <Button
           size="lg"
-          className="w-full rounded-full bg-amber text-lg text-white disabled:opacity-50"
+          className="w-full bg-amber text-lg text-white disabled:opacity-50"
           disabled
           aria-label="Product out of stock"
         >
