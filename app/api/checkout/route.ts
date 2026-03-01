@@ -17,6 +17,30 @@ const UUID_RE =
 
 // Maximum number of distinct line items per order (DoS protection).
 const MAX_ITEMS = 50;
+// Maximum quantity per line item — mirrors the Convex cart mutation limit.
+const MAX_QTY = 99;
+
+// ---------------------------------------------------------------------------
+// In-memory rate limiter: max 5 checkout attempts per IP per 10 minutes.
+// Note: resets on server restart and is not shared across multiple instances.
+// For multi-instance/serverless deployments, replace with a KV-backed limiter
+// (e.g. Upstash Redis with @upstash/ratelimit).
+// ---------------------------------------------------------------------------
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const RATE_LIMIT_MAX = 5;
+const rateLimitLog = new Map<string, number[]>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const cutoff = now - RATE_LIMIT_WINDOW_MS;
+  const timestamps = (rateLimitLog.get(ip) ?? []).filter((t) => t > cutoff);
+  if (timestamps.length >= RATE_LIMIT_MAX) {
+    rateLimitLog.set(ip, timestamps);
+    return true;
+  }
+  rateLimitLog.set(ip, [...timestamps, now]);
+  return false;
+}
 
 interface CartLineItem {
   productId: string;
@@ -32,6 +56,18 @@ interface SanityProduct {
 }
 
 export async function POST(request: NextRequest) {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    request.headers.get("x-real-ip") ??
+    "unknown";
+
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a few minutes before trying again." },
+      { status: 429 }
+    );
+  }
+
   try {
     const body: unknown = await request.json();
 
@@ -69,7 +105,8 @@ export async function POST(request: NextRequest) {
         typeof (item as Record<string, unknown>).productId === "string" &&
         ((item as Record<string, unknown>).productId as string).length > 0 &&
         Number.isInteger((item as Record<string, unknown>).quantity) &&
-        ((item as Record<string, unknown>).quantity as number) > 0
+        ((item as Record<string, unknown>).quantity as number) > 0 &&
+        ((item as Record<string, unknown>).quantity as number) <= MAX_QTY
     );
     if (!isValid) {
       return NextResponse.json({ error: "Invalid items" }, { status: 400 });

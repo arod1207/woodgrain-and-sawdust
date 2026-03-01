@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useQuery, useConvexAuth } from "convex/react";
+import { usePaginatedQuery, useQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ShoppingBag, Loader2, AlertTriangle } from "lucide-react";
 import OrderStatusSelect from "./OrderStatusSelect";
 
@@ -22,14 +23,25 @@ const FILTER_LABELS: Record<StatusFilter, string> = {
   failed: "Failed",
 };
 
+const PAGE_SIZE = 25;
+
 export default function AdminOrdersClient({
   activeFilter,
 }: {
   activeFilter: StatusFilter;
 }) {
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
-  const orders = useQuery(
+
+  const status = activeFilter === "all" ? undefined : activeFilter;
+
+  const { results: orders, status: pageStatus, loadMore } = usePaginatedQuery(
     api.orders.getAllOrders,
+    authLoading || !isAuthenticated ? "skip" : { status },
+    { initialNumItems: PAGE_SIZE },
+  );
+
+  const counts = useQuery(
+    api.orders.getOrderCounts,
     authLoading || !isAuthenticated ? "skip" : undefined,
   );
 
@@ -51,7 +63,7 @@ export default function AdminOrdersClient({
     );
   }
 
-  if (orders === undefined) {
+  if (pageStatus === "LoadingFirstPage") {
     return (
       <div className="flex items-center justify-center py-24 text-charcoal-light">
         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
@@ -60,25 +72,15 @@ export default function AdminOrdersClient({
     );
   }
 
-  const counts = {
-    all: orders.length,
-    pending: orders.filter((o) => o.status === "pending").length,
-    paid: orders.filter((o) => o.status === "paid").length,
-    failed: orders.filter((o) => o.status === "failed").length,
-  };
-
-  const filtered =
-    activeFilter === "all"
-      ? orders
-      : orders.filter((o) => o.status === activeFilter);
-
   return (
     <div>
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-walnut sm:text-3xl">Orders</h1>
         <p className="mt-2 text-charcoal-light">
-          {orders.length} total {orders.length === 1 ? "order" : "orders"}
+          {counts !== undefined
+            ? `${counts.all} total ${counts.all === 1 ? "order" : "orders"}`
+            : "Loading…"}
         </p>
       </div>
 
@@ -100,7 +102,7 @@ export default function AdminOrdersClient({
                 activeFilter === filter ? "bg-white/20" : "bg-cream-dark"
               }`}
             >
-              {counts[filter]}
+              {counts !== undefined ? counts[filter] : "–"}
             </span>
           </Link>
         ))}
@@ -109,7 +111,7 @@ export default function AdminOrdersClient({
       {/* Orders List */}
       <Card className="border-cream-dark">
         <CardContent className="p-0">
-          {filtered.length === 0 ? (
+          {orders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cream-dark text-charcoal-light">
                 <ShoppingBag className="h-8 w-8" />
@@ -123,7 +125,7 @@ export default function AdminOrdersClient({
             </div>
           ) : (
             <div className="divide-y divide-cream-dark">
-              {filtered.map((order) => (
+              {orders.map((order) => (
                 <div key={order._id} className="p-4 sm:p-6">
                   {/* Top row — customer identity + status + total */}
                   <div className="flex flex-wrap items-start justify-between gap-4">
@@ -198,6 +200,25 @@ export default function AdminOrdersClient({
           )}
         </CardContent>
       </Card>
+
+      {/* Load More */}
+      {pageStatus === "CanLoadMore" && (
+        <div className="mt-6 flex justify-center">
+          <Button
+            variant="outline"
+            onClick={() => loadMore(PAGE_SIZE)}
+            className="border-cream-dark text-charcoal-light hover:border-amber hover:text-amber"
+          >
+            Load more orders
+          </Button>
+        </div>
+      )}
+      {pageStatus === "LoadingMore" && (
+        <div className="mt-6 flex justify-center text-charcoal-light">
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+          Loading more…
+        </div>
+      )}
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/useCart";
 import { ShoppingCart, Check, Loader2, Minus, Plus } from "lucide-react";
 
+const MAX_QTY = 99;
+
 interface ProductActionsProps {
   productId: string;
   productName: string;
@@ -71,8 +73,9 @@ export default function ProductActions({
             </span>
             <button
               type="button"
-              onClick={() => setQuantity((q) => q + 1)}
-              className="flex h-9 w-9 items-center justify-center rounded-full text-charcoal transition-colors hover:bg-cream-dark"
+              onClick={() => setQuantity((q) => Math.min(MAX_QTY, q + 1))}
+              disabled={quantity >= MAX_QTY}
+              className="flex h-9 w-9 items-center justify-center rounded-full text-charcoal transition-colors hover:bg-cream-dark disabled:opacity-30"
               aria-label="Increase quantity"
             >
               <Plus className="h-4 w-4" />

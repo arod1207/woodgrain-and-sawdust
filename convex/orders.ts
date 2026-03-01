@@ -1,4 +1,5 @@
 import { query, mutation, internalQuery, action, internalAction } from "./_generated/server";
+import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import type { UserIdentity } from "convex/server";
@@ -101,13 +102,56 @@ export const getOrderBySessionId = query({
   },
 });
 
-// Admin query — requires an authenticated Clerk session token with role "admin".
-// Pass the token via fetchQuery(api.orders.getAllOrders, {}, { token }) in server components.
-export const getAllOrders = query({
+const ORDER_STATUS_VALIDATOR = v.optional(
+  v.union(v.literal("pending"), v.literal("paid"), v.literal("failed"))
+);
+
+// Admin query — returns ALL orders without pagination.
+// Used by the dashboard and customers pages which need aggregate totals over all orders.
+// For the orders list page, use getAllOrders (paginated) instead.
+export const getAllOrdersAdmin = query({
   handler: async (ctx) => {
     assertAdmin(await ctx.auth.getUserIdentity());
-    // TODO: replace with paginate() once order volume warrants it
     return await ctx.db.query("orders").order("desc").collect();
+  },
+});
+
+// Admin query — paginated. Pass status to filter by a specific status.
+export const getAllOrders = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    status: ORDER_STATUS_VALIDATOR,
+  },
+  handler: async (ctx, args) => {
+    assertAdmin(await ctx.auth.getUserIdentity());
+
+    if (args.status) {
+      return await ctx.db
+        .query("orders")
+        .withIndex("by_status", (q) => q.eq("status", args.status!))
+        .order("desc")
+        .paginate(args.paginationOpts);
+    }
+
+    return await ctx.db
+      .query("orders")
+      .order("desc")
+      .paginate(args.paginationOpts);
+  },
+});
+
+// Admin query — returns per-status counts for the filter tab badges.
+// Collects only the status field; much lighter than loading full order objects.
+export const getOrderCounts = query({
+  handler: async (ctx) => {
+    assertAdmin(await ctx.auth.getUserIdentity());
+    const orders = await ctx.db.query("orders").collect();
+    return {
+      all: orders.length,
+      pending: orders.filter((o) => o.status === "pending").length,
+      paid: orders.filter((o) => o.status === "paid").length,
+      failed: orders.filter((o) => o.status === "failed").length,
+    };
   },
 });
 

@@ -39,7 +39,7 @@ const AdminDashboard = async () => {
   let productCountError = false;
 
   const [orders, productCount] = await Promise.all([
-    fetchQuery(api.orders.getAllOrders, {}, { token: token ?? undefined }).catch(() => {
+    fetchQuery(api.orders.getAllOrdersAdmin, {}, { token: token ?? undefined }).catch(() => {
       ordersError = true;
       return [];
     }),

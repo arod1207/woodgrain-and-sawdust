@@ -1,6 +1,8 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+const MAX_QTY = 99;
+
 export const getCart = query({
   args: { deviceId: v.string() },
   handler: async (ctx, args) => {
@@ -26,6 +28,10 @@ export const addToCart = mutation({
   },
   handler: async (ctx, args) => {
     const qty = args.quantity ?? 1;
+    if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) {
+      throw new Error(`Quantity must be between 1 and ${MAX_QTY}`);
+    }
+
     const cart = await ctx.db
       .query("cart")
       .withIndex("by_deviceId", (q) => q.eq("deviceId", args.deviceId))
@@ -40,7 +46,7 @@ export const addToCart = mutation({
       if (existingIndex >= 0) {
         updatedItems[existingIndex] = {
           ...updatedItems[existingIndex],
-          quantity: updatedItems[existingIndex].quantity + qty,
+          quantity: Math.min(updatedItems[existingIndex].quantity + qty, MAX_QTY),
         };
       } else {
         updatedItems.push({
@@ -81,8 +87,8 @@ export const updateQuantity = mutation({
     quantity: v.number(),
   },
   handler: async (ctx, args) => {
-    if (!Number.isInteger(args.quantity) || args.quantity < 0) {
-      throw new Error("Quantity must be a non-negative integer");
+    if (!Number.isInteger(args.quantity) || args.quantity < 0 || args.quantity > MAX_QTY) {
+      throw new Error(`Quantity must be between 0 and ${MAX_QTY}`);
     }
 
     const cart = await ctx.db
