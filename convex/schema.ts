@@ -49,5 +49,6 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_deviceId", ["deviceId"])
-    .index("by_stripeSessionId", ["stripeSessionId"]),
+    .index("by_stripeSessionId", ["stripeSessionId"])
+    .index("by_status", ["status"]),
 });

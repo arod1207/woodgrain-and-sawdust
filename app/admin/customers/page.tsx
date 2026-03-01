@@ -26,7 +26,7 @@ const CustomersPage = async () => {
 
   let ordersError = false;
   const orders = await fetchQuery(
-    api.orders.getAllOrders,
+    api.orders.getAllOrdersAdmin,
     {},
     { token: token ?? undefined }
   ).catch(() => {
@@ -38,9 +38,9 @@ const CustomersPage = async () => {
   const namedOrders = orders.filter((o) => !!o.customerEmail);
   const guestOrders = orders.filter((o) => !o.customerEmail);
 
-  // Group named orders by email
-  // Orders are returned newest-first by getAllOrders so the first address
-  // encountered per customer is the most recent one.
+  // Group named orders by email.
+  // Orders are newest-first, so the first address encountered per customer
+  // is always their most recent — no update needed after initial insert.
   const customerMap = new Map<string, CustomerSummary & { addressKeys: Set<string> }>();
   for (const order of namedOrders) {
     const key = order.customerEmail!;
@@ -48,9 +48,6 @@ const CustomersPage = async () => {
     if (existing) {
       existing.orderCount += 1;
       existing.totalSpent += order.status === "paid" ? order.total : 0;
-      if (order.createdAt > existing.lastOrderAt) {
-        existing.lastOrderAt = order.createdAt;
-      }
       existing.statuses.push(order.status as OrderStatus);
       // Collect unique addresses (dedupe by line1+postalCode)
       if (order.shippingAddress) {
