@@ -19,7 +19,7 @@ const HomePage = async () => {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-<section className="relative flex min-h-[70vh] items-center justify-center bg-gradient-to-br from-walnut to-walnut-dark px-4 overflow-hidden">
+<section className="texture-vignette relative flex min-h-[70vh] items-center justify-center bg-gradient-to-br from-walnut to-walnut-dark px-4 overflow-hidden">
   {/* Background image layer – only this div gets the opacity */}
   <div
     className={`
@@ -44,7 +44,7 @@ const HomePage = async () => {
     </p>
     <Button
       size="lg"
-      className="rounded-full bg-amber px-8 py-6 text-lg hover:bg-amber-light hover:shadow-lg"
+      className="bg-amber px-8 py-6 text-lg"
       asChild
     >
       <Link href="/products">
@@ -56,7 +56,7 @@ const HomePage = async () => {
 </section>
 
       {/* Features Section */}
-      <section className="py-16 sm:py-24">
+      <section className="texture-grain py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="mb-12 text-center text-3xl font-bold text-walnut">
             Why Choose Our Woodwork
@@ -108,7 +108,7 @@ const HomePage = async () => {
       </section>
 
       {/* Featured Products Section */}
-      <section className="bg-cream-dark py-16 sm:py-24">
+      <section className="texture-grain bg-cream-dark py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12 flex items-center justify-between">
             <h2 className="text-3xl font-bold text-walnut">Featured Pieces</h2>

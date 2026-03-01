@@ -89,7 +89,7 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
             <CardDescription className="mb-4">
               Try browsing all products or selecting a different category.
             </CardDescription>
-            <Button className="rounded-full bg-amber hover:bg-amber-light" asChild>
+            <Button className="bg-amber" asChild>
               <Link href="/products">View All Products</Link>
             </Button>
           </CardContent>
@@ -106,7 +106,7 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
             <CardDescription className="mb-4">
               Products will appear here once added via Sanity Studio.
             </CardDescription>
-            <Button className="rounded-full bg-amber hover:bg-amber-light" asChild>
+            <Button className="bg-amber" asChild>
               <Link href="/studio">
                 Open Sanity Studio
                 <ExternalLink className="ml-2 h-4 w-4" />

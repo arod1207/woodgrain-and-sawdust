@@ -51,7 +51,7 @@ export default function CartSummary() {
         <div className="mt-6 space-y-3">
           <Button
             size="lg"
-            className="w-full rounded-full bg-amber text-white hover:bg-amber-light"
+            className="w-full bg-amber text-white"
             disabled={isCheckingOut || itemCount === 0}
             onClick={handleCheckout}
             aria-label="Proceed to checkout"
@@ -68,7 +68,7 @@ export default function CartSummary() {
           <Button
             variant="outline"
             size="lg"
-            className="w-full rounded-full border-cream-dark text-charcoal-light hover:text-amber"
+            className="w-full border-cream-dark text-charcoal-light hover:text-amber"
             asChild
           >
             <Link href="/products">Continue Shopping</Link>
