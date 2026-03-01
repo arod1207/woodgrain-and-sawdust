@@ -33,10 +33,13 @@ const HomePage = async () => {
   {/* <div className="absolute inset-0 bg-black/20" /> */}  {/* uncomment if needed */}
 
   <div className="relative z-10 mx-auto max-w-4xl text-center">
+    <p className="font-heading mb-4 text-sm font-semibold uppercase tracking-widest text-amber-light">
+      Woodgrain and Sawdust
+    </p>
     <h1 className="mb-6 text-4xl font-bold tracking-tight text-cream sm:text-5xl md:text-6xl">
-      Handcrafted Wooden
+      From the Workshop
       <br />
-      <span className="text-amber-light">Furniture & Decor</span>
+      <span className="text-amber-light">to Your Home.</span>
     </h1>
     <p className="mx-auto mb-8 max-w-2xl text-lg text-cream/80 sm:text-xl">
       Each piece is meticulously crafted from premium hardwoods, bringing
