@@ -1,3 +1,19 @@
+export const HERO_SECTION_QUERY = `*[_type == "heroSection" && _id == "heroSection"][0] {
+  brandLabel,
+  heading,
+  headingAccent,
+  subheading,
+  ctaText,
+  ctaLink,
+  backgroundImage {
+    asset->{
+      _id,
+      url
+    },
+    alt
+  }
+}`;
+
 // Product queries
 
 export const PRODUCTS_QUERY = `*[_type == "product" && defined(slug.current)] | order(_createdAt desc) {
@@ -97,6 +113,26 @@ export const PRODUCTS_BY_IDS_QUERY = `*[_type == "product" && _id in $ids] {
   price,
   inStock,
   "image": images[0].asset->url
+}`;
+
+export const ABOUT_SECTION_QUERY = `*[_type == "aboutSection" && _id == "aboutSection"][0] {
+  heading,
+  subheading,
+  body,
+  image {
+    asset->{
+      _id,
+      url,
+      metadata {
+        lqip,
+        dimensions { width, height }
+      }
+    },
+    alt,
+    hotspot,
+    crop
+  },
+  stats[] { value, label }
 }`;
 
 export const PRODUCTS_BY_CATEGORY_QUERY = `*[_type == "product" && category->slug.current == $category && defined(slug.current)] | order(_createdAt desc) {
