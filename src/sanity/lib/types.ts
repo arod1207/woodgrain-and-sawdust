@@ -58,6 +58,32 @@ export interface Product {
   category: Category;
 }
 
+export interface HeroSection {
+  brandLabel?: string;
+  heading: string;
+  headingAccent?: string;
+  subheading?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  backgroundImage?: {
+    asset: { _id: string; url: string };
+    alt?: string;
+  };
+}
+
+export interface AboutStat {
+  value: string;
+  label: string;
+}
+
+export interface AboutSection {
+  heading: string;
+  subheading?: string;
+  body: string;
+  image?: SanityImage;
+  stats?: AboutStat[];
+}
+
 export interface ProductCard {
   _id: string;
   name: string;
