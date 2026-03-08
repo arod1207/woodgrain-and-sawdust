@@ -56,6 +56,7 @@ export interface Product {
   images: SanityImage[];
   image?: SanityImage;
   category: Category;
+  tiktokUrl?: string;
 }
 
 export interface HeroSection {

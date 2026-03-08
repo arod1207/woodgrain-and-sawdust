@@ -6,7 +6,7 @@ import type { Product } from "@/src/sanity/lib/types";
 import ProductGallery from "@/components/customer/ProductGallery";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, Play } from "lucide-react";
 import ProductActions from "@/components/customer/ProductActions";
 import { urlFor } from "@/src/sanity/lib/image";
 
@@ -194,6 +194,36 @@ const ProductPage = async ({ params }: ProductPageProps) => {
           </ProductActions>
         </div>
       </div>
+
+      {/* TikTok Build Video */}
+      {product.tiktokUrl && (
+        <div className="mt-16 border-t border-cream-dark pt-16">
+          <div className="flex flex-col items-center gap-6 rounded-2xl bg-walnut px-8 py-12 text-center sm:flex-row sm:text-left">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-amber/20">
+              <Play className="h-7 w-7 fill-amber text-amber" />
+            </div>
+            <div className="flex-1">
+              <p className="mb-1 text-sm font-semibold uppercase tracking-widest text-amber-light">
+                Watch the Build
+              </p>
+              <h2 className="mb-2 text-2xl font-bold text-cream">
+                See How This Piece Was Made
+              </h2>
+              <p className="text-cream/70">
+                Follow along on TikTok as this {product.name.toLowerCase()} comes to life from raw lumber to finished piece.
+              </p>
+            </div>
+            <a
+              href={product.tiktokUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded-full bg-amber px-6 py-3 font-semibold text-white transition-colors hover:bg-amber-light"
+            >
+              Watch on TikTok
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
