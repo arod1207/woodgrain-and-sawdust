@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 const CartDrawer = dynamic(() => import("@/components/customer/CartDrawer"), { ssr: false });
 
@@ -34,13 +33,19 @@ const Header = () => {
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-6" aria-label="Main navigation">
-          <Button variant="ghost" asChild className="text-charcoal-light hover:text-amber hover:bg-transparent">
-            <Link href="/">Home</Link>
-          </Button>
-          <Button variant="ghost" asChild className="text-charcoal-light hover:text-amber hover:bg-transparent">
-            <Link href="/products">Products</Link>
-          </Button>
+        <nav className="flex items-center gap-8" aria-label="Main navigation">
+          <Link
+            href="/"
+            className="relative text-sm font-medium text-charcoal-light transition-colors hover:text-amber after:absolute after:bottom-[-2px] after:left-0 after:h-px after:w-0 after:bg-amber after:transition-all hover:after:w-full"
+          >
+            Home
+          </Link>
+          <Link
+            href="/products"
+            className="relative text-sm font-medium text-charcoal-light transition-colors hover:text-amber after:absolute after:bottom-[-2px] after:left-0 after:h-px after:w-0 after:bg-amber after:transition-all hover:after:w-full"
+          >
+            Products
+          </Link>
 
           {/* Cart Drawer */}
           <CartDrawer />
