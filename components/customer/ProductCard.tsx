@@ -28,7 +28,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     >
       <div className="overflow-hidden rounded-lg border-2 border-cream-dark bg-white shadow-sm transition-shadow hover:shadow-md">
         {/* Image — square container, full image visible via object-contain */}
-        <div className="relative overflow-hidden bg-cream-dark" style={{ aspectRatio: "1" }}>
+        <div className="relative aspect-square overflow-hidden bg-cream-dark">
           {image?.asset ? (
             <Image
               src={urlFor(image).width(600).auto("format").url()}
