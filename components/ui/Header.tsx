@@ -1,8 +1,10 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import CartDrawer from "@/components/customer/CartDrawer";
+
+const CartDrawer = dynamic(() => import("@/components/customer/CartDrawer"), { ssr: false });
 
 const Header = () => {
   return (

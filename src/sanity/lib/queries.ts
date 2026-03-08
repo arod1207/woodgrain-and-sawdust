@@ -91,6 +91,7 @@ export const PRODUCT_QUERY = `*[_type == "product" && slug.current == $slug][0] 
     hotspot,
     crop
   },
+  tiktokUrl,
   category->{
     _id,
     name,

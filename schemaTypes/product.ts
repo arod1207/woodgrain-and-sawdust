@@ -162,6 +162,12 @@ export const product = defineType({
       description: "Show on homepage",
       initialValue: false,
     }),
+    defineField({
+      name: "tiktokUrl",
+      title: "TikTok Build Video",
+      type: "url",
+      description: "Link to the TikTok video showing how this piece was made",
+    }),
   ],
   preview: {
     select: {
