@@ -21,6 +21,7 @@ import {
   ExternalLink,
   ImageIcon,
 } from "lucide-react";
+import Image from "next/image";
 
 export const revalidate = 60;
 
@@ -42,24 +43,14 @@ const HomePage = async () => {
             {/* Left: Decorative brand panel */}
             <div className="flex items-center justify-center bg-walnut-dark px-12 py-16 lg:w-2/5 lg:min-h-[520px]">
               <div className="flex flex-col items-center gap-6 text-center">
-                <div className="border border-amber/40 p-8">
-                  <div className="border border-amber/20 p-6">
-                    <svg
-                      className="h-16 w-16 text-amber"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                      <path d="M2 17l10 5 10-5" />
-                      <path d="M2 12l10 5 10-5" />
-                    </svg>
-                  </div>
-                </div>
+                <Image
+                  src="/logo.jpg"
+                  alt="Woodgrain & Sawdust"
+                  width={200}
+                  height={200}
+                  className="h-48 w-48 rounded-full object-cover"
+                  priority
+                />
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber">
                     Est. 2024

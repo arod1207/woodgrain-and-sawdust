@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const Header = () => {
   return (
@@ -10,20 +11,13 @@ const Header = () => {
           className="flex items-center gap-2 text-xl font-semibold text-walnut transition-colors hover:text-amber"
           aria-label="Woodgrain & Sawdust Home"
         >
-          <svg
-            className="h-8 w-8"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-            <path d="M2 17l10 5 10-5" />
-            <path d="M2 12l10 5 10-5" />
-          </svg>
+          <Image
+            src="/logo.jpg"
+            alt="Woodgrain & Sawdust"
+            width={36}
+            height={36}
+            className="h-9 w-9 rounded-full object-cover"
+          />
           <span className="font-heading hidden sm:inline">
             Woodgrain & Sawdust
           </span>

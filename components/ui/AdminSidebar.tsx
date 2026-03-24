@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
@@ -55,20 +56,13 @@ const AdminSidebar = () => {
           className="flex items-center gap-2 text-lg font-semibold text-walnut transition-colors hover:text-amber"
           aria-label="Go to storefront"
         >
-          <svg
-            className="h-6 w-6"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-            <path d="M2 17l10 5 10-5" />
-            <path d="M2 12l10 5 10-5" />
-          </svg>
+          <Image
+            src="/logo.jpg"
+            alt="Woodgrain & Sawdust"
+            width={28}
+            height={28}
+            className="h-7 w-7 rounded-full object-cover"
+          />
           <span>Admin</span>
         </Link>
       </div>

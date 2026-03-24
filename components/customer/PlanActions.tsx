@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { usePlanCheckout } from "@/hooks/usePlanCheckout";
-import { useDeviceId } from "@/hooks/useDeviceId";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Loader2, Download, CreditCard, Coffee } from "lucide-react";
@@ -24,14 +23,16 @@ export default function PlanActions({
   children,
 }: PlanActionsProps) {
   const isFree = price === 0;
-  const { handleBuyNow, isCheckingOut, checkoutError } =
+  const { handleBuyNow, isCheckingOut, checkoutError, deviceId } =
     usePlanCheckout(planId);
-  const deviceId = useDeviceId();
 
   const purchasedOrderId = useQuery(
     api.orders.hasUserPurchasedPlan,
     deviceId ? { deviceId, planId } : "skip"
   );
+
+  // For paid plans, distinguish "loading" (undefined) from "not purchased" (null).
+  const isPurchaseCheckLoading = !isFree && !!deviceId && purchasedOrderId === undefined;
 
   return (
     <>
@@ -68,6 +69,15 @@ export default function PlanActions({
               Enjoy this plan? Buy me a coffee!
             </a>
           </>
+        ) : isPurchaseCheckLoading ? (
+          <Button
+            size="lg"
+            className="w-full rounded-full bg-amber px-8 py-6 text-base text-white opacity-50"
+            disabled
+          >
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Loading...
+          </Button>
         ) : purchasedOrderId ? (
           <Button
             size="lg"
@@ -90,7 +100,7 @@ export default function PlanActions({
               size="lg"
               className="w-full rounded-full bg-amber px-8 py-6 text-base text-white hover:bg-amber-light disabled:opacity-50"
               onClick={handleBuyNow}
-              disabled={isCheckingOut}
+              disabled={isCheckingOut || !deviceId}
             >
               {isCheckingOut ? (
                 <>
