@@ -44,7 +44,7 @@ const AdminDashboard = async () => {
       return [];
     }),
     client
-      .fetch<number>(`count(*[_type == "product" && defined(slug.current)])`)
+      .fetch<number>(`count(*[_type == "cutPlan" && defined(slug.current)])`)
       .catch(() => {
         productCountError = true;
         return 0;
@@ -52,7 +52,7 @@ const AdminDashboard = async () => {
   ]);
 
   const paidOrders = orders.filter((o) => o.status === "paid");
-  const totalRevenue = paidOrders.reduce((sum, o) => sum + o.total, 0);
+  const totalRevenue = paidOrders.reduce((sum, o) => sum + o.price, 0);
   const recentOrders = orders.slice(0, 8);
 
   return (
@@ -64,7 +64,7 @@ const AdminDashboard = async () => {
           <span>
             Some data failed to load.{" "}
             {ordersError && "Orders could not be fetched — verify Convex auth is configured. "}
-            {productCountError && "Product count unavailable — check Sanity connection."}
+            {productCountError && "Plan count unavailable — check Sanity connection."}
           </span>
         </div>
       )}
@@ -73,7 +73,7 @@ const AdminDashboard = async () => {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-walnut sm:text-3xl">Dashboard</h1>
         <p className="mt-2 text-charcoal-light">
-          Track orders, revenue, and manage your store.
+          Track orders, revenue, and manage your cut plans.
         </p>
       </div>
 
@@ -119,7 +119,7 @@ const AdminDashboard = async () => {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-charcoal-light">Products</p>
+                <p className="text-sm font-medium text-charcoal-light">Cut Plans</p>
                 <p className="mt-1 text-2xl font-bold text-walnut">{productCount}</p>
               </div>
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-light/20 text-amber">
@@ -145,8 +145,8 @@ const AdminDashboard = async () => {
                 <Plus className="h-5 w-5" />
               </div>
               <div className="text-left">
-                <p className="font-medium text-charcoal">Add Product</p>
-                <p className="text-sm text-charcoal-light">Create a new listing</p>
+                <p className="font-medium text-charcoal">Add Plan</p>
+                <p className="text-sm text-charcoal-light">Create a new cut plan</p>
               </div>
             </Link>
           </Button>
@@ -215,7 +215,7 @@ const AdminDashboard = async () => {
                       {order.customerEmail ?? "Guest"}
                     </p>
                     <p className="text-xs text-charcoal-light">
-                      {order.items.length} {order.items.length === 1 ? "item" : "items"} ·{" "}
+                      {order.planName} ·{" "}
                       {new Date(order.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
@@ -231,7 +231,7 @@ const AdminDashboard = async () => {
                       {order.status}
                     </Badge>
                     <p className="text-sm font-semibold text-walnut">
-                      {currencyFormatter.format(order.total)}
+                      {currencyFormatter.format(order.price)}
                     </p>
                   </div>
                 </div>

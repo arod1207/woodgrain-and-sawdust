@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Playfair_Display, Lora } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider";
-import { CartProvider } from "@/components/providers/CartProvider";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -21,9 +20,9 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "Woodgrain & Sawdust | Handcrafted Woodworking",
+  title: "Woodgrain & Sawdust | Woodworking Cut Plans",
   description:
-    "Discover beautifully handcrafted wooden furniture and home decor. Each piece is made with care using premium hardwoods.",
+    "Detailed PDF cut plans for woodworking projects of all skill levels. Free and premium plans available for instant download.",
 };
 
 export default function RootLayout({
@@ -38,7 +37,7 @@ export default function RootLayout({
           className={`${playfair.variable} ${lora.variable} antialiased bg-cream text-charcoal`}
         >
           <ConvexClientProvider>
-            <CartProvider>{children}</CartProvider>
+            {children}
           </ConvexClientProvider>
         </body>
       </html>

@@ -71,25 +71,12 @@ http.route({
         return new Response('Missing required metadata', { status: 500 })
       }
 
-      const shippingDetails = session.collected_information?.shipping_details
-
       try {
         await ctx.runAction(internal.orders.processPaymentSuccess, {
           orderId: orderId as Id<'orders'>,
           deviceId,
           stripeSessionId: session.id,
           customerEmail: session.customer_details?.email ?? undefined,
-          shippingAddress: shippingDetails?.address
-            ? {
-                name: shippingDetails.name ?? '',
-                line1: shippingDetails.address.line1 ?? '',
-                line2: shippingDetails.address.line2 ?? undefined,
-                city: shippingDetails.address.city ?? '',
-                state: shippingDetails.address.state ?? '',
-                postalCode: shippingDetails.address.postal_code ?? '',
-                country: shippingDetails.address.country ?? '',
-              }
-            : undefined,
           stripePaymentIntentId:
             typeof session.payment_intent === 'string'
               ? session.payment_intent

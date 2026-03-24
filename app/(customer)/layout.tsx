@@ -18,7 +18,7 @@ const CustomerLayout = ({ children }: CustomerLayoutProps) => {
               reserved.
             </p>
             <p className="text-sm text-cream/60">
-              Handcrafted with care in the USA
+              Woodworking plans crafted with care
             </p>
           </div>
         </div>

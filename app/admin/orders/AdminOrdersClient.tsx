@@ -127,14 +127,11 @@ export default function AdminOrdersClient({
             <div className="divide-y divide-cream-dark">
               {orders.map((order) => (
                 <div key={order._id} className="p-4 sm:p-6">
-                  {/* Top row — customer identity + status + total */}
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex flex-col gap-0.5">
-                      {order.shippingAddress?.name && (
-                        <p className="font-semibold text-charcoal">
-                          {order.shippingAddress.name}
-                        </p>
-                      )}
+                      <p className="font-semibold text-charcoal">
+                        {order.planName}
+                      </p>
                       <p className="text-sm text-charcoal">
                         {order.customerEmail ?? "Guest"}
                       </p>
@@ -160,40 +157,10 @@ export default function AdminOrdersClient({
                         currentStatus={order.status}
                       />
                       <p className="font-semibold text-walnut">
-                        {currencyFormatter.format(order.total)}
+                        {currencyFormatter.format(order.price)}
                       </p>
                     </div>
                   </div>
-
-                  {/* Items */}
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {order.items.map((item, i) => (
-                      <span
-                        key={i}
-                        className="rounded-full bg-cream-dark px-3 py-0.5 text-xs text-charcoal"
-                      >
-                        {item.name} × {item.quantity}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Shipping address */}
-                  {order.shippingAddress && (
-                    <div className="mt-2 text-xs text-charcoal-light">
-                      <p>
-                        {order.shippingAddress.line1}
-                        {order.shippingAddress.line2
-                          ? `, ${order.shippingAddress.line2}`
-                          : ""}
-                      </p>
-                      <p>
-                        {order.shippingAddress.city},{" "}
-                        {order.shippingAddress.state}{" "}
-                        {order.shippingAddress.postalCode},{" "}
-                        {order.shippingAddress.country}
-                      </p>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>

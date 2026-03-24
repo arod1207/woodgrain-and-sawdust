@@ -1,37 +1,37 @@
-import Link from 'next/link'
-import { client } from '@/src/sanity/lib/client'
+import Link from "next/link";
+import { client } from "@/src/sanity/lib/client";
 import {
-  FEATURED_PRODUCTS_QUERY,
+  FEATURED_CUT_PLANS_QUERY,
   ABOUT_SECTION_QUERY,
   HERO_SECTION_QUERY,
-} from '@/src/sanity/lib/queries'
+} from "@/src/sanity/lib/queries";
 import type {
-  ProductCard as ProductCardType,
+  CutPlanCard as CutPlanCardType,
   AboutSection as AboutSectionType,
   HeroSection as HeroSectionType,
-} from '@/src/sanity/lib/types'
-import ProductCard from '@/components/customer/ProductCard'
-import AboutSection from '@/components/customer/AboutSection'
-import { Button } from '@/components/ui/button'
+} from "@/src/sanity/lib/types";
+import CutPlanCard from "@/components/customer/CutPlanCard";
+import AboutSection from "@/components/customer/AboutSection";
+import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
-  CheckCircle,
-  Heart,
-  Package,
+  FileText,
+  Layers,
+  Download,
   ExternalLink,
   ImageIcon,
-} from 'lucide-react'
+} from "lucide-react";
 
-export const revalidate = 60
+export const revalidate = 60;
 
 const HomePage = async () => {
-  const [featuredProducts, aboutSection, hero] = await Promise.all([
-    client.fetch<ProductCardType[]>(FEATURED_PRODUCTS_QUERY),
+  const [featuredPlans, aboutSection, hero] = await Promise.all([
+    client.fetch<CutPlanCardType[]>(FEATURED_CUT_PLANS_QUERY),
     client.fetch<AboutSectionType | null>(ABOUT_SECTION_QUERY),
     client.fetch<HeroSectionType | null>(HERO_SECTION_QUERY),
-  ])
+  ]);
 
-  const hasFeaturedProducts = featuredProducts && featuredProducts.length > 0
+  const hasFeaturedPlans = featuredPlans && featuredPlans.length > 0;
 
   return (
     <div className="flex flex-col">
@@ -65,7 +65,7 @@ const HomePage = async () => {
                     Est. 2024
                   </p>
                   <p className="mt-1 font-heading text-sm text-cream/50">
-                    Handcrafted Woodwork
+                    Woodworking Cut Plans
                   </p>
                 </div>
               </div>
@@ -76,17 +76,17 @@ const HomePage = async () => {
               <div className="flex items-center gap-3">
                 <span className="h-[1px] w-8 bg-amber" />
                 <span className="text-xs font-semibold uppercase tracking-[0.2em] text-amber">
-                  {hero?.brandLabel ?? 'Woodgrain & Sawdust'}
+                  {hero?.brandLabel ?? "Woodgrain & Sawdust"}
                 </span>
               </div>
 
               <h1 className="font-heading text-5xl font-bold leading-[1.1] tracking-tight text-walnut lg:text-6xl">
-                {hero?.heading ?? 'From the Workshop'}
+                {hero?.heading ?? "Build It Yourself"}
                 {(hero?.headingAccent ?? true) && (
                   <>
                     <br />
                     <span className="text-amber-light">
-                      {hero?.headingAccent ?? 'to Your Home.'}
+                      {hero?.headingAccent ?? "with Our Cut Plans."}
                     </span>
                   </>
                 )}
@@ -94,7 +94,7 @@ const HomePage = async () => {
 
               <p className="max-w-md text-lg leading-relaxed text-charcoal-light">
                 {hero?.subheading ??
-                  'Each piece is meticulously crafted from premium hardwoods, bringing warmth and character to your home. Discover the beauty of real wood.'}
+                  "Detailed PDF cut plans for woodworking projects of all skill levels. Free and premium plans available for instant download."}
               </p>
 
               <Button
@@ -102,8 +102,8 @@ const HomePage = async () => {
                 className="w-fit rounded-full bg-amber px-8 py-6 text-base text-cream hover:bg-amber-light"
                 asChild
               >
-                <Link href={hero?.ctaLink ?? '/products'}>
-                  {hero?.ctaText ?? 'Browse Collection'}
+                <Link href={hero?.ctaLink === "/products" ? "/plans" : (hero?.ctaLink ?? "/plans")}>
+                  {hero?.ctaLink === "/products" ? "Browse Plans" : (hero?.ctaText ?? "Browse Plans")}
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -117,38 +117,38 @@ const HomePage = async () => {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col sm:flex-row sm:divide-x sm:divide-walnut/50">
             <div className="flex flex-1 items-start gap-4 px-4 py-6 sm:px-8 sm:py-0 sm:first:pl-0">
-              <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
+              <FileText className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
               <div>
                 <h3 className="mb-1 font-semibold text-cream">
-                  Premium Materials
+                  Detailed Plans
                 </h3>
                 <p className="text-sm text-cream/60">
-                  Only the finest hardwoods — walnut, oak, maple, and cherry —
-                  for lasting beauty.
+                  Step-by-step cut lists, dimensions, and assembly instructions
+                  for every project.
                 </p>
               </div>
             </div>
             <div className="flex flex-1 items-start gap-4 px-4 py-6 sm:px-8 sm:py-0">
-              <Heart className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
+              <Layers className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
               <div>
                 <h3 className="mb-1 font-semibold text-cream">
-                  Handcrafted with Care
+                  All Skill Levels
                 </h3>
                 <p className="text-sm text-cream/60">
-                  Traditional joinery techniques ensure quality that lasts
-                  generations.
+                  From beginner-friendly builds to advanced joinery projects —
+                  there&apos;s a plan for you.
                 </p>
               </div>
             </div>
             <div className="flex flex-1 items-start gap-4 px-4 py-6 sm:px-8 sm:py-0 sm:last:pr-0">
-              <Package className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
+              <Download className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
               <div>
                 <h3 className="mb-1 font-semibold text-cream">
-                  Custom Orders Welcome
+                  Instant Download
                 </h3>
                 <p className="text-sm text-cream/60">
-                  We work with you to create pieces tailored to your exact
-                  vision.
+                  Purchase and download your plan immediately. Free plans
+                  available too.
                 </p>
               </div>
             </div>
@@ -156,34 +156,34 @@ const HomePage = async () => {
         </div>
       </section>
 
-      {/* Featured Products Section */}
+      {/* Featured Plans Section */}
       <section className="bg-cream-dark py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12 flex items-center justify-between">
-            <h2 className="text-3xl font-bold text-walnut">Featured Pieces</h2>
+            <h2 className="text-3xl font-bold text-walnut">Featured Plans</h2>
             <Button
               variant="link"
               asChild
               className="text-amber hover:text-amber-light"
             >
-              <Link href="/products">View All</Link>
+              <Link href="/plans">View All</Link>
             </Button>
           </div>
 
-          {hasFeaturedProducts ? (
+          {hasFeaturedPlans ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product._id} product={product} />
+              {featuredPlans.map((plan) => (
+                <CutPlanCard key={plan._id} plan={plan} />
               ))}
             </div>
           ) : (
             <div className="py-16 text-center">
               <ImageIcon className="mx-auto mb-4 h-10 w-10 text-walnut/20" />
               <p className="mb-1 font-semibold text-walnut">
-                No featured products yet
+                No featured plans yet
               </p>
               <p className="mb-4 text-sm text-charcoal-light">
-                Mark products as &quot;Featured&quot; in Sanity Studio to
+                Mark cut plans as &quot;Featured&quot; in Sanity Studio to
                 display them here.
               </p>
               <Link
@@ -201,7 +201,7 @@ const HomePage = async () => {
       {/* About Section */}
       {aboutSection && <AboutSection data={aboutSection} />}
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;

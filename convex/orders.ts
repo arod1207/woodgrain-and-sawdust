@@ -3,13 +3,8 @@ import { paginationOptsValidator } from "convex/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import type { UserIdentity } from "convex/server";
-import {
-  orderItemsValidator,
-  shippingAddressValidator,
-} from "./ordersInternal";
 
 // Throws if the caller is not an authenticated Clerk user with role "admin".
-// Set role via Clerk Dashboard → Users → <user> → Public metadata: { "role": "admin" }
 function assertAdmin(identity: UserIdentity | null): asserts identity is UserIdentity {
   if (!identity) throw new Error("Unauthorized");
   const role = (identity.publicMetadata as { role?: string } | undefined)?.role;
@@ -19,36 +14,38 @@ function assertAdmin(identity: UserIdentity | null): asserts identity is UserIde
 // Called by the Next.js checkout API route.
 // Creates a pending order BEFORE the Stripe session so that a Stripe failure
 // never results in a session existing without a corresponding order.
-// Returns the Convex orderId, which is stored in Stripe session metadata.
+// Note: This must be a public action because the checkout API calls it via
+// ConvexHttpClient. Input validation guards against abuse via direct calls.
 export const createPendingOrder = action({
   args: {
     deviceId: v.string(),
-    items: orderItemsValidator,
-    subtotal: v.number(),
-    shipping: v.number(),
-    total: v.number(),
+    planId: v.string(),
+    planName: v.string(),
+    price: v.number(),
   },
   handler: async (ctx, args): Promise<string> => {
+    if (args.deviceId.length > 128 || args.planId.length > 128 || args.planName.length > 256) {
+      throw new Error("Invalid input");
+    }
+    if (args.price < 0 || args.price > 10000) {
+      throw new Error("Invalid price");
+    }
     return await ctx.runMutation(internal.ordersInternal.createOrder, args);
   },
 });
 
 // Called exclusively from the Convex HTTP action (convex/http.ts) after
 // Stripe signature verification inside Convex's own runtime.
-// internalAction ensures this cannot be invoked from any browser or external client.
 export const processPaymentSuccess = internalAction({
   args: {
     orderId: v.id("orders"),
     deviceId: v.string(),
     customerEmail: v.optional(v.string()),
-    shippingAddress: shippingAddressValidator,
     stripePaymentIntentId: v.optional(v.string()),
     stripeSessionId: v.string(),
   },
   handler: async (ctx, args): Promise<void> => {
     // Read pre-fulfillment status to detect Stripe webhook retries.
-    // fulfillOrder is idempotent (no-op if already paid), but we must only
-    // send the confirmation email on the first successful transition.
     const preState = await ctx.runQuery(internal.ordersInternal.getOrderById, {
       orderId: args.orderId,
     });
@@ -64,41 +61,51 @@ export const processPaymentSuccess = internalAction({
         try {
           await ctx.runAction(internal.email.sendOrderConfirmationEmail, {
             customerEmail: args.customerEmail,
-            customerName: args.shippingAddress?.name ?? "Valued Customer",
             orderId: args.orderId,
-            items: order.items,
-            subtotal: order.subtotal,
-            shipping: order.shipping,
-            total: order.total,
-            shippingAddress: args.shippingAddress,
+            planName: order.planName,
+            price: order.price,
           });
         } catch (err) {
           console.error("[email] Failed to send order confirmation email:", err);
-          // non-fatal — order is already fulfilled
         }
       }
     }
   },
 });
 
-// Used by the order confirmation page to look up an order by its Convex ID,
-// which is embedded in the success URL at checkout time.
-export const getOrderById = query({
-  args: { orderId: v.id("orders") },
+// Check if a device has already purchased a specific plan.
+// Returns the orderId if purchased (for download link), or null.
+export const hasUserPurchasedPlan = query({
+  args: { deviceId: v.string(), planId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.orderId);
+    if (!args.deviceId) return null;
+    const order = await ctx.db
+      .query("orders")
+      .withIndex("by_deviceId_planId", (q) =>
+        q.eq("deviceId", args.deviceId).eq("planId", args.planId)
+      )
+      .filter((q) => q.eq(q.field("status"), "paid"))
+      .first();
+    return order ? order._id : null;
   },
 });
 
-export const getOrderBySessionId = query({
-  args: { stripeSessionId: v.string() },
+// Public query — returns only the fields safe for the client (order confirmation
+// page, download link). Sensitive fields (deviceId, customerEmail, stripe IDs)
+// are deliberately excluded.
+export const getOrderById = query({
+  args: { orderId: v.id("orders") },
   handler: async (ctx, args) => {
-    return await ctx.db
-      .query("orders")
-      .withIndex("by_stripeSessionId", (q) =>
-        q.eq("stripeSessionId", args.stripeSessionId)
-      )
-      .unique();
+    const order = await ctx.db.get(args.orderId);
+    if (!order) return null;
+    return {
+      _id: order._id,
+      planId: order.planId,
+      planName: order.planName,
+      price: order.price,
+      status: order.status,
+      createdAt: order.createdAt,
+    };
   },
 });
 
@@ -107,8 +114,6 @@ const ORDER_STATUS_VALIDATOR = v.optional(
 );
 
 // Admin query — returns ALL orders without pagination.
-// Used by the dashboard and customers pages which need aggregate totals over all orders.
-// For the orders list page, use getAllOrders (paginated) instead.
 export const getAllOrdersAdmin = query({
   handler: async (ctx) => {
     assertAdmin(await ctx.auth.getUserIdentity());
@@ -141,16 +146,20 @@ export const getAllOrders = query({
 });
 
 // Admin query — returns per-status counts for the filter tab badges.
-// Collects only the status field; much lighter than loading full order objects.
+// Uses the by_status index so Convex only scans matching rows per status.
 export const getOrderCounts = query({
   handler: async (ctx) => {
     assertAdmin(await ctx.auth.getUserIdentity());
-    const orders = await ctx.db.query("orders").collect();
+    const [pending, paid, failed] = await Promise.all([
+      ctx.db.query("orders").withIndex("by_status", (q) => q.eq("status", "pending")).collect(),
+      ctx.db.query("orders").withIndex("by_status", (q) => q.eq("status", "paid")).collect(),
+      ctx.db.query("orders").withIndex("by_status", (q) => q.eq("status", "failed")).collect(),
+    ]);
     return {
-      all: orders.length,
-      pending: orders.filter((o) => o.status === "pending").length,
-      paid: orders.filter((o) => o.status === "paid").length,
-      failed: orders.filter((o) => o.status === "failed").length,
+      all: pending.length + paid.length + failed.length,
+      pending: pending.length,
+      paid: paid.length,
+      failed: failed.length,
     };
   },
 });
@@ -177,8 +186,7 @@ export const updateOrderStatus = mutation({
   },
 });
 
-// Internal — exposes PII (email, shipping address). Only safe to call from
-// authenticated contexts. Do not expose as a public query until admin auth exists.
+// Internal — exposes PII (email). Only safe to call from authenticated contexts.
 export const getOrdersByDeviceId = internalQuery({
   args: { deviceId: v.string() },
   handler: async (ctx, args) => {
