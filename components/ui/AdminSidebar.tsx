@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Home, Package, ClipboardList, Users } from "lucide-react";
+import { Home, FileText, ClipboardList, Users } from "lucide-react";
 
 interface NavItem {
   name: string;
@@ -20,9 +20,9 @@ const navItems: NavItem[] = [
     icon: <Home className="h-5 w-5" />,
   },
   {
-    name: "Products",
+    name: "Plans",
     href: "/admin/products",
-    icon: <Package className="h-5 w-5" />,
+    icon: <FileText className="h-5 w-5" />,
   },
   {
     name: "Orders",

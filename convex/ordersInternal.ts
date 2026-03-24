@@ -1,28 +1,6 @@
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 
-export const orderItemsValidator = v.array(
-  v.object({
-    productId: v.string(),
-    name: v.string(),
-    price: v.number(),
-    quantity: v.number(),
-    image: v.string(),
-  })
-);
-
-export const shippingAddressValidator = v.optional(
-  v.object({
-    name: v.string(),
-    line1: v.string(),
-    line2: v.optional(v.string()),
-    city: v.string(),
-    state: v.string(),
-    postalCode: v.string(),
-    country: v.string(),
-  })
-);
-
 // Internal-only order lookup — used by processPaymentSuccess to read order
 // data for the confirmation email without exposing PII via the public API.
 export const getOrderById = internalQuery({
@@ -37,18 +15,16 @@ export const getOrderById = internalQuery({
 export const createOrder = internalMutation({
   args: {
     deviceId: v.string(),
-    items: orderItemsValidator,
-    subtotal: v.number(),
-    shipping: v.number(),
-    total: v.number(),
+    planId: v.string(),
+    planName: v.string(),
+    price: v.number(),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("orders", {
       deviceId: args.deviceId,
-      items: args.items,
-      subtotal: args.subtotal,
-      shipping: args.shipping,
-      total: args.total,
+      planId: args.planId,
+      planName: args.planName,
+      price: args.price,
       status: "pending",
       createdAt: Date.now(),
       updatedAt: Date.now(),
@@ -56,15 +32,13 @@ export const createOrder = internalMutation({
   },
 });
 
-// Fulfills an order by its Convex document ID.
-// Uses orderId (from Stripe session metadata) rather than stripeSessionId (visible in browser URL),
-// so the public action wrapper cannot be exploited by a user who knows their session_id.
+// Fulfills an order after Stripe payment confirmation.
+// Uses orderId (from Stripe session metadata) for security.
 export const fulfillOrder = internalMutation({
   args: {
     orderId: v.id("orders"),
     deviceId: v.string(),
     customerEmail: v.optional(v.string()),
-    shippingAddress: shippingAddressValidator,
     stripePaymentIntentId: v.optional(v.string()),
     stripeSessionId: v.string(),
   },
@@ -81,23 +55,12 @@ export const fulfillOrder = internalMutation({
     // Idempotency guard — Stripe can deliver webhooks more than once.
     if (order.status === "paid") return;
 
-    // Mark the order paid, store session details, and clear the cart atomically.
     await ctx.db.patch(args.orderId, {
       status: "paid",
       customerEmail: args.customerEmail,
-      shippingAddress: args.shippingAddress,
       stripePaymentIntentId: args.stripePaymentIntentId,
       stripeSessionId: args.stripeSessionId,
       updatedAt: Date.now(),
     });
-
-    const cart = await ctx.db
-      .query("cart")
-      .withIndex("by_deviceId", (q) => q.eq("deviceId", args.deviceId))
-      .unique();
-
-    if (cart) {
-      await ctx.db.delete(cart._id);
-    }
   },
 });

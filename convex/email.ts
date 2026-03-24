@@ -1,6 +1,5 @@
 import { internalAction } from "./_generated/server";
 import { v } from "convex/values";
-import { orderItemsValidator, shippingAddressValidator } from "./ordersInternal";
 
 const TIMEOUT_MS = 10_000;
 
@@ -27,52 +26,18 @@ function maskEmail(email: string): string {
 }
 
 function buildEmailHtml(args: {
-  customerName: string;
   orderId: string;
-  items: Array<{ name: string; price: number; quantity: number }>;
-  subtotal: number;
-  shipping: number;
-  total: number;
-  shippingAddress?: {
-    name: string;
-    line1: string;
-    line2?: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
-  };
+  planName: string;
+  price: number;
 }): string {
-  const itemRows = args.items
-    .map(
-      (item) => `
-      <tr>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e8ddd0; color: #3d2b1f;">${escapeHtml(item.name)}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e8ddd0; color: #3d2b1f; text-align: center;">${item.quantity}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e8ddd0; color: #3d2b1f; text-align: right;">${formatCurrency(item.price)}</td>
-        <td style="padding: 10px 8px; border-bottom: 1px solid #e8ddd0; color: #3d2b1f; text-align: right;">${formatCurrency(item.price * item.quantity)}</td>
-      </tr>`
-    )
-    .join("");
-
   const shortOrderId = args.orderId.slice(-8).toUpperCase();
-
-  const addressLines = args.shippingAddress
-    ? `
-    <p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.name)}</p>
-    <p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.line1)}</p>
-    ${args.shippingAddress.line2 ? `<p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.line2)}</p>` : ""}
-    <p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.city)}, ${escapeHtml(args.shippingAddress.state)} ${escapeHtml(args.shippingAddress.postalCode)}</p>
-    <p style="margin: 0; color: #3d2b1f;">${escapeHtml(args.shippingAddress.country)}</p>
-    `
-    : `<p style="color: #3d2b1f;">—</p>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Order Confirmed — Woodgrain &amp; Sawdust</title>
+  <title>Your Cut Plan is Ready — Woodgrain &amp; Sawdust</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #faf7f2; font-family: Georgia, serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #faf7f2; padding: 32px 16px;">
@@ -87,7 +52,7 @@ function buildEmailHtml(args: {
                 Woodgrain &amp; Sawdust
               </h1>
               <p style="margin: 8px 0 0; color: #d4a853; font-size: 14px; letter-spacing: 2px; text-transform: uppercase;">
-                Order Confirmed
+                Your Plan is Ready
               </p>
             </td>
           </tr>
@@ -96,55 +61,24 @@ function buildEmailHtml(args: {
           <tr>
             <td style="background-color: #ffffff; padding: 40px;">
 
-              <!-- Greeting -->
               <p style="margin: 0 0 16px; font-size: 18px; color: #3d2b1f;">
-                Hello ${escapeHtml(args.customerName)},
+                Thanks for your purchase!
               </p>
               <p style="margin: 0 0 32px; font-size: 15px; color: #5c4a3a; line-height: 1.6;">
-                Thank you for your order! We handcraft each piece with care and will be in touch
-                once your order ships. Your order reference is
+                Your cut plan is ready to download. Your order reference is
                 <strong style="color: #3d2b1f;">#${shortOrderId}</strong>.
               </p>
 
-              <!-- Items table -->
-              <h2 style="margin: 0 0 12px; font-size: 15px; color: #5c3d2e; text-transform: uppercase; letter-spacing: 1px; font-weight: normal;">
-                Order Summary
-              </h2>
-              <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; font-size: 14px;">
-                <thead>
-                  <tr style="background-color: #faf7f2;">
-                    <th style="padding: 10px 8px; text-align: left; color: #5c4a3a; font-weight: normal; border-bottom: 2px solid #d4a853;">Item</th>
-                    <th style="padding: 10px 8px; text-align: center; color: #5c4a3a; font-weight: normal; border-bottom: 2px solid #d4a853;">Qty</th>
-                    <th style="padding: 10px 8px; text-align: right; color: #5c4a3a; font-weight: normal; border-bottom: 2px solid #d4a853;">Price</th>
-                    <th style="padding: 10px 8px; text-align: right; color: #5c4a3a; font-weight: normal; border-bottom: 2px solid #d4a853;">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${itemRows}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <td colspan="3" style="padding: 8px 8px 4px; text-align: right; color: #5c4a3a; font-size: 13px;">Subtotal</td>
-                    <td style="padding: 8px 8px 4px; text-align: right; color: #3d2b1f; font-size: 13px;">${formatCurrency(args.subtotal)}</td>
-                  </tr>
-                  <tr>
-                    <td colspan="3" style="padding: 4px 8px; text-align: right; color: #5c4a3a; font-size: 13px;">Shipping</td>
-                    <td style="padding: 4px 8px; text-align: right; color: #3d2b1f; font-size: 13px;">${args.shipping === 0 ? "Free" : formatCurrency(args.shipping)}</td>
-                  </tr>
-                  <tr style="border-top: 2px solid #d4a853;">
-                    <td colspan="3" style="padding: 10px 8px 4px; text-align: right; color: #3d2b1f; font-weight: bold; font-size: 15px;">Total</td>
-                    <td style="padding: 10px 8px 4px; text-align: right; color: #3d2b1f; font-weight: bold; font-size: 15px;">${formatCurrency(args.total)}</td>
-                  </tr>
-                </tfoot>
-              </table>
-
-              <!-- Shipping address -->
-              <h2 style="margin: 32px 0 12px; font-size: 15px; color: #5c3d2e; text-transform: uppercase; letter-spacing: 1px; font-weight: normal;">
-                Shipping To
-              </h2>
-              <div style="background-color: #faf7f2; padding: 16px; border-radius: 4px; border-left: 3px solid #d4a853; font-size: 14px; line-height: 1.8;">
-                ${addressLines}
+              <!-- Plan details -->
+              <div style="background-color: #faf7f2; padding: 20px; border-radius: 4px; border-left: 3px solid #d4a853; margin-bottom: 24px;">
+                <p style="margin: 0 0 4px; font-size: 16px; color: #3d2b1f; font-weight: bold;">${escapeHtml(args.planName)}</p>
+                <p style="margin: 0; font-size: 14px; color: #5c4a3a;">${formatCurrency(args.price)}</p>
               </div>
+
+              <p style="margin: 0 0 16px; font-size: 15px; color: #5c4a3a; line-height: 1.6;">
+                You can download your plan anytime by visiting your order confirmation page.
+                Happy building!
+              </p>
 
             </td>
           </tr>
@@ -157,7 +91,7 @@ function buildEmailHtml(args: {
                 <a href="https://woodgrainandsawdust.com" style="color: #d4a853; text-decoration: none;">woodgrainandsawdust.com</a>
               </p>
               <p style="margin: 0; font-size: 12px; color: #8a7060;">
-                &copy; ${new Date().getFullYear()} Woodgrain &amp; Sawdust. Handcrafted with care.
+                &copy; ${new Date().getFullYear()} Woodgrain &amp; Sawdust. Crafted with care.
               </p>
             </td>
           </tr>
@@ -173,13 +107,9 @@ function buildEmailHtml(args: {
 export const sendOrderConfirmationEmail = internalAction({
   args: {
     customerEmail: v.string(),
-    customerName: v.string(),
     orderId: v.string(),
-    items: orderItemsValidator,
-    subtotal: v.number(),
-    shipping: v.number(),
-    total: v.number(),
-    shippingAddress: shippingAddressValidator,
+    planName: v.string(),
+    price: v.number(),
   },
   handler: async (_ctx, args): Promise<void> => {
     const apiKey = process.env.RESEND_API_KEY;
@@ -194,13 +124,9 @@ export const sendOrderConfirmationEmail = internalAction({
     }
 
     const html = buildEmailHtml({
-      customerName: args.customerName,
       orderId: args.orderId,
-      items: args.items,
-      subtotal: args.subtotal,
-      shipping: args.shipping,
-      total: args.total,
-      shippingAddress: args.shippingAddress,
+      planName: args.planName,
+      price: args.price,
     });
 
     const controller = new AbortController();
@@ -217,7 +143,7 @@ export const sendOrderConfirmationEmail = internalAction({
         body: JSON.stringify({
           from: fromEmail,
           to: args.customerEmail,
-          subject: `Your Woodgrain & Sawdust order is confirmed (#${args.orderId.slice(-8).toUpperCase()})`,
+          subject: `Your cut plan is ready to download (#${args.orderId.slice(-8).toUpperCase()})`,
           html,
         }),
         signal: controller.signal,

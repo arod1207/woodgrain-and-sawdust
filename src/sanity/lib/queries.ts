@@ -14,15 +14,14 @@ export const HERO_SECTION_QUERY = `*[_type == "heroSection" && _id == "heroSecti
   }
 }`;
 
-// Product queries
+// Cut plan queries
 
-export const PRODUCTS_QUERY = `*[_type == "product" && defined(slug.current)] | order(_createdAt desc) {
+export const CUT_PLANS_QUERY = `*[_type == "cutPlan" && defined(slug.current)] | order(_createdAt desc) {
   _id,
   name,
   "slug": slug.current,
   price,
-  woodType,
-  inStock,
+  difficulty,
   featured,
   "image": images[0] {
     asset->{
@@ -42,13 +41,12 @@ export const PRODUCTS_QUERY = `*[_type == "product" && defined(slug.current)] | 
   }
 }`;
 
-export const FEATURED_PRODUCTS_QUERY = `*[_type == "product" && featured == true && defined(slug.current)] | order(_createdAt desc) [0...6] {
+export const FEATURED_CUT_PLANS_QUERY = `*[_type == "cutPlan" && featured == true && defined(slug.current)] | order(_createdAt desc) [0...6] {
   _id,
   name,
   "slug": slug.current,
   price,
-  woodType,
-  inStock,
+  difficulty,
   "image": images[0] {
     asset->{
       _id,
@@ -62,22 +60,17 @@ export const FEATURED_PRODUCTS_QUERY = `*[_type == "product" && featured == true
   }
 }`;
 
-export const PRODUCT_QUERY = `*[_type == "product" && slug.current == $slug][0] {
+export const CUT_PLAN_QUERY = `*[_type == "cutPlan" && slug.current == $slug][0] {
   _id,
   name,
   "slug": slug.current,
   description,
   price,
-  woodType,
-  finish,
-  inStock,
+  difficulty,
+  estimatedTime,
+  toolsRequired,
+  materialsRequired,
   featured,
-  dimensions {
-    length,
-    width,
-    height,
-    unit
-  },
   images[] {
     asset->{
       _id,
@@ -99,7 +92,16 @@ export const PRODUCT_QUERY = `*[_type == "product" && slug.current == $slug][0] 
   }
 }`;
 
-export const PRODUCT_SLUGS_QUERY = `*[_type == "product" && defined(slug.current)]{ "slug": slug.current }`;
+// Server-only: fetches the PDF URL for the download API route
+export const CUT_PLAN_PDF_QUERY = `*[_type == "cutPlan" && _id == $id][0] {
+  _id,
+  name,
+  price,
+  "pdfUrl": pdfFile.asset->url,
+  "pdfOriginalFilename": pdfFile.asset->originalFilename
+}`;
+
+export const CUT_PLAN_SLUGS_QUERY = `*[_type == "cutPlan" && defined(slug.current)]{ "slug": slug.current }`;
 
 export const CATEGORIES_QUERY = `*[_type == "category"] | order(name asc) {
   _id,
@@ -108,11 +110,37 @@ export const CATEGORIES_QUERY = `*[_type == "category"] | order(name asc) {
   description
 }`;
 
-export const PRODUCTS_BY_IDS_QUERY = `*[_type == "product" && _id in $ids] {
+export const CUT_PLANS_BY_CATEGORY_QUERY = `*[_type == "cutPlan" && category->slug.current == $category && defined(slug.current)] | order(_createdAt desc) {
   _id,
   name,
+  "slug": slug.current,
   price,
-  inStock,
+  difficulty,
+  featured,
+  "image": images[0] {
+    asset->{
+      _id,
+      url,
+      metadata {
+        lqip,
+        dimensions { width, height }
+      }
+    },
+    alt
+  },
+  category->{
+    _id,
+    name,
+    "slug": slug.current
+  }
+}`;
+
+// Used by checkout API to verify price server-side
+export const CUT_PLAN_BY_ID_QUERY = `*[_type == "cutPlan" && _id == $id][0] {
+  _id,
+  name,
+  "slug": slug.current,
+  price,
   "image": images[0].asset->url
 }`;
 
@@ -134,30 +162,4 @@ export const ABOUT_SECTION_QUERY = `*[_type == "aboutSection" && _id == "aboutSe
     crop
   },
   stats[] { value, label }
-}`;
-
-export const PRODUCTS_BY_CATEGORY_QUERY = `*[_type == "product" && category->slug.current == $category && defined(slug.current)] | order(_createdAt desc) {
-  _id,
-  name,
-  "slug": slug.current,
-  price,
-  woodType,
-  inStock,
-  featured,
-  "image": images[0] {
-    asset->{
-      _id,
-      url,
-      metadata {
-        lqip,
-        dimensions { width, height }
-      }
-    },
-    alt
-  },
-  category->{
-    _id,
-    name,
-    "slug": slug.current
-  }
 }`;

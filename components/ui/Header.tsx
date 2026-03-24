@@ -1,9 +1,4 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import Link from "next/link";
-
-const CartDrawer = dynamic(() => import("@/components/customer/CartDrawer"), { ssr: false });
 
 const Header = () => {
   return (
@@ -29,7 +24,9 @@ const Header = () => {
             <path d="M2 17l10 5 10-5" />
             <path d="M2 12l10 5 10-5" />
           </svg>
-          <span className="font-heading hidden sm:inline">Woodgrain & Sawdust</span>
+          <span className="font-heading hidden sm:inline">
+            Woodgrain & Sawdust
+          </span>
         </Link>
 
         {/* Navigation */}
@@ -41,14 +38,11 @@ const Header = () => {
             Home
           </Link>
           <Link
-            href="/products"
+            href="/plans"
             className="relative text-sm font-medium text-charcoal-light transition-colors hover:text-amber after:absolute after:bottom-[-2px] after:left-0 after:h-px after:w-0 after:bg-amber after:transition-all hover:after:w-full"
           >
-            Products
+            Plans
           </Link>
-
-          {/* Cart Drawer */}
-          <CartDrawer />
         </nav>
       </div>
     </header>

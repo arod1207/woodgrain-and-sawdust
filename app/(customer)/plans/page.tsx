@@ -1,41 +1,45 @@
 import { client } from "@/src/sanity/lib/client";
-import { PRODUCTS_QUERY, PRODUCTS_BY_CATEGORY_QUERY, CATEGORIES_QUERY } from "@/src/sanity/lib/queries";
-import type { ProductCard as ProductCardType, Category } from "@/src/sanity/lib/types";
-import ProductCard from "@/components/customer/ProductCard";
+import {
+  CUT_PLANS_QUERY,
+  CUT_PLANS_BY_CATEGORY_QUERY,
+  CATEGORIES_QUERY,
+} from "@/src/sanity/lib/queries";
+import type { CutPlanCard as CutPlanCardType, Category } from "@/src/sanity/lib/types";
+import CutPlanCard from "@/components/customer/CutPlanCard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Package, ExternalLink } from "lucide-react";
+import { FileText, ExternalLink } from "lucide-react";
 
 export const revalidate = 60;
 
-interface ProductsPageProps {
+interface PlansPageProps {
   searchParams: Promise<{ category?: string }>;
 }
 
-const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
+const PlansPage = async ({ searchParams }: PlansPageProps) => {
   const { category } = await searchParams;
 
-  const [products, categories] = await Promise.all([
+  const [plans, categories] = await Promise.all([
     category
-      ? client.fetch<ProductCardType[]>(PRODUCTS_BY_CATEGORY_QUERY, { category })
-      : client.fetch<ProductCardType[]>(PRODUCTS_QUERY),
+      ? client.fetch<CutPlanCardType[]>(CUT_PLANS_BY_CATEGORY_QUERY, { category })
+      : client.fetch<CutPlanCardType[]>(CUT_PLANS_QUERY),
     client.fetch<Category[]>(CATEGORIES_QUERY),
   ]);
 
-  const hasProducts = products && products.length > 0;
+  const hasPlans = plans && plans.length > 0;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       {/* Page Header */}
       <div className="mb-12">
         <h1 className="text-3xl font-bold tracking-tight text-walnut sm:text-4xl">
-          Our Collection
+          Cut Plans
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-charcoal-light">
-          Browse our handcrafted wooden furniture and home decor. Each piece is
-          made with care using premium hardwoods.
+          Detailed PDF cut plans for woodworking projects of all skill levels.
+          Free and premium plans available for instant download.
         </p>
       </div>
 
@@ -50,7 +54,7 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
               variant={!category ? "default" : "outline"}
               asChild
             >
-              <Link href="/products">All</Link>
+              <Link href="/plans">All</Link>
             </Button>
             {categories.map((cat) => (
               <Button
@@ -60,9 +64,7 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
                 className={`rounded-full ${category === cat.slug ? "bg-amber text-white border-amber hover:bg-amber-light" : "border-cream-dark text-charcoal-light hover:border-amber hover:text-amber"}`}
                 asChild
               >
-                <Link href={`/products?category=${cat.slug}`}>
-                  {cat.name}
-                </Link>
+                <Link href={`/plans?category=${cat.slug}`}>{cat.name}</Link>
               </Button>
             ))}
           </div>
@@ -70,27 +72,27 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
         </div>
       )}
 
-      {/* Products Grid */}
-      {hasProducts ? (
+      {/* Plans Grid */}
+      {hasPlans ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product._id} product={product} />
+          {plans.map((plan) => (
+            <CutPlanCard key={plan._id} plan={plan} />
           ))}
         </div>
       ) : category ? (
         <Card className="border-cream-dark bg-cream/50">
           <CardContent className="p-12 text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cream-dark text-charcoal-light">
-              <Package className="h-8 w-8" />
+              <FileText className="h-8 w-8" />
             </div>
             <CardTitle className="mb-2 text-walnut">
-              No Products in This Category
+              No Plans in This Category
             </CardTitle>
             <CardDescription className="mb-4">
-              Try browsing all products or selecting a different category.
+              Try browsing all plans or selecting a different category.
             </CardDescription>
             <Button className="bg-amber" asChild>
-              <Link href="/products">View All Products</Link>
+              <Link href="/plans">View All Plans</Link>
             </Button>
           </CardContent>
         </Card>
@@ -98,13 +100,11 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
         <Card className="border-amber/30 bg-amber/5">
           <CardContent className="p-12 text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-amber/10 text-amber">
-              <Package className="h-8 w-8" />
+              <FileText className="h-8 w-8" />
             </div>
-            <CardTitle className="mb-2 text-walnut">
-              No Products Yet
-            </CardTitle>
+            <CardTitle className="mb-2 text-walnut">No Plans Yet</CardTitle>
             <CardDescription className="mb-4">
-              Products will appear here once added via Sanity Studio.
+              Cut plans will appear here once added via Sanity Studio.
             </CardDescription>
             <Button className="bg-amber" asChild>
               <Link href="/studio">
@@ -119,4 +119,4 @@ const ProductsPage = async ({ searchParams }: ProductsPageProps) => {
   );
 };
 
-export default ProductsPage;
+export default PlansPage;

@@ -34,29 +34,32 @@ export interface Category {
   description?: string;
 }
 
-export interface ProductDimensions {
-  length?: number;
-  width?: number;
-  height?: number;
-  unit?: "inches" | "cm";
-}
-
-export interface Product {
+export interface CutPlan {
   _id: string;
   name: string;
   slug: string;
   description: string;
   price: number;
-  cost?: number;
-  woodType: string;
-  finish?: string;
-  inStock: boolean;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  estimatedTime?: string;
+  toolsRequired?: string[];
+  materialsRequired?: string[];
   featured: boolean;
-  dimensions?: ProductDimensions;
   images: SanityImage[];
   image?: SanityImage;
   category: Category;
   tiktokUrl?: string;
+}
+
+export interface CutPlanCard {
+  _id: string;
+  name: string;
+  slug: string;
+  price: number;
+  difficulty: string;
+  featured?: boolean;
+  image?: SanityImage;
+  category?: Category;
 }
 
 export interface HeroSection {
@@ -83,16 +86,4 @@ export interface AboutSection {
   body: string;
   image?: SanityImage;
   stats?: AboutStat[];
-}
-
-export interface ProductCard {
-  _id: string;
-  name: string;
-  slug: string;
-  price: number;
-  woodType: string;
-  inStock: boolean;
-  featured?: boolean;
-  image?: SanityImage;
-  category?: Category;
 }
