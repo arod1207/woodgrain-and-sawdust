@@ -16,7 +16,7 @@ const AboutSection = ({ data }: Props) => {
         <div className="flex flex-col gap-12 lg:flex-row lg:items-center lg:gap-16">
           {/* Image */}
           {image?.asset && (
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl lg:w-[45%] lg:shrink-0">
+            <div className="relative aspect-square w-full overflow-hidden rounded-2xl lg:w-[45%] lg:shrink-0">
               <Image
                 src={image.asset.url}
                 alt={image.alt ?? heading}
