@@ -22,7 +22,7 @@ const navItems: NavItem[] = [
   },
   {
     name: "Plans",
-    href: "/admin/products",
+    href: "/admin/plans",
     icon: <FileText className="h-5 w-5" />,
   },
   {
