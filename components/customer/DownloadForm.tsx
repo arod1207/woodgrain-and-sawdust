@@ -54,7 +54,7 @@ export default function DownloadForm({
       setError("Please enter your name.");
       return;
     }
-    if (!email.includes("@")) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Please enter a valid email address.");
       return;
     }
