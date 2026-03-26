@@ -12,11 +12,6 @@ import { FileText, Plus, ExternalLink, Pencil, AlertTriangle } from "lucide-reac
 
 export const revalidate = 60;
 
-const currencyFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
 const DIFFICULTY_STYLES: Record<string, string> = {
   beginner: "border-sage/30 bg-sage/10 text-sage",
   intermediate: "border-amber/30 bg-amber/10 text-amber",
@@ -141,16 +136,8 @@ const PlansPage = async () => {
                     </div>
                   </div>
 
-                  {/* Price + Edit */}
-                  <div className="flex shrink-0 items-center gap-4">
-                    <div className="text-right">
-                      <p className="font-semibold text-walnut">
-                        {plan.price === 0
-                          ? "Free"
-                          : currencyFormatter.format(plan.price)}
-                      </p>
-                    </div>
-
+                  {/* Edit */}
+                  <div className="flex shrink-0 items-center">
                     <Button
                       variant="ghost"
                       size="sm"

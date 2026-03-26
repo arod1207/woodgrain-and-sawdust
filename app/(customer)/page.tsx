@@ -76,7 +76,7 @@ const HomePage = async () => {
 
               <p className="max-w-md text-lg leading-relaxed text-charcoal-light">
                 {hero?.subheading ??
-                  "Detailed PDF cut plans for woodworking projects of all skill levels. Free and premium plans available for instant download."}
+                  "Detailed PDF cut plans for woodworking projects of all skill levels. All plans are free — download instantly."}
               </p>
 
               <Button
@@ -129,8 +129,8 @@ const HomePage = async () => {
                   Instant Download
                 </h3>
                 <p className="text-sm text-cream/60">
-                  Purchase and download your plan immediately. Free plans
-                  available too.
+                  All plans are completely free. Just enter your name and
+                  email to download instantly.
                 </p>
               </div>
             </div>
