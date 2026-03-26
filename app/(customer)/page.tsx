@@ -33,7 +33,6 @@ import {
   Clock,
   Wrench,
   Package,
-  ExternalLink,
   ImageIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -77,14 +76,23 @@ const DEFAULT_FEATURES: Feature[] = [
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const hero = await client.fetch<HeroSectionType | null>(HERO_SECTION_QUERY);
-  return {
-    title:
-      hero?.seoTitle ?? "Woodgrain & Sawdust | Woodworking Cut Plans",
-    description:
-      hero?.seoDescription ??
-      "Detailed PDF cut plans for woodworking projects of all skill levels. All plans are free — download instantly.",
-  };
+  try {
+    const hero = await client.fetch<HeroSectionType | null>(HERO_SECTION_QUERY);
+    return {
+      title:
+        hero?.seoTitle ?? "Woodgrain & Sawdust | Woodworking Cut Plans",
+      description:
+        hero?.seoDescription ??
+        "Detailed PDF cut plans for woodworking projects of all skill levels. All plans are free — download instantly.",
+    };
+  } catch (error) {
+    console.error("Failed to fetch SEO metadata from Sanity:", error);
+    return {
+      title: "Woodgrain & Sawdust | Woodworking Cut Plans",
+      description:
+        "Detailed PDF cut plans for woodworking projects of all skill levels. All plans are free — download instantly.",
+    };
+  }
 }
 
 const HomePage = async () => {
@@ -222,19 +230,18 @@ const HomePage = async () => {
               <ImageIcon className="mx-auto mb-4 h-10 w-10 text-walnut/20" />
               <p className="mb-1 font-semibold text-walnut">
                 {featuredPlansConfig?.emptyStateHeading ??
-                  "No featured plans yet"}
+                  "No featured plans available right now"}
               </p>
               <p className="mb-4 text-sm text-charcoal-light">
                 {featuredPlansConfig?.emptyStateText ??
-                  'Mark cut plans as "Featured" in Sanity Studio to display them here.'}
+                  "Check back soon for new woodworking cut plans."}
               </p>
-              <Link
-                href="/studio"
-                className="inline-flex items-center gap-1.5 text-sm text-amber underline-offset-4 hover:underline"
+              <Button
+                className="rounded-full bg-amber px-6 text-cream hover:bg-amber-light"
+                asChild
               >
-                Open Sanity Studio
-                <ExternalLink className="h-3.5 w-3.5" />
-              </Link>
+                <Link href="/plans">Browse All Plans</Link>
+              </Button>
             </div>
           )}
         </div>
