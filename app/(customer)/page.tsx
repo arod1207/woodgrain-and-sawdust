@@ -1,14 +1,20 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { client } from "@/src/sanity/lib/client";
 import {
   FEATURED_CUT_PLANS_QUERY,
   ABOUT_SECTION_QUERY,
   HERO_SECTION_QUERY,
+  FEATURES_SECTION_QUERY,
+  FEATURED_PLANS_SECTION_QUERY,
 } from "@/src/sanity/lib/queries";
 import type {
   CutPlanCard as CutPlanCardType,
   AboutSection as AboutSectionType,
   HeroSection as HeroSectionType,
+  FeaturesSection as FeaturesSectionType,
+  FeaturedPlansSection as FeaturedPlansSectionType,
+  Feature,
 } from "@/src/sanity/lib/types";
 import CutPlanCard from "@/components/customer/CutPlanCard";
 import AboutSection from "@/components/customer/AboutSection";
@@ -18,20 +24,91 @@ import {
   FileText,
   Layers,
   Download,
-  ExternalLink,
+  Ruler,
+  Hammer,
+  Star,
+  ShieldCheck,
+  Zap,
+  Heart,
+  Clock,
+  Wrench,
+  Package,
   ImageIcon,
+  type LucideIcon,
 } from "lucide-react";
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  FileText,
+  Layers,
+  Download,
+  Ruler,
+  Hammer,
+  Star,
+  ShieldCheck,
+  Zap,
+  Heart,
+  Clock,
+  Wrench,
+  Package,
+};
+
+const DEFAULT_FEATURES: Feature[] = [
+  {
+    icon: "FileText",
+    title: "Detailed Plans",
+    description:
+      "Step-by-step cut lists, dimensions, and assembly instructions for every project.",
+  },
+  {
+    icon: "Layers",
+    title: "All Skill Levels",
+    description:
+      "From beginner-friendly builds to advanced joinery projects \u2014 there\u2019s a plan for you.",
+  },
+  {
+    icon: "Download",
+    title: "Instant Download",
+    description:
+      "All plans are completely free. Just enter your name and email to download instantly.",
+  },
+];
 
 export const revalidate = 60;
 
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const hero = await client.fetch<HeroSectionType | null>(HERO_SECTION_QUERY);
+    return {
+      title:
+        hero?.seoTitle ?? "Woodgrain & Sawdust | Woodworking Cut Plans",
+      description:
+        hero?.seoDescription ??
+        "Detailed PDF cut plans for woodworking projects of all skill levels. All plans are free — download instantly.",
+    };
+  } catch (error) {
+    console.error("Failed to fetch SEO metadata from Sanity:", error);
+    return {
+      title: "Woodgrain & Sawdust | Woodworking Cut Plans",
+      description:
+        "Detailed PDF cut plans for woodworking projects of all skill levels. All plans are free — download instantly.",
+    };
+  }
+}
+
 const HomePage = async () => {
-  const [featuredPlans, aboutSection, hero] = await Promise.all([
-    client.fetch<CutPlanCardType[]>(FEATURED_CUT_PLANS_QUERY),
-    client.fetch<AboutSectionType | null>(ABOUT_SECTION_QUERY),
-    client.fetch<HeroSectionType | null>(HERO_SECTION_QUERY),
-  ]);
+  const [featuredPlans, aboutSection, hero, featuresSection, featuredPlansConfig] =
+    await Promise.all([
+      client.fetch<CutPlanCardType[]>(FEATURED_CUT_PLANS_QUERY),
+      client.fetch<AboutSectionType | null>(ABOUT_SECTION_QUERY),
+      client.fetch<HeroSectionType | null>(HERO_SECTION_QUERY),
+      client.fetch<FeaturesSectionType | null>(FEATURES_SECTION_QUERY),
+      client.fetch<FeaturedPlansSectionType | null>(
+        FEATURED_PLANS_SECTION_QUERY
+      ),
+    ]);
 
   const hasFeaturedPlans = featuredPlans && featuredPlans.length > 0;
+  const features = featuresSection?.features ?? DEFAULT_FEATURES;
 
   return (
     <div className="flex flex-col">
@@ -43,12 +120,15 @@ const HomePage = async () => {
             <div className="flex items-center justify-center bg-walnut-dark px-12 py-16 lg:w-2/5 lg:min-h-[520px]">
               <div className="flex flex-col items-center text-center">
                 <p className="font-heading text-4xl font-bold text-cream lg:text-5xl">
-                  Woodgrain
+                  {hero?.brandNameLine1 ?? "Woodgrain"}
                   <br />
-                  <span className="text-amber">&amp;</span> Sawdust
+                  <span className="text-amber">
+                    {hero?.brandNameConnector ?? "&"}
+                  </span>{" "}
+                  {hero?.brandNameLine2 ?? "Sawdust"}
                 </p>
                 <p className="mt-3 text-sm font-semibold uppercase tracking-[0.3em] text-cream/50">
-                  Est. 2024
+                  {hero?.establishedText ?? "Est. 2024"}
                 </p>
               </div>
             </div>
@@ -98,42 +178,25 @@ const HomePage = async () => {
       <section className="bg-walnut-dark py-10">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col sm:flex-row sm:divide-x sm:divide-walnut/50">
-            <div className="flex flex-1 items-start gap-4 px-4 py-6 sm:px-8 sm:py-0 sm:first:pl-0">
-              <FileText className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
-              <div>
-                <h3 className="mb-1 font-semibold text-cream">
-                  Detailed Plans
-                </h3>
-                <p className="text-sm text-cream/60">
-                  Step-by-step cut lists, dimensions, and assembly instructions
-                  for every project.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-1 items-start gap-4 px-4 py-6 sm:px-8 sm:py-0">
-              <Layers className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
-              <div>
-                <h3 className="mb-1 font-semibold text-cream">
-                  All Skill Levels
-                </h3>
-                <p className="text-sm text-cream/60">
-                  From beginner-friendly builds to advanced joinery projects —
-                  there&apos;s a plan for you.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-1 items-start gap-4 px-4 py-6 sm:px-8 sm:py-0 sm:last:pr-0">
-              <Download className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
-              <div>
-                <h3 className="mb-1 font-semibold text-cream">
-                  Instant Download
-                </h3>
-                <p className="text-sm text-cream/60">
-                  All plans are completely free. Just enter your name and
-                  email to download instantly.
-                </p>
-              </div>
-            </div>
+            {features.map((feature, index) => {
+              const IconComponent = ICON_MAP[feature.icon] ?? FileText;
+              return (
+                <div
+                  key={index}
+                  className="flex flex-1 items-start gap-4 px-4 py-6 sm:px-8 sm:py-0 sm:first:pl-0 sm:last:pr-0"
+                >
+                  <IconComponent className="mt-0.5 h-5 w-5 shrink-0 text-amber" />
+                  <div>
+                    <h3 className="mb-1 font-semibold text-cream">
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm text-cream/60">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -142,13 +205,17 @@ const HomePage = async () => {
       <section className="bg-cream-dark py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-12 flex items-center justify-between">
-            <h2 className="text-3xl font-bold text-walnut">Featured Plans</h2>
+            <h2 className="text-3xl font-bold text-walnut">
+              {featuredPlansConfig?.heading ?? "Featured Plans"}
+            </h2>
             <Button
               variant="link"
               asChild
               className="text-amber hover:text-amber-light"
             >
-              <Link href="/plans">View All</Link>
+              <Link href={featuredPlansConfig?.viewAllLink ?? "/plans"}>
+                {featuredPlansConfig?.viewAllText ?? "View All"}
+              </Link>
             </Button>
           </div>
 
@@ -162,19 +229,19 @@ const HomePage = async () => {
             <div className="py-16 text-center">
               <ImageIcon className="mx-auto mb-4 h-10 w-10 text-walnut/20" />
               <p className="mb-1 font-semibold text-walnut">
-                No featured plans yet
+                {featuredPlansConfig?.emptyStateHeading ??
+                  "No featured plans available right now"}
               </p>
               <p className="mb-4 text-sm text-charcoal-light">
-                Mark cut plans as &quot;Featured&quot; in Sanity Studio to
-                display them here.
+                {featuredPlansConfig?.emptyStateText ??
+                  "Check back soon for new woodworking cut plans."}
               </p>
-              <Link
-                href="/studio"
-                className="inline-flex items-center gap-1.5 text-sm text-amber underline-offset-4 hover:underline"
+              <Button
+                className="rounded-full bg-amber px-6 text-cream hover:bg-amber-light"
+                asChild
               >
-                Open Sanity Studio
-                <ExternalLink className="h-3.5 w-3.5" />
-              </Link>
+                <Link href="/plans">Browse All Plans</Link>
+              </Button>
             </div>
           )}
         </div>
