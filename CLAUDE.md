@@ -1,24 +1,24 @@
 # Woodgrain & Sawdust — Claude Instructions
 
 ## Project
-Woodworking cut plans store. Sells digital PDF cut plans — some paid (via Stripe), some free (with optional Buy Me a Coffee tip). No cart — each plan is a single-item purchase or free download. Auth is admin-only.
+Woodworking cut plans site. Offers free digital PDF cut plans with a lead capture form (name + email) before downloads. Optional "Buy Me a Coffee" tip link on each plan. Auth is admin-only.
 
 ## Tech Stack
 - **Framework:** Next.js 16 (App Router, TypeScript)
 - **Styling:** Tailwind CSS v4 + shadcn/ui
 - **CMS:** Sanity (cut plans, images, PDFs, content)
-- **Database:** Convex (orders — real-time)
-- **Auth:** Clerk (admin-only, not required for browsing/purchasing)
-- **Payments:** Stripe (single-item checkout for paid plans)
-- **Tips:** Buy Me a Coffee (external link for free plan tips)
+- **Database:** Convex (downloads/leads — real-time)
+- **Auth:** Clerk (admin-only, not required for browsing/downloading)
+- **Tips:** Buy Me a Coffee (external link on plan pages)
 
 ## Key Architecture Decisions
-- **No sign-in for customers.** A `deviceId` (UUID in localStorage) identifies purchasers in Convex. Auth is only for the admin dashboard.
-- **No cart.** Each plan has a direct "Buy Now" (paid) or "Download Free" button.
-- **Sanity** manages cut plan content + PDF file storage; **Convex** manages orders.
-- **ConvexProvider** (not ConvexProviderWithClerk) since purchases don't need auth.
+- **No sign-in for customers.** Auth is only for the admin dashboard.
+- **All plans are free.** No payments, no Stripe, no cart.
+- **Lead capture:** A name + email form (shadcn Dialog) gates PDF downloads. Data stored in Convex `downloads` table.
+- **Sanity** manages cut plan content + PDF file storage; **Convex** manages download leads.
+- **ConvexProvider** (not ConvexProviderWithClerk) since downloads don't need auth.
 - Plan images use Sanity's `urlFor()` builder from `@/src/sanity/lib/image`.
-- **PDF security:** Paid plan PDFs are served through `/api/download` which verifies payment in Convex before proxying from Sanity CDN.
+- PDFs are served through `/api/download` which proxies from Sanity CDN.
 
 ## Project Structure
 ```
@@ -29,30 +29,24 @@ app/
     page.tsx              — Homepage with hero + featured plans
     plans/page.tsx        — Plans grid with category filter
     plans/[slug]/         — Plan detail (server component)
-    order-confirmation/   — Post-purchase with download link
   api/
-    checkout/route.ts     — Creates Stripe session for single plan
-    download/route.ts     — Secure PDF download (verifies payment for paid plans)
-    webhook/route.ts      — Proxies Stripe webhooks to Convex
+    download/route.ts     — PDF download (proxies from Sanity CDN)
   admin/                  — Protected admin routes
+    page.tsx              — Dashboard (downloads, subscribers, plans)
+    plans/                — Plan management
+    leads/                — Collected leads (name, email, plan)
   studio/                 — Sanity CMS studio
 components/
-  customer/               — CutPlanCard, PlanActions, ProductGallery, AboutSection
+  customer/               — CutPlanCard, PlanActions, DownloadForm, ProductGallery, AboutSection
   providers/              — ConvexClientProvider
   ui/                     — Header, AdminSidebar, shadcn components
-hooks/
-  useDeviceId.ts          — localStorage UUID for identifying purchasers
-  usePlanCheckout.ts      — Single-plan Stripe checkout flow
 convex/
-  schema.ts               — Orders table (deviceId, planId, planName, price, status)
-  orders.ts               — createPendingOrder, hasUserPurchasedPlan, processPaymentSuccess
-  ordersInternal.ts       — Internal mutations for order fulfillment
-  http.ts                 — Stripe webhook handler with signature verification
-  email.ts                — Order confirmation emails via Resend
+  schema.ts               — Downloads table (name, email, planId, planName, createdAt)
+  downloads.ts            — recordDownload, getAllDownloadsAdmin, getAllDownloads, getDownloadStats
 src/sanity/lib/
   client.ts, queries.ts, types.ts, image.ts
 schemaTypes/
-  cutPlan.ts              — Cut plan document (name, slug, price, pdfFile, difficulty, etc.)
+  cutPlan.ts              — Cut plan document (name, slug, pdfFile, difficulty, etc.)
   category.ts, heroSection.ts, aboutSection.ts
 ```
 
@@ -73,9 +67,7 @@ cream, cream-dark, amber, amber-light, walnut, walnut-dark, charcoal, charcoal-l
 - Server components by default; "use client" only when needed
 
 ## User Flows
-- **Paid plan:** Browse → Plan Detail → "Buy Now" → Stripe Checkout → Order Confirmation → Download PDF
-- **Free plan:** Browse → Plan Detail → "Download Free" → PDF downloads → Optional "Buy Me a Coffee" tip
-- **Re-download:** Plan Detail page checks `hasUserPurchasedPlan` via deviceId and shows "Download" button
+- **Download:** Browse → Plan Detail → "Download Plan" → Enter name + email → PDF downloads → Optional "Buy Me a Coffee" tip
 
 ## Running the Project
 - `npm run dev` — Next.js dev server

@@ -20,7 +20,6 @@ export const CUT_PLANS_QUERY = `*[_type == "cutPlan" && defined(slug.current)] |
   _id,
   name,
   "slug": slug.current,
-  price,
   difficulty,
   featured,
   "image": images[0] {
@@ -45,7 +44,6 @@ export const FEATURED_CUT_PLANS_QUERY = `*[_type == "cutPlan" && featured == tru
   _id,
   name,
   "slug": slug.current,
-  price,
   difficulty,
   "image": images[0] {
     asset->{
@@ -65,7 +63,6 @@ export const CUT_PLAN_QUERY = `*[_type == "cutPlan" && slug.current == $slug][0]
   name,
   "slug": slug.current,
   description,
-  price,
   difficulty,
   estimatedTime,
   toolsRequired,
@@ -96,7 +93,6 @@ export const CUT_PLAN_QUERY = `*[_type == "cutPlan" && slug.current == $slug][0]
 export const CUT_PLAN_PDF_QUERY = `*[_type == "cutPlan" && _id == $id][0] {
   _id,
   name,
-  price,
   "pdfUrl": pdfFile.asset->url,
   "pdfOriginalFilename": pdfFile.asset->originalFilename
 }`;
@@ -114,7 +110,6 @@ export const CUT_PLANS_BY_CATEGORY_QUERY = `*[_type == "cutPlan" && category->sl
   _id,
   name,
   "slug": slug.current,
-  price,
   difficulty,
   featured,
   "image": images[0] {
@@ -133,15 +128,6 @@ export const CUT_PLANS_BY_CATEGORY_QUERY = `*[_type == "cutPlan" && category->sl
     name,
     "slug": slug.current
   }
-}`;
-
-// Used by checkout API to verify price server-side
-export const CUT_PLAN_BY_ID_QUERY = `*[_type == "cutPlan" && _id == $id][0] {
-  _id,
-  name,
-  "slug": slug.current,
-  price,
-  "image": images[0].asset->url
 }`;
 
 export const ABOUT_SECTION_QUERY = `*[_type == "aboutSection" && _id == "aboutSection"][0] {

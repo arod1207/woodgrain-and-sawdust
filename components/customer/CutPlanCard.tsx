@@ -15,14 +15,8 @@ const DIFFICULTY_STYLES: Record<string, string> = {
   advanced: "border-red-200 bg-red-50 text-red-500",
 };
 
-const formatPrice = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
 export default function CutPlanCard({ plan }: Props) {
-  const { name, slug, price, difficulty, image } = plan;
-  const isFree = price === 0;
+  const { name, slug, difficulty, image } = plan;
 
   return (
     <Link href={`/plans/${slug}`} className="group block focus:outline-none">
@@ -43,24 +37,12 @@ export default function CutPlanCard({ plan }: Props) {
             <ImageIcon className="h-16 w-16" />
           </div>
         )}
-        {isFree && (
-          <span className="absolute left-3 top-3 rounded-sm bg-sage px-2 py-0.5 text-xs font-medium uppercase tracking-widest text-white">
-            Free
-          </span>
-        )}
       </div>
 
       <div className="mt-3">
-        <div className="flex items-baseline justify-between gap-2">
-          <h3 className="truncate text-base font-semibold text-walnut transition-colors group-hover:text-amber">
-            {name}
-          </h3>
-          <span
-            className={`shrink-0 text-sm font-medium ${isFree ? "text-sage" : "text-charcoal-light"}`}
-          >
-            {isFree ? "Free" : formatPrice.format(price)}
-          </span>
-        </div>
+        <h3 className="truncate text-base font-semibold text-walnut transition-colors group-hover:text-amber">
+          {name}
+        </h3>
         {difficulty && (
           <Badge
             variant="outline"

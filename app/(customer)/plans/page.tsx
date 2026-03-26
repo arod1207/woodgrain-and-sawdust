@@ -39,7 +39,7 @@ const PlansPage = async ({ searchParams }: PlansPageProps) => {
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-charcoal-light">
           Detailed PDF cut plans for woodworking projects of all skill levels.
-          Free and premium plans available for instant download.
+          All plans are free to download.
         </p>
       </div>
 

@@ -48,11 +48,6 @@ const PlanPage = async ({ params }: PlanPageProps) => {
     notFound();
   }
 
-  const formattedPrice = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(plan.price);
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       {/* Breadcrumb */}
@@ -103,11 +98,10 @@ const PlanPage = async ({ params }: PlanPageProps) => {
             {plan.name}
           </h1>
 
-          {/* PlanActions handles price, children (details), and buy/download buttons */}
+          {/* PlanActions handles the download form, children (details), and tip link */}
           <PlanActions
             planId={plan._id}
-            price={plan.price}
-            formattedPrice={formattedPrice}
+            planName={plan.name}
           >
             {/* Difficulty badge */}
             <div className="mb-6">

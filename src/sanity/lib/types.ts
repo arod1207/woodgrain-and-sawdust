@@ -39,7 +39,6 @@ export interface CutPlan {
   name: string;
   slug: string;
   description: string;
-  price: number;
   difficulty: "beginner" | "intermediate" | "advanced";
   estimatedTime?: string;
   toolsRequired?: string[];
@@ -55,7 +54,6 @@ export interface CutPlanCard {
   _id: string;
   name: string;
   slug: string;
-  price: number;
   difficulty: string;
   featured?: boolean;
   image?: SanityImage;

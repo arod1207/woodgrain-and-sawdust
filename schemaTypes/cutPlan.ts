@@ -31,13 +31,6 @@ export const cutPlan = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "price",
-      title: "Price",
-      type: "number",
-      description: "Price in USD. Set to 0 for free plans.",
-      validation: (rule) => rule.required().min(0),
-    }),
-    defineField({
       name: "pdfFile",
       title: "PDF File",
       type: "file",
@@ -124,13 +117,12 @@ export const cutPlan = defineType({
     select: {
       title: "name",
       media: "images.0",
-      price: "price",
       difficulty: "difficulty",
     },
-    prepare({ title, media, price, difficulty }) {
+    prepare({ title, media, difficulty }) {
       return {
         title,
-        subtitle: `${price === 0 ? "Free" : `$${price}`} · ${difficulty ?? ""}`,
+        subtitle: difficulty ?? "",
         media,
       };
     },
