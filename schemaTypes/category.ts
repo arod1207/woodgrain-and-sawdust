@@ -29,6 +29,12 @@ export const category = defineType({
       type: "text",
       rows: 3,
     }),
+    defineField({
+      name: "isVisible",
+      title: "Visible on site",
+      type: "boolean",
+      initialValue: true,
+    }),
   ],
   preview: {
     select: {

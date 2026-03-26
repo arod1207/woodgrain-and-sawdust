@@ -121,7 +121,7 @@ export const CUT_PLAN_PDF_QUERY = `*[_type == "cutPlan" && _id == $id][0] {
 
 export const CUT_PLAN_SLUGS_QUERY = `*[_type == "cutPlan" && defined(slug.current)]{ "slug": slug.current }`;
 
-export const CATEGORIES_QUERY = `*[_type == "category"] | order(name asc) {
+export const CATEGORIES_QUERY = `*[_type == "category" && isVisible == true] | order(name asc) {
   _id,
   name,
   "slug": slug.current,
