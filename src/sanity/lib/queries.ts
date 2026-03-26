@@ -1,10 +1,16 @@
 export const HERO_SECTION_QUERY = `*[_type == "heroSection" && _id == "heroSection"][0] {
+  brandNameLine1,
+  brandNameConnector,
+  brandNameLine2,
+  establishedText,
   brandLabel,
   heading,
   headingAccent,
   subheading,
   ctaText,
   ctaLink,
+  seoTitle,
+  seoDescription,
   backgroundImage {
     asset->{
       _id,
@@ -12,6 +18,22 @@ export const HERO_SECTION_QUERY = `*[_type == "heroSection" && _id == "heroSecti
     },
     alt
   }
+}`;
+
+export const FEATURES_SECTION_QUERY = `*[_type == "featuresSection" && _id == "featuresSection"][0] {
+  features[] {
+    icon,
+    title,
+    description
+  }
+}`;
+
+export const FEATURED_PLANS_SECTION_QUERY = `*[_type == "featuredPlansSection" && _id == "featuredPlansSection"][0] {
+  heading,
+  viewAllText,
+  viewAllLink,
+  emptyStateHeading,
+  emptyStateText
 }`;
 
 // Cut plan queries

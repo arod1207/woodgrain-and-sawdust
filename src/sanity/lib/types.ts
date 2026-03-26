@@ -61,6 +61,12 @@ export interface CutPlanCard {
 }
 
 export interface HeroSection {
+  // Left panel (brand panel)
+  brandNameLine1?: string;
+  brandNameConnector?: string;
+  brandNameLine2?: string;
+  establishedText?: string;
+  // Right panel (hero content)
   brandLabel?: string;
   heading: string;
   headingAccent?: string;
@@ -71,6 +77,27 @@ export interface HeroSection {
     asset: { _id: string; url: string };
     alt?: string;
   };
+  // SEO
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+export interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export interface FeaturesSection {
+  features: Feature[];
+}
+
+export interface FeaturedPlansSection {
+  heading: string;
+  viewAllText?: string;
+  viewAllLink?: string;
+  emptyStateHeading?: string;
+  emptyStateText?: string;
 }
 
 export interface AboutStat {
