@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client as sanityClient } from "@/src/sanity/lib/client";
 import { CUT_PLAN_PDF_QUERY } from "@/src/sanity/lib/queries";
+import { validateDownloadToken } from "@/lib/download-tokens";
 
 interface SanityPlanPdf {
   _id: string;
@@ -13,8 +14,14 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const planId = searchParams.get("planId");
 
+  const token = searchParams.get("token");
+
   if (!planId) {
     return NextResponse.json({ error: "Missing planId" }, { status: 400 });
+  }
+
+  if (!token || !validateDownloadToken(token, planId)) {
+    return NextResponse.json({ error: "Invalid or expired download link" }, { status: 403 });
   }
 
   const plan = await sanityClient.fetch<SanityPlanPdf | null>(
