@@ -27,7 +27,7 @@ export default function CutPlanCard({ plan }: Props) {
             alt={image.alt || name}
             width={600}
             height={600}
-            className="h-full w-full object-scale-down transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             placeholder={image.asset.metadata?.lqip ? "blur" : "empty"}
             blurDataURL={image.asset.metadata?.lqip}
