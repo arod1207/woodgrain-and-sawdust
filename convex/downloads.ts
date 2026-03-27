@@ -52,6 +52,7 @@ export const recordDownload = mutation({
       planId: args.planId,
       planName: args.planName,
       subscribe: args.subscribe,
+      emailConsent: args.subscribe,
       createdAt: Date.now(),
     });
   },

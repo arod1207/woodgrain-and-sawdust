@@ -39,7 +39,7 @@ const AdminDashboard = async () => {
   const [dashboard, productCount] = await Promise.all([
     fetchQuery(api.downloads.getDashboardData, {}, { token: token ?? undefined }).catch(() => {
       downloadsError = true;
-      return { totalDownloads: 0, uniqueEmails: 0, subscriberCount: 0, recentDownloads: [] as { _id: string; name: string; email: string; planName: string; createdAt: number; subscribe?: boolean }[] };
+      return { totalDownloads: 0, uniqueEmails: 0, subscriberCount: 0, recentDownloads: [] as { _id: string; name: string; email: string; planName: string; createdAt: number; subscribe?: boolean; emailConsent?: boolean }[] };
     }),
     client
       .fetch<number>(`count(*[_type == "cutPlan" && defined(slug.current)])`)
@@ -224,7 +224,7 @@ const AdminDashboard = async () => {
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium text-charcoal">{download.name}</p>
-                      {download.subscribe && (
+                      {download.emailConsent && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-sage/15 px-2 py-0.5 text-xs font-medium text-sage">
                           <Mail className="h-3 w-3" />
                           subscribed

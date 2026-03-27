@@ -11,7 +11,12 @@ export function generateUnsubscribeToken(email: string): string {
 }
 
 export function verifyUnsubscribeToken(email: string, token: string): boolean {
-  const expected = generateUnsubscribeToken(email.toLowerCase())
+  let expected: string
+  try {
+    expected = generateUnsubscribeToken(email.toLowerCase())
+  } catch {
+    return false
+  }
   // Constant-time comparison to prevent timing attacks
   if (expected.length !== token.length) return false
   let diff = 0
