@@ -30,6 +30,7 @@ export default function DownloadForm({
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [downloadUrl, setDownloadUrl] = useState("");
   const downloadRef = useRef<HTMLAnchorElement>(null);
 
   const resetForm = useCallback(() => {
@@ -67,17 +68,19 @@ export default function DownloadForm({
         body: JSON.stringify({ name, email, planId, planName }),
       });
 
+      const data = await res.json().catch(() => null);
+
       if (!res.ok) {
-        const data = await res.json().catch(() => null);
         setError(data?.error ?? "Something went wrong. Please try again.");
         return;
       }
 
+      const tokenUrl = `/api/download?planId=${planId}&token=${data.downloadToken}`;
+      setDownloadUrl(tokenUrl);
       onOpenChange(false);
       resetForm();
-      // Trigger download in the background via a hidden anchor click
-      // instead of window.location.href which navigates away from the page.
-      downloadRef.current?.click();
+      // Wait a tick so the anchor href updates before clicking
+      setTimeout(() => downloadRef.current?.click(), 0);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -89,7 +92,7 @@ export default function DownloadForm({
     <>
     <a
       ref={downloadRef}
-      href={`/api/download?planId=${planId}`}
+      href={downloadUrl}
       download
       className="hidden"
       aria-hidden

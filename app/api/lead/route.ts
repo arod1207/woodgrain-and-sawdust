@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
+import { generateDownloadToken } from "@/lib/download-tokens";
 
 if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
   throw new Error("Missing required environment variable: NEXT_PUBLIC_CONVEX_URL");
@@ -84,7 +85,8 @@ export async function POST(request: NextRequest) {
       planId,
       planName,
     });
-    return NextResponse.json({ success: true });
+    const downloadToken = generateDownloadToken(planId);
+    return NextResponse.json({ success: true, downloadToken });
   } catch {
     return NextResponse.json(
       { error: "Failed to record download" },

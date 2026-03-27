@@ -22,7 +22,7 @@ const lora = Lora({
 export const metadata: Metadata = {
   title: "Woodgrain & Sawdust | Woodworking Cut Plans",
   description:
-    "Detailed PDF cut plans for woodworking projects of all skill levels. Free and premium plans available for instant download.",
+    "Free PDF cut plans for woodworking projects of all skill levels. Download instantly — no account required.",
 };
 
 export default function RootLayout({
