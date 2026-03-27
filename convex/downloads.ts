@@ -16,6 +16,7 @@ export const recordDownload = mutation({
     email: v.string(),
     planId: v.string(),
     planName: v.string(),
+    subscribe: v.boolean(),
   },
   handler: async (ctx, args) => {
     if (!args.name.trim() || args.name.length > 256) {
@@ -31,11 +32,26 @@ export const recordDownload = mutation({
       throw new Error("Invalid planName");
     }
 
+    const email = args.email.trim().toLowerCase()
+
+    // If subscribe state changed, sync it across all existing records for this email
+    // so there's never a mixed state (e.g. unsubscribed user re-subscribing).
+    const existing = await ctx.db
+      .query("downloads")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .collect()
+    if (existing.length > 0) {
+      await Promise.all(
+        existing.map((r) => ctx.db.patch(r._id, { subscribe: args.subscribe }))
+      )
+    }
+
     return await ctx.db.insert("downloads", {
       name: args.name.trim(),
-      email: args.email.trim().toLowerCase(),
+      email,
       planId: args.planId,
       planName: args.planName,
+      subscribe: args.subscribe,
       createdAt: Date.now(),
     });
   },
@@ -48,14 +64,34 @@ export const getDashboardData = query({
     assertAdmin(await ctx.auth.getUserIdentity());
     const all = await ctx.db.query("downloads").order("desc").collect();
     const uniqueEmails = new Set(all.map((d) => d.email)).size;
+    const subscriberCount = new Set(
+      all.filter((d) => d.subscribe === true).map((d) => d.email)
+    ).size;
     const limit = args.recentLimit ?? 8;
     return {
       totalDownloads: all.length,
       uniqueEmails,
+      subscriberCount,
       recentDownloads: all.slice(0, limit),
     };
   },
 });
+
+// Public — unsubscribe by email (called from the unsubscribe page after token verification).
+export const unsubscribeByEmail = mutation({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    const email = args.email.trim().toLowerCase()
+    const records = await ctx.db
+      .query("downloads")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .collect()
+    await Promise.all(
+      records.map((r) => ctx.db.patch(r._id, { subscribe: false }))
+    )
+    return { unsubscribed: records.length }
+  },
+})
 
 // Admin — paginated downloads for the leads page.
 export const getAllDownloads = query({

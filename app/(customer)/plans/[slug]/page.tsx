@@ -102,6 +102,7 @@ const PlanPage = async ({ params }: PlanPageProps) => {
           <PlanActions
             planId={plan._id}
             planName={plan.name}
+            planSlug={slug}
           >
             {/* Difficulty badge */}
             <div className="mb-6">

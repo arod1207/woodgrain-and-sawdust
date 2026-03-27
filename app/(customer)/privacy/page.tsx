@@ -1,38 +1,38 @@
-import type { Metadata } from "next";
+import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Woodgrain & Sawdust",
+  title: 'Privacy Policy | Woodgrain & Sawdust',
   description:
-    "Learn how Woodgrain & Sawdust collects, uses, and protects your personal information.",
-};
+    'Learn how Woodgrain & Sawdust collects, uses, and protects your personal information.',
+}
 
 export default function PrivacyPolicyPage() {
   return (
-    <section className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
-      <h1 className="font-heading text-3xl font-bold text-walnut sm:text-4xl">
+    <section className='mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8'>
+      <h1 className='font-heading text-3xl font-bold text-walnut sm:text-4xl'>
         Privacy Policy
       </h1>
-      <p className="mt-2 text-sm text-charcoal-light">
-        Last updated: {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+      <p className='mt-2 text-sm text-charcoal-light'>
+        Last updated: March 26, 2026
       </p>
 
-      <div className="mt-10 space-y-8 font-body text-charcoal leading-relaxed">
+      <div className='mt-10 space-y-8 font-body text-charcoal leading-relaxed'>
         <div>
-          <h2 className="text-xl font-semibold text-walnut">
+          <h2 className='text-xl font-semibold text-walnut'>
             Information We Collect
           </h2>
-          <p className="mt-2">
-            When you download a cut plan, we ask for your <strong>name</strong>{" "}
+          <p className='mt-2'>
+            When you download a cut plan, we ask for your <strong>name</strong>{' '}
             and <strong>email address</strong>. This is the only personal
             information we collect.
           </p>
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-walnut">
+          <h2 className='text-xl font-semibold text-walnut'>
             How We Use Your Information
           </h2>
-          <ul className="mt-2 list-disc space-y-1 pl-6">
+          <ul className='mt-2 list-disc space-y-1 pl-6'>
             <li>To deliver the cut plan PDF you requested.</li>
             <li>
               To occasionally send you updates about new plans or woodworking
@@ -42,10 +42,10 @@ export default function PrivacyPolicyPage() {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-walnut">
+          <h2 className='text-xl font-semibold text-walnut'>
             How We Store Your Data
           </h2>
-          <p className="mt-2">
+          <p className='mt-2'>
             Your name and email are stored securely in our database (powered by
             Convex). We do not sell, rent, or share your personal information
             with third parties.
@@ -53,34 +53,34 @@ export default function PrivacyPolicyPage() {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-walnut">Cookies</h2>
-          <p className="mt-2">
-            This site does not use tracking cookies. We may use essential cookies
-            required for the site to function properly.
+          <h2 className='text-xl font-semibold text-walnut'>Cookies</h2>
+          <p className='mt-2'>
+            This site does not use tracking cookies. We may use essential
+            cookies required for the site to function properly.
           </p>
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-walnut">Your Rights</h2>
-          <p className="mt-2">You have the right to:</p>
-          <ul className="mt-2 list-disc space-y-1 pl-6">
+          <h2 className='text-xl font-semibold text-walnut'>Your Rights</h2>
+          <p className='mt-2'>You have the right to:</p>
+          <ul className='mt-2 list-disc space-y-1 pl-6'>
             <li>Request a copy of the personal data we hold about you.</li>
             <li>Request deletion of your personal data.</li>
             <li>Opt out of any marketing communications.</li>
           </ul>
-          <p className="mt-2">
+          <p className='mt-2'>
             To exercise any of these rights, please contact us at the email
             address below.
           </p>
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-walnut">Contact</h2>
-          <p className="mt-2">
-            If you have questions about this privacy policy, please email us at{" "}
+          <h2 className='text-xl font-semibold text-walnut'>Contact</h2>
+          <p className='mt-2'>
+            If you have questions about this privacy policy, please email us at{' '}
             <a
-              href="mailto:hello@woodgrainandsawdust.com"
-              className="text-amber underline hover:text-amber-light"
+              href='mailto:hello@woodgrainandsawdust.com'
+              className='text-amber underline hover:text-amber-light'
             >
               hello@woodgrainandsawdust.com
             </a>
@@ -89,5 +89,5 @@ export default function PrivacyPolicyPage() {
         </div>
       </div>
     </section>
-  );
+  )
 }

@@ -9,6 +9,7 @@ import type { ReactNode } from "react";
 interface PlanActionsProps {
   planId: string;
   planName: string;
+  planSlug: string;
   children: ReactNode;
 }
 
@@ -17,6 +18,7 @@ const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/woodgrainandsawdust";
 export default function PlanActions({
   planId,
   planName,
+  planSlug,
   children,
 }: PlanActionsProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -55,6 +57,7 @@ export default function PlanActions({
       <DownloadForm
         planId={planId}
         planName={planName}
+        planSlug={planSlug}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
       />

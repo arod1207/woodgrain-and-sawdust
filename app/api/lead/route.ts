@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ConvexHttpClient } from 'convex/browser'
 import { api } from '@/convex/_generated/api'
 import { generateDownloadToken } from '@/lib/download-tokens'
+import {
+  sendDownloadConfirmation,
+  sendSubscriberNotification,
+} from '@/lib/resend'
+import { generateUnsubscribeToken } from '@/lib/unsubscribe-token'
 
 if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
   throw new Error(
@@ -63,6 +68,8 @@ export async function POST(request: NextRequest) {
     email?: string
     planId?: string
     planName?: string
+    planSlug?: string
+    subscribe?: boolean
   }
   try {
     body = await request.json()
@@ -70,7 +77,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { name, email, planId, planName } = body
+  const { name, email, planId, planName, planSlug, subscribe } = body
 
   if (!name || typeof name !== 'string' || !name.trim()) {
     return NextResponse.json({ error: 'Name is required' }, { status: 400 })
@@ -90,6 +97,11 @@ export async function POST(request: NextRequest) {
       { status: 400 },
     )
   }
+  if (!planSlug || typeof planSlug !== 'string') {
+    return NextResponse.json({ error: 'Plan slug is required' }, { status: 400 })
+  }
+
+  const wantsSubscribe = subscribe === true
 
   try {
     await convex.mutation(api.downloads.recordDownload, {
@@ -97,6 +109,7 @@ export async function POST(request: NextRequest) {
       email,
       planId,
       planName,
+      subscribe: wantsSubscribe,
     })
 
     let downloadToken: string
@@ -108,6 +121,33 @@ export async function POST(request: NextRequest) {
         { status: 500 },
       )
     }
+
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://woodgrainandsawdust.com'
+    let unsubscribeUrl = `${siteUrl}/plans`
+    try {
+      const unsubscribeToken = generateUnsubscribeToken(email)
+      unsubscribeUrl = `${siteUrl}/unsubscribe?e=${encodeURIComponent(email)}&t=${unsubscribeToken}`
+    } catch {
+      // UNSUBSCRIBE_SECRET missing — email will have a fallback link; download still completes
+    }
+
+    // Fire emails in parallel — don't block the download if they fail.
+    const emailTasks: Promise<void>[] = [
+      sendDownloadConfirmation({
+        toName: name,
+        toEmail: email,
+        planName,
+        planSlug,
+        unsubscribeUrl,
+      }),
+    ]
+    if (wantsSubscribe) {
+      emailTasks.push(
+        sendSubscriberNotification({ subscriberName: name, subscriberEmail: email, planName }),
+      )
+    }
+    Promise.allSettled(emailTasks) // intentionally not awaited
+
     return NextResponse.json({ success: true, downloadToken })
   } catch {
     return NextResponse.json(
