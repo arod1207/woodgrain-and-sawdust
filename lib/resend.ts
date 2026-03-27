@@ -3,7 +3,8 @@ import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const FROM = 'hello@woodgrainandsawdust.com'
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://woodgrainandsawdust.com'
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://woodgrainandsawdust.com'
 const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/woodgrainandsawdust'
 
 export async function sendDownloadConfirmation({
@@ -19,7 +20,7 @@ export async function sendDownloadConfirmation({
   planSlug: string
   unsubscribeUrl: string
 }) {
-  const planUrl = `${SITE_URL}/plans/${planSlug}`
+  const planUrl = `${SITE_URL}/plans/${encodeURIComponent(planSlug)}`
 
   await resend.emails.send({
     from: `Woodgrain & Sawdust <${FROM}>`,
