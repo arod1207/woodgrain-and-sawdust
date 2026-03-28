@@ -107,7 +107,10 @@ const HomePage = async () => {
       ),
     ]);
 
-  const hasFeaturedPlans = featuredPlans && featuredPlans.length > 0;
+  const sortedFeaturedPlans = featuredPlans
+    ? [...featuredPlans.filter((p) => !p.comingSoon), ...featuredPlans.filter((p) => p.comingSoon)]
+    : [];
+  const hasFeaturedPlans = sortedFeaturedPlans.length > 0;
   const features = featuresSection?.features ?? DEFAULT_FEATURES;
 
   return (
@@ -221,7 +224,7 @@ const HomePage = async () => {
 
           {hasFeaturedPlans ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredPlans.map((plan) => (
+              {sortedFeaturedPlans.map((plan) => (
                 <CutPlanCard key={plan._id} plan={plan} />
               ))}
             </div>
