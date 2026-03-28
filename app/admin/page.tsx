@@ -15,6 +15,7 @@ import {
   Settings,
   AlertTriangle,
   Mail,
+  TrendingUp,
 } from "lucide-react";
 
 const AdminDashboard = async () => {
@@ -36,7 +37,7 @@ const AdminDashboard = async () => {
   let downloadsError = false;
   let productCountError = false;
 
-  const [dashboard, productCount] = await Promise.all([
+  const [dashboard, productCount, funnelStats] = await Promise.all([
     fetchQuery(api.downloads.getDashboardData, {}, { token: token ?? undefined }).catch(() => {
       downloadsError = true;
       return { totalDownloads: 0, uniqueEmails: 0, subscriberCount: 0, recentDownloads: [] as { _id: string; name: string; email: string; planName: string; createdAt: number; subscribe?: boolean; emailConsent?: boolean }[] };
@@ -47,6 +48,7 @@ const AdminDashboard = async () => {
         productCountError = true;
         return 0;
       }),
+    fetchQuery(api.events.getFunnelStats, {}, { token: token ?? undefined }).catch(() => [] as { planId: string; planName: string; views: number; formOpens: number; downloads: number }[]),
   ]);
 
   const { totalDownloads, uniqueEmails, subscriberCount, recentDownloads } = dashboard;
@@ -195,6 +197,52 @@ const AdminDashboard = async () => {
           </Button>
         </div>
       </div>
+
+      {/* Funnel Stats */}
+      {funnelStats.length > 0 && (
+        <Card className="mb-8 border-cream-dark">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-amber" />
+              <CardTitle className="text-walnut">Download Funnel</CardTitle>
+            </div>
+            <CardDescription>Views → form opens → downloads per plan</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-cream-dark text-left text-xs font-medium uppercase tracking-wide text-charcoal-light">
+                    <th className="pb-3 pr-4">Plan</th>
+                    <th className="pb-3 pr-4 text-right">Views</th>
+                    <th className="pb-3 pr-4 text-right">Form Opens</th>
+                    <th className="pb-3 pr-4 text-right">Downloads</th>
+                    <th className="pb-3 text-right">Conversion</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-cream-dark">
+                  {funnelStats.map((row) => {
+                    const conversion = row.views > 0 ? Math.round((row.downloads / row.views) * 100) : 0;
+                    return (
+                      <tr key={row.planId}>
+                        <td className="py-3 pr-4 font-medium text-charcoal">{row.planName}</td>
+                        <td className="py-3 pr-4 text-right text-charcoal-light">{row.views}</td>
+                        <td className="py-3 pr-4 text-right text-charcoal-light">{row.formOpens}</td>
+                        <td className="py-3 pr-4 text-right text-charcoal-light">{row.downloads}</td>
+                        <td className="py-3 text-right">
+                          <span className={`font-medium ${conversion >= 20 ? "text-sage" : conversion >= 10 ? "text-amber" : "text-charcoal-light"}`}>
+                            {conversion}%
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Recent Downloads */}
       <Card className="border-cream-dark">

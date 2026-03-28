@@ -5,6 +5,7 @@ import { CUT_PLAN_QUERY, CUT_PLAN_SLUGS_QUERY } from "@/src/sanity/lib/queries";
 import type { CutPlan } from "@/src/sanity/lib/types";
 import ProductGallery from "@/components/customer/ProductGallery";
 import PlanActions from "@/components/customer/PlanActions";
+import PlanViewTracker from "@/components/customer/PlanViewTracker";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Clock, Wrench, TreePine } from "lucide-react";
@@ -75,6 +76,7 @@ const PlanPage = async ({ params }: PlanPageProps) => {
         </ol>
       </nav>
 
+      <PlanViewTracker planId={plan._id} planName={plan.name} />
       <div className="flex flex-col gap-12 lg:flex-row">
         {/* Image Gallery */}
         <div className="lg:w-1/2">

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import DownloadForm from "@/components/customer/DownloadForm";
 import { Download, Coffee } from "lucide-react";
@@ -22,6 +24,7 @@ export default function PlanActions({
   children,
 }: PlanActionsProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const recordEvent = useMutation(api.events.recordEvent);
 
   return (
     <>
@@ -37,7 +40,10 @@ export default function PlanActions({
         <Button
           size="lg"
           className="w-full rounded-full bg-amber px-8 py-6 text-base text-white hover:bg-amber-light"
-          onClick={() => setDialogOpen(true)}
+          onClick={() => {
+            setDialogOpen(true);
+            recordEvent({ event: "form_open", planId, planName }).catch(() => {});
+          }}
         >
           <Download className="mr-2 h-5 w-5" />
           Download Plan
