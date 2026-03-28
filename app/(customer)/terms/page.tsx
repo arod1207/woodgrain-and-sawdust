@@ -43,7 +43,7 @@ export default function TermsOfServicePage() {
             </li>
             <li>
               You are welcome to share photos of your finished projects built
-              from our plans.
+              from these plans.
             </li>
           </ul>
         </div>
@@ -51,11 +51,11 @@ export default function TermsOfServicePage() {
         <div>
           <h2 className='text-xl font-semibold text-walnut'>Disclaimer</h2>
           <p className='mt-2'>
-            Woodworking involves inherent risks. Our cut plans are provided{' '}
+            Woodworking involves inherent risks. Cut plans are provided{' '}
             <strong>&ldquo;as is&rdquo;</strong> without warranties of any kind.
             Always follow proper safety procedures when using power tools and
             equipment. Woodgrain &amp; Sawdust is not liable for any injuries,
-            damages, or losses resulting from the use of our plans.
+            damages, or losses resulting from the use of these plans.
           </p>
         </div>
 
@@ -75,7 +75,7 @@ export default function TermsOfServicePage() {
             Changes to These Terms
           </h2>
           <p className='mt-2'>
-            We may update these terms from time to time. Continued use of the
+            These terms may be updated from time to time. Continued use of the
             site after changes constitutes acceptance of the updated terms.
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function TermsOfServicePage() {
         <div>
           <h2 className='text-xl font-semibold text-walnut'>Contact</h2>
           <p className='mt-2'>
-            Questions about these terms? Email us at{' '}
+            Questions about these terms? Reach out at{' '}
             <a
               href='mailto:hello@woodgrainandsawdust.com'
               className='text-amber underline hover:text-amber-light'

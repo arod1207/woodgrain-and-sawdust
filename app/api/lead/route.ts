@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { ConvexHttpClient } from 'convex/browser'
 import { api } from '@/convex/_generated/api'
-import { generateDownloadToken } from '@/lib/download-tokens'
+import { generateDownloadToken, EMAIL_TOKEN_TTL_MS } from '@/lib/download-tokens'
 import {
   sendDownloadConfirmation,
   sendSubscriberNotification,
@@ -131,13 +131,16 @@ export async function POST(request: NextRequest) {
       // UNSUBSCRIBE_SECRET missing — email will have a fallback link; download still completes
     }
 
+    const emailToken = generateDownloadToken(planId, EMAIL_TOKEN_TTL_MS)
+    const downloadUrl = `${siteUrl}/api/download?planId=${planId}&token=${emailToken}`
+
     // Fire emails in parallel — don't block the download if they fail.
     const emailTasks: Promise<void>[] = [
       sendDownloadConfirmation({
         toName: name,
         toEmail: email,
         planName,
-        planSlug,
+        downloadUrl,
         unsubscribeUrl,
       }),
     ]

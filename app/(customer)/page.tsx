@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { client } from "@/src/sanity/lib/client";
 import {
@@ -122,15 +123,14 @@ const HomePage = async () => {
             {/* Left: Decorative brand panel */}
             <div className="flex items-center justify-center bg-walnut-dark px-12 py-16 lg:w-2/5 lg:min-h-[520px]">
               <div className="flex flex-col items-center text-center">
-                <p className="font-heading text-4xl font-bold text-cream lg:text-5xl">
-                  {hero?.brandNameLine1 ?? "Woodgrain"}
-                  <br />
-                  <span className="text-amber">
-                    {hero?.brandNameConnector ?? "&"}
-                  </span>{" "}
-                  {hero?.brandNameLine2 ?? "Sawdust"}
-                </p>
-                <p className="mt-3 text-sm font-semibold uppercase tracking-[0.3em] text-cream/50">
+                <Image
+                  src="/logo.jpg"
+                  alt="Woodgrain & Sawdust"
+                  width={200}
+                  height={200}
+                  className="mb-4 h-56 w-56 rounded-full lg:h-64 lg:w-64"
+                />
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-cream/50">
                   {hero?.establishedText ?? "Est. 2024"}
                 </p>
               </div>

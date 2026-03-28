@@ -109,6 +109,7 @@ export default function DownloadForm({
             <DialogDescription className='text-charcoal-light'>
               Enter your name and email to download{' '}
               <span className='font-medium text-charcoal'>{planName}</span>.
+              {' '}I&apos;ll also email you a download link good for 7 days — check your spam folder if it doesn&apos;t show up.
             </DialogDescription>
           </DialogHeader>
 
