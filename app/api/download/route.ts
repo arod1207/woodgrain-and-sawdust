@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { client as sanityClient } from "@/src/sanity/lib/client";
+import { serverClient as sanityClient } from "@/src/sanity/lib/client";
 import { CUT_PLAN_PDF_QUERY } from "@/src/sanity/lib/queries";
 import { validateDownloadToken } from "@/lib/download-tokens";
 
