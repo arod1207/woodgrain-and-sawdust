@@ -33,8 +33,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Plan not found" }, { status: 404 });
   }
 
-  // Stream the PDF from Sanity's CDN.
-  const pdfResponse = await fetch(plan.pdfUrl);
+  // Stream the PDF from Sanity's CDN (token required for private file assets).
+  const pdfResponse = await fetch(plan.pdfUrl, {
+    headers: process.env.SANITY_API_TOKEN
+      ? { Authorization: `Bearer ${process.env.SANITY_API_TOKEN}` }
+      : {},
+  });
 
   if (!pdfResponse.ok) {
     return NextResponse.json(
