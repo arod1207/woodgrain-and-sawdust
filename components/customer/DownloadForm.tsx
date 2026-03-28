@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -34,8 +34,6 @@ export default function DownloadForm({
   const [subscribe, setSubscribe] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [downloadUrl, setDownloadUrl] = useState('')
-  const downloadRef = useRef<HTMLAnchorElement>(null)
 
   const resetForm = useCallback(() => {
     setName('')
@@ -86,11 +84,15 @@ export default function DownloadForm({
       }
 
       const tokenUrl = `/api/download?planId=${planId}&token=${data.downloadToken}`
-      setDownloadUrl(tokenUrl)
       onOpenChange(false)
       resetForm()
-      // Wait a tick so the anchor href updates before clicking
-      setTimeout(() => downloadRef.current?.click(), 0)
+      // Imperatively trigger download so the href is always current
+      const a = document.createElement('a')
+      a.href = tokenUrl
+      a.download = ''
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
     } catch {
       setError('Something went wrong. Please try again.')
     } finally {
@@ -100,13 +102,6 @@ export default function DownloadForm({
 
   return (
     <>
-      <a
-        ref={downloadRef}
-        href={downloadUrl}
-        download
-        className='hidden'
-        aria-hidden
-      />
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className='sm:max-w-md'>
           <DialogHeader>
