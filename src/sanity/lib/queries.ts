@@ -44,6 +44,7 @@ export const CUT_PLANS_QUERY = `*[_type == "cutPlan" && defined(slug.current)] |
   "slug": slug.current,
   difficulty,
   featured,
+  comingSoon,
   "image": images[0] {
     asset->{
       _id,
@@ -67,6 +68,7 @@ export const FEATURED_CUT_PLANS_QUERY = `*[_type == "cutPlan" && featured == tru
   name,
   "slug": slug.current,
   difficulty,
+  comingSoon,
   "image": images[0] {
     asset->{
       _id,
@@ -87,9 +89,9 @@ export const CUT_PLAN_QUERY = `*[_type == "cutPlan" && slug.current == $slug][0]
   description,
   difficulty,
   estimatedTime,
-  toolsRequired,
   materialsRequired,
   featured,
+  comingSoon,
   images[] {
     asset->{
       _id,
@@ -134,6 +136,7 @@ export const CUT_PLANS_BY_CATEGORY_QUERY = `*[_type == "cutPlan" && category->sl
   "slug": slug.current,
   difficulty,
   featured,
+  comingSoon,
   "image": images[0] {
     asset->{
       _id,

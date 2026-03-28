@@ -16,7 +16,7 @@ const DIFFICULTY_STYLES: Record<string, string> = {
 };
 
 export default function CutPlanCard({ plan }: Props) {
-  const { name, slug, difficulty, image } = plan;
+  const { name, slug, difficulty, image, comingSoon } = plan;
 
   return (
     <Link href={`/plans/${slug}`} className="group block focus:outline-none">
@@ -27,7 +27,7 @@ export default function CutPlanCard({ plan }: Props) {
             alt={image.alt || name}
             width={600}
             height={600}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${comingSoon ? "brightness-75" : ""}`}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             placeholder={image.asset.metadata?.lqip ? "blur" : "empty"}
             blurDataURL={image.asset.metadata?.lqip}
@@ -35,6 +35,13 @@ export default function CutPlanCard({ plan }: Props) {
         ) : (
           <div className="flex h-full items-center justify-center text-walnut/20">
             <ImageIcon className="h-16 w-16" />
+          </div>
+        )}
+        {comingSoon && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="rounded-full bg-walnut/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-cream">
+              Coming Soon
+            </span>
           </div>
         )}
       </div>
