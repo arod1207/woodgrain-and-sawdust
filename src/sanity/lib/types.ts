@@ -41,9 +41,9 @@ export interface CutPlan {
   description: string;
   difficulty: "beginner" | "intermediate" | "advanced";
   estimatedTime?: string;
-  toolsRequired?: string[];
   materialsRequired?: string[];
   featured: boolean;
+  comingSoon?: boolean;
   images: SanityImage[];
   image?: SanityImage;
   category: Category;
@@ -56,6 +56,7 @@ export interface CutPlanCard {
   slug: string;
   difficulty: string;
   featured?: boolean;
+  comingSoon?: boolean;
   image?: SanityImage;
   category?: Category;
 }

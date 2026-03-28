@@ -8,7 +8,7 @@ import PlanActions from "@/components/customer/PlanActions";
 import PlanViewTracker from "@/components/customer/PlanViewTracker";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Clock, Wrench, TreePine } from "lucide-react";
+import { Play, Clock, TreePine } from "lucide-react";
 
 interface PlanPageProps {
   params: Promise<{ slug: string }>;
@@ -105,6 +105,7 @@ const PlanPage = async ({ params }: PlanPageProps) => {
             planId={plan._id}
             planName={plan.name}
             planSlug={slug}
+            comingSoon={plan.comingSoon}
           >
             {/* Difficulty badge */}
             <div className="mb-6">
@@ -141,24 +142,6 @@ const PlanPage = async ({ params }: PlanPageProps) => {
                           Estimated Build Time
                         </dt>
                         <dd className="text-charcoal">{plan.estimatedTime}</dd>
-                      </div>
-                    </div>
-                  )}
-
-                  {plan.toolsRequired && plan.toolsRequired.length > 0 && (
-                    <div className="flex items-start gap-3">
-                      <Wrench className="mt-0.5 h-4 w-4 shrink-0 text-amber" />
-                      <div>
-                        <dt className="text-sm font-medium text-charcoal-light">
-                          Tools Required
-                        </dt>
-                        <dd className="text-charcoal">
-                          <ul className="mt-1 list-inside list-disc space-y-0.5 text-sm">
-                            {plan.toolsRequired.map((tool) => (
-                              <li key={tool}>{tool}</li>
-                            ))}
-                          </ul>
-                        </dd>
                       </div>
                     </div>
                   )}

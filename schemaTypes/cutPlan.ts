@@ -31,12 +31,19 @@ export const cutPlan = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "comingSoon",
+      title: "Coming Soon",
+      type: "boolean",
+      description: "Mark this plan as coming soon — shows preview but no download",
+      initialValue: false,
+    }),
+    defineField({
       name: "pdfFile",
       title: "PDF File",
       type: "file",
-      description: "The cut plan PDF that customers will download",
+      description: "The cut plan PDF that customers will download (not required for coming soon plans)",
       options: { accept: "application/pdf" },
-      validation: (rule) => rule.required(),
+      hidden: ({ document }) => !!document?.comingSoon,
     }),
     defineField({
       name: "images",
@@ -77,13 +84,6 @@ export const cutPlan = defineType({
       title: "Estimated Build Time",
       type: "string",
       description: 'e.g., "4-6 hours", "1 weekend"',
-    }),
-    defineField({
-      name: "toolsRequired",
-      title: "Tools Required",
-      type: "array",
-      of: [defineArrayMember({ type: "string" })],
-      description: "List of tools needed for this project",
     }),
     defineField({
       name: "materialsRequired",
