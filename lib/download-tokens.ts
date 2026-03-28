@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
 const TOKEN_TTL_MS = 5 * 60 * 1000; // 5 minutes
+export const EMAIL_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 function getSecret(): string {
   const secret = process.env.DOWNLOAD_TOKEN_SECRET;
@@ -9,8 +10,8 @@ function getSecret(): string {
 }
 
 // Token format: base64url("<planId>.<expiresAt>.<hmac>")
-export function generateDownloadToken(planId: string): string {
-  const expiresAt = Date.now() + TOKEN_TTL_MS;
+export function generateDownloadToken(planId: string, ttlMs = TOKEN_TTL_MS): string {
+  const expiresAt = Date.now() + ttlMs;
   const payload = `${planId}.${expiresAt}`;
   const hmac = createHmac("sha256", getSecret()).update(payload).digest("hex");
   return Buffer.from(`${payload}.${hmac}`).toString("base64url");

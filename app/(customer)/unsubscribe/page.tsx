@@ -39,8 +39,8 @@ export default async function UnsubscribePage({ searchParams }: Props) {
         </div>
         <h1 className='mb-2 text-2xl font-bold text-walnut'>Something went wrong</h1>
         <p className='mb-6 max-w-sm text-charcoal-light'>
-          We couldn&apos;t process your request. Please try again later or reply
-          to any email from us.
+          Your request couldn&apos;t be processed. Please try again later or reply
+          to any email from Woodgrain &amp; Sawdust.
         </p>
         <Link href='/' className='text-sm font-medium text-amber hover:text-amber-light'>
           Back to home

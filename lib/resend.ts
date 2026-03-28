@@ -11,17 +11,15 @@ export async function sendDownloadConfirmation({
   toName,
   toEmail,
   planName,
-  planSlug,
+  downloadUrl,
   unsubscribeUrl,
 }: {
   toName: string
   toEmail: string
   planName: string
-  planSlug: string
+  downloadUrl: string
   unsubscribeUrl: string
 }) {
-  const planUrl = `${SITE_URL}/plans/${encodeURIComponent(planSlug)}`
-
   await resend.emails.send({
     from: `Woodgrain & Sawdust <${FROM}>`,
     to: toEmail,
@@ -31,57 +29,81 @@ export async function sendDownloadConfirmation({
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /></head>
-<body style="margin:0;padding:0;background:#f5f0e8;font-family:Georgia,serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0e8;padding:40px 16px;">
+<body style="margin:0;padding:0;background:#ece7db;font-family:Georgia,serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ece7db;padding:40px 16px;">
     <tr><td align="center">
-      <table width="100%" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      <table width="100%" style="max-width:560px;">
 
-        <!-- Header -->
+        <!-- Logo -->
         <tr>
-          <td style="background:#5c3d2e;padding:32px 40px;text-align:center;">
-            <p style="margin:0;font-size:22px;font-weight:bold;color:#f5f0e8;letter-spacing:0.5px;">Woodgrain &amp; Sawdust</p>
-            <p style="margin:6px 0 0;font-size:13px;color:#c9a97a;">Free Woodworking Cut Plans</p>
+          <td style="padding:0 0 20px;text-align:center;">
+            <img
+              src="${SITE_URL}/logo.jpg"
+              alt="Woodgrain &amp; Sawdust"
+              width="96"
+              height="96"
+              style="display:block;margin:0 auto;border-radius:50%;border:3px solid #d4851a;box-shadow:0 2px 8px rgba(0,0,0,0.15);"
+            />
           </td>
         </tr>
 
-        <!-- Body -->
+        <!-- Card -->
         <tr>
-          <td style="padding:36px 40px;">
-            <p style="margin:0 0 8px;font-size:16px;color:#3d2b1f;">Hi ${toName},</p>
-            <p style="margin:0 0 24px;font-size:15px;color:#5a4a3a;line-height:1.6;">
-              Thanks for downloading! Your <strong>${planName}</strong> cut plan is ready — head back to the plan page anytime to grab it again.
-            </p>
+          <td style="background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #ddd5c5;box-shadow:0 2px 12px rgba(0,0,0,0.07);">
 
-            <div style="text-align:center;margin:0 0 28px;">
-              <a href="${planUrl}"
-                 style="display:inline-block;background:#d4851a;color:#ffffff;font-size:15px;font-weight:bold;text-decoration:none;padding:14px 32px;border-radius:50px;">
-                View Plan
-              </a>
-            </div>
+            <!-- Amber top stripe -->
+            <table width="100%" cellpadding="0" cellspacing="0"><tr>
+              <td style="height:5px;background:linear-gradient(to right,#b8640f,#d4851a,#e8a540);font-size:0;line-height:5px;">&nbsp;</td>
+            </tr></table>
 
-            <hr style="border:none;border-top:1px solid #ede8de;margin:0 0 24px;" />
+            <!-- Body -->
+            <table width="100%" cellpadding="0" cellspacing="0"><tr>
+              <td style="padding:36px 40px 28px;">
 
-            <p style="margin:0 0 8px;font-size:14px;color:#5a4a3a;line-height:1.6;">
-              If this plan saves you time or comes out better than expected, consider buying me a coffee — it helps keep the plans coming!
-            </p>
-            <div style="text-align:center;margin:0 0 4px;">
-              <a href="${BUY_ME_A_COFFEE_URL}"
-                 style="display:inline-block;color:#d4851a;font-size:14px;font-weight:bold;text-decoration:none;border:2px solid #d4851a;padding:10px 24px;border-radius:50px;">
-                ☕ Buy Me a Coffee
-              </a>
-            </div>
+                <p style="margin:0 0 6px;font-size:11px;font-weight:bold;letter-spacing:2.5px;text-transform:uppercase;color:#c4751a;text-align:center;">Woodgrain &amp; Sawdust</p>
+
+                <h1 style="margin:0 0 28px;font-size:22px;color:#3d2b1f;text-align:center;font-weight:normal;line-height:1.3;">Your cut plan is ready!</h1>
+
+                <p style="margin:0 0 6px;font-size:15px;color:#5a4a3a;line-height:1.7;">Hi ${toName},</p>
+                <p style="margin:0 0 28px;font-size:15px;color:#5a4a3a;line-height:1.7;">
+                  Thanks for downloading the <strong style="color:#3d2b1f;">${planName}</strong> plan! If you ever lose or misplace your PDF, use the button below to download it again — the link is good for 7 days.
+                </p>
+
+                <div style="text-align:center;margin:0 0 32px;">
+                  <a href="${downloadUrl}"
+                     style="display:inline-block;background:#d4851a;color:#ffffff;font-size:15px;font-weight:bold;text-decoration:none;padding:15px 40px;border-radius:50px;letter-spacing:0.3px;">
+                    Download Plan
+                  </a>
+                </div>
+
+                <hr style="border:none;border-top:1px solid #ede8de;margin:0 0 24px;" />
+
+                <p style="margin:0 0 16px;font-size:14px;color:#7a6a5a;line-height:1.7;text-align:center;">
+                  If this plan saves you some time (or just comes out awesome), consider buying me a coffee — it helps keep the free plans coming!
+                </p>
+                <div style="text-align:center;">
+                  <a href="${BUY_ME_A_COFFEE_URL}"
+                     style="display:inline-block;color:#d4851a;font-size:14px;font-weight:bold;text-decoration:none;border:2px solid #d4851a;padding:10px 26px;border-radius:50px;">
+                    ☕ Buy Me a Coffee
+                  </a>
+                </div>
+
+              </td>
+            </tr></table>
+
+
           </td>
         </tr>
 
         <!-- Footer -->
         <tr>
-          <td style="background:#f5f0e8;padding:20px 40px;text-align:center;">
-            <p style="margin:0 0 8px;font-size:12px;color:#9a8a7a;">
+          <td style="padding:24px 16px 8px;text-align:center;">
+            <p style="margin:0 0 6px;font-size:12px;color:#9a8a7a;line-height:1.6;">
               You're receiving this because you downloaded a free plan from
-              <a href="${SITE_URL}" style="color:#d4851a;text-decoration:none;">woodgrainandsawdust.com</a>.
+              <a href="${SITE_URL}" style="color:#c4751a;text-decoration:none;">woodgrainandsawdust.com</a>.
             </p>
             <p style="margin:0;font-size:11px;color:#b0a090;">
-              <a href="${unsubscribeUrl}" style="color:#b0a090;">Unsubscribe from future emails</a>
+              <a href="${unsubscribeUrl}" style="color:#b0a090;text-decoration:none;">Unsubscribe from future emails</a>
             </p>
           </td>
         </tr>
