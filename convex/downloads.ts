@@ -34,18 +34,6 @@ export const recordDownload = mutation({
 
     const email = args.email.trim().toLowerCase()
 
-    // If subscribe state changed, sync it across all existing records for this email
-    // so there's never a mixed state (e.g. unsubscribed user re-subscribing).
-    const existing = await ctx.db
-      .query("downloads")
-      .withIndex("by_email", (q) => q.eq("email", email))
-      .collect()
-    if (existing.length > 0) {
-      await Promise.all(
-        existing.map((r) => ctx.db.patch(r._id, { subscribe: args.subscribe }))
-      )
-    }
-
     return await ctx.db.insert("downloads", {
       name: args.name.trim(),
       email,
