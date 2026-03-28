@@ -14,6 +14,7 @@ import {
   ClipboardList,
   Settings,
   AlertTriangle,
+  Mail,
 } from "lucide-react";
 
 const AdminDashboard = async () => {
@@ -38,7 +39,7 @@ const AdminDashboard = async () => {
   const [dashboard, productCount] = await Promise.all([
     fetchQuery(api.downloads.getDashboardData, {}, { token: token ?? undefined }).catch(() => {
       downloadsError = true;
-      return { totalDownloads: 0, uniqueEmails: 0, recentDownloads: [] as { _id: string; name: string; email: string; planName: string; createdAt: number }[] };
+      return { totalDownloads: 0, uniqueEmails: 0, subscriberCount: 0, recentDownloads: [] as { _id: string; name: string; email: string; planName: string; createdAt: number; subscribe?: boolean; emailConsent?: boolean }[] };
     }),
     client
       .fetch<number>(`count(*[_type == "cutPlan" && defined(slug.current)])`)
@@ -48,7 +49,7 @@ const AdminDashboard = async () => {
       }),
   ]);
 
-  const { totalDownloads, uniqueEmails, recentDownloads } = dashboard;
+  const { totalDownloads, uniqueEmails, subscriberCount, recentDownloads } = dashboard;
 
   return (
     <div>
@@ -73,7 +74,7 @@ const AdminDashboard = async () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card className="border-cream-dark">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -122,6 +123,21 @@ const AdminDashboard = async () => {
               </div>
             </div>
             <p className="mt-3 text-xs text-charcoal-light">Active listings in Sanity</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-cream-dark">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-charcoal-light">Email Subscribers</p>
+                <p className="mt-1 text-2xl font-bold text-walnut">{subscriberCount}</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-sage/20 text-sage">
+                <Mail className="h-6 w-6" />
+              </div>
+            </div>
+            <p className="mt-3 text-xs text-charcoal-light">Opted in for new plans</p>
           </CardContent>
         </Card>
       </div>
@@ -206,9 +222,15 @@ const AdminDashboard = async () => {
               {recentDownloads.map((download) => (
                 <div key={download._id} className="flex items-center justify-between py-3">
                   <div className="flex flex-col gap-0.5">
-                    <p className="text-sm font-medium text-charcoal">
-                      {download.name}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium text-charcoal">{download.name}</p>
+                      {download.emailConsent && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-sage/15 px-2 py-0.5 text-xs font-medium text-sage">
+                          <Mail className="h-3 w-3" />
+                          subscribed
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-charcoal-light">
                       {download.email} ·{" "}
                       {new Date(download.createdAt).toLocaleDateString("en-US", {
@@ -218,9 +240,7 @@ const AdminDashboard = async () => {
                       })}
                     </p>
                   </div>
-                  <p className="text-sm text-charcoal-light">
-                    {download.planName}
-                  </p>
+                  <p className="text-sm text-charcoal-light">{download.planName}</p>
                 </div>
               ))}
             </div>

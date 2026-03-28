@@ -11,11 +11,13 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Download, Loader2 } from 'lucide-react'
 
 interface DownloadFormProps {
   planId: string
   planName: string
+  planSlug: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -23,11 +25,13 @@ interface DownloadFormProps {
 export default function DownloadForm({
   planId,
   planName,
+  planSlug,
   open,
   onOpenChange,
 }: DownloadFormProps) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [subscribe, setSubscribe] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [downloadUrl, setDownloadUrl] = useState('')
@@ -36,6 +40,7 @@ export default function DownloadForm({
   const resetForm = useCallback(() => {
     setName('')
     setEmail('')
+    setSubscribe(false)
     setError('')
   }, [])
 
@@ -65,7 +70,7 @@ export default function DownloadForm({
       const res = await fetch('/api/lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, planId, planName }),
+        body: JSON.stringify({ name, email, planId, planName, planSlug, subscribe }),
       })
 
       const data = await res.json().catch(() => null)
@@ -141,6 +146,21 @@ export default function DownloadForm({
                 required
                 className='border-cream-dark focus-visible:ring-amber'
               />
+            </div>
+
+            <div className='flex items-start gap-3'>
+              <Checkbox
+                id='subscribe'
+                checked={subscribe}
+                onCheckedChange={(checked) => setSubscribe(checked === true)}
+                className='mt-0.5 border-charcoal/50 data-[state=checked]:bg-amber data-[state=checked]:border-amber'
+              />
+              <Label
+                htmlFor='subscribe'
+                className='cursor-pointer text-sm leading-snug text-charcoal-light'
+              >
+                Notify me when new build plans are available
+              </Label>
             </div>
 
             {error && <p className='text-sm text-red-600'>{error}</p>}

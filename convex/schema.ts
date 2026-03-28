@@ -7,6 +7,8 @@ export default defineSchema({
     email: v.string(),
     planId: v.string(),
     planName: v.string(),
+    subscribe: v.optional(v.boolean()),
+    emailConsent: v.optional(v.boolean()),
     createdAt: v.number(),
   })
     .index("by_email", ["email"])
