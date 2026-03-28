@@ -222,7 +222,8 @@ const AdminDashboard = async () => {
                 </thead>
                 <tbody className="divide-y divide-cream-dark">
                   {funnelStats.map((row) => {
-                    const conversion = row.views > 0 ? Math.round((row.downloads / row.views) * 100) : 0;
+                    const hasTrackingData = row.formOpens > 0;
+                    const conversion = hasTrackingData ? Math.min(Math.round((row.downloads / row.formOpens) * 100), 100) : null;
                     return (
                       <tr key={row.planId}>
                         <td className="py-3 pr-4 font-medium text-charcoal">{row.planName}</td>
@@ -230,8 +231,8 @@ const AdminDashboard = async () => {
                         <td className="py-3 pr-4 text-right text-charcoal-light">{row.formOpens}</td>
                         <td className="py-3 pr-4 text-right text-charcoal-light">{row.downloads}</td>
                         <td className="py-3 text-right">
-                          <span className={`font-medium ${conversion >= 20 ? "text-sage" : conversion >= 10 ? "text-amber" : "text-charcoal-light"}`}>
-                            {conversion}%
+                          <span className={`font-medium ${conversion === null ? "text-charcoal-light" : conversion >= 20 ? "text-sage" : conversion >= 10 ? "text-amber" : "text-charcoal-light"}`}>
+                            {conversion === null ? "—" : `${conversion}%`}
                           </span>
                         </td>
                       </tr>
