@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { client as sanityClient } from "@/src/sanity/lib/client";
+import { serverClient as sanityClient } from "@/src/sanity/lib/client";
 import { CUT_PLAN_PDF_QUERY } from "@/src/sanity/lib/queries";
 import { validateDownloadToken } from "@/lib/download-tokens";
 
@@ -33,8 +33,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Plan not found" }, { status: 404 });
   }
 
-  // Stream the PDF from Sanity's CDN.
-  const pdfResponse = await fetch(plan.pdfUrl);
+  // Stream the PDF from Sanity's CDN (token required for private file assets).
+  const pdfResponse = await fetch(plan.pdfUrl, {
+    headers: process.env.SANITY_API_TOKEN
+      ? { Authorization: `Bearer ${process.env.SANITY_API_TOKEN}` }
+      : {},
+  });
 
   if (!pdfResponse.ok) {
     return NextResponse.json(
