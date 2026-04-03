@@ -159,6 +159,10 @@ export default function DownloadForm({
               </Label>
             </div>
 
+            <p className='text-xs text-charcoal-light/70'>
+              No spam, ever. This is just a hobby site — I build stuff in my garage and share the plans. That&apos;s it.
+            </p>
+
             {error && <p className='text-sm text-red-600'>{error}</p>}
 
             <Button
