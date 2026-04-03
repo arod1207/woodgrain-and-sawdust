@@ -82,6 +82,26 @@ export const unsubscribeByEmail = mutation({
   },
 })
 
+// Admin — unique subscribers (subscribe=true) for CSV export.
+export const getSubscribersForExport = query({
+  args: {},
+  handler: async (ctx) => {
+    assertAdmin(await ctx.auth.getUserIdentity());
+    const all = await ctx.db
+      .query("downloads")
+      .order("desc")
+      .collect();
+    // Deduplicate by email, keep most recent entry, only opted-in subscribers
+    const seen = new Map<string, { name: string; email: string }>();
+    for (const d of all) {
+      if (d.subscribe && !seen.has(d.email)) {
+        seen.set(d.email, { name: d.name, email: d.email });
+      }
+    }
+    return Array.from(seen.values());
+  },
+});
+
 // Admin — paginated downloads for the leads page.
 export const getAllDownloads = query({
   args: { paginationOpts: paginationOptsValidator },
