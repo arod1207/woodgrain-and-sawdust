@@ -29,9 +29,25 @@ export const generateMetadata = async ({ params }: PlanPageProps) => {
     return { title: "Plan Not Found" };
   }
 
+  const ogImage = plan.images?.[0]?.asset?.url
+    ? `${plan.images[0].asset.url}?w=1200&h=630&fit=crop&auto=format`
+    : undefined;
+
   return {
     title: `${plan.name} | Woodgrain & Sawdust`,
     description: plan.description,
+    openGraph: {
+      type: "article" as const,
+      title: `${plan.name} | Woodgrain & Sawdust`,
+      description: plan.description,
+      ...(ogImage && { images: [{ url: ogImage, width: 1200, height: 630, alt: plan.name }] }),
+    },
+    twitter: {
+      card: "summary_large_image" as const,
+      title: `${plan.name} | Woodgrain & Sawdust`,
+      description: plan.description,
+      ...(ogImage && { images: [ogImage] }),
+    },
   };
 };
 
@@ -49,8 +65,40 @@ const PlanPage = async ({ params }: PlanPageProps) => {
     notFound();
   }
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://woodgrainandsawdust.com";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: plan.name,
+    description: plan.description,
+    url: `${siteUrl}/plans/${slug}`,
+    ...(plan.estimatedTime && { totalTime: plan.estimatedTime }),
+    ...(plan.images?.[0]?.asset?.url && {
+      image: `${plan.images[0].asset.url}?w=1200&h=630&fit=crop&auto=format`,
+    }),
+    ...(plan.materialsRequired &&
+      plan.materialsRequired.length > 0 && {
+        supply: plan.materialsRequired.map((m) => ({
+          "@type": "HowToSupply",
+          name: m,
+        })),
+      }),
+    isAccessibleForFree: true,
+    provider: {
+      "@type": "Organization",
+      name: "Woodgrain & Sawdust",
+      url: siteUrl,
+    },
+  };
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Breadcrumb */}
       <nav className="mb-8" aria-label="Breadcrumb">
         <ol className="flex items-center gap-2 text-sm">
