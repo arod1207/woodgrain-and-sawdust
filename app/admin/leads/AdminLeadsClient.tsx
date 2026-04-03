@@ -19,7 +19,12 @@ export default function AdminLeadsClient() {
   function exportCSV() {
     if (!subscribers) return;
     const rows = [["Email", "Name"], ...subscribers.map((s) => [s.email, s.name])];
-    const csv = rows.map((r) => r.map((v) => `"${v.replace(/"/g, '""')}"`).join(",")).join("\n");
+    const sanitize = (v: string) => {
+      const escaped = v.replace(/"/g, '""');
+      const safe = /^[=+\-@]/.test(escaped) ? `'${escaped}` : escaped;
+      return `"${safe}"`;
+    };
+    const csv = rows.map((r) => r.map(sanitize).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");

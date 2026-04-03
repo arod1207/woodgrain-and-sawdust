@@ -91,14 +91,15 @@ export const getSubscribersForExport = query({
       .query("downloads")
       .order("desc")
       .collect();
-    // Deduplicate by email, keep most recent entry, only opted-in subscribers
-    const seen = new Map<string, { name: string; email: string }>();
+    // Deduplicate by email, newest-first. Track every email so a later
+    // subscribe:true row can't override an earlier subscribe:false row.
+    const seen = new Map<string, { name: string; email: string } | null>();
     for (const d of all) {
-      if (d.subscribe && !seen.has(d.email)) {
-        seen.set(d.email, { name: d.name, email: d.email });
+      if (!seen.has(d.email)) {
+        seen.set(d.email, d.subscribe ? { name: d.name, email: d.email } : null);
       }
     }
-    return Array.from(seen.values());
+    return Array.from(seen.values()).filter(Boolean) as { name: string; email: string }[];
   },
 });
 
