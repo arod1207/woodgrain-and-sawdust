@@ -19,10 +19,30 @@ const lora = Lora({
   display: "swap",
 });
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://woodgrainandsawdust.com";
+
+const DEFAULT_TITLE = "Woodgrain & Sawdust | Woodworking Cut Plans";
+const DEFAULT_DESCRIPTION =
+  "Free PDF cut plans for woodworking projects of all skill levels. Download instantly — no account required.";
+
 export const metadata: Metadata = {
-  title: "Woodgrain & Sawdust | Woodworking Cut Plans",
-  description:
-    "Free PDF cut plans for woodworking projects of all skill levels. Download instantly — no account required.",
+  metadataBase: new URL(SITE_URL),
+  title: DEFAULT_TITLE,
+  description: DEFAULT_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: "Woodgrain & Sawdust",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    images: [{ url: "/logo.jpg", width: 400, height: 400, alt: "Woodgrain & Sawdust" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    images: ["/logo.jpg"],
+  },
 };
 
 export default function RootLayout({
