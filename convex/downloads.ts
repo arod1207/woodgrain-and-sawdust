@@ -82,6 +82,27 @@ export const unsubscribeByEmail = mutation({
   },
 })
 
+// Admin — unique subscribers (subscribe=true) for CSV export.
+export const getSubscribersForExport = query({
+  args: {},
+  handler: async (ctx) => {
+    assertAdmin(await ctx.auth.getUserIdentity());
+    const all = await ctx.db
+      .query("downloads")
+      .order("desc")
+      .collect();
+    // Deduplicate by email, newest-first. Track every email so a later
+    // subscribe:true row can't override an earlier subscribe:false row.
+    const seen = new Map<string, { name: string; email: string } | null>();
+    for (const d of all) {
+      if (!seen.has(d.email)) {
+        seen.set(d.email, d.subscribe ? { name: d.name, email: d.email } : null);
+      }
+    }
+    return Array.from(seen.values()).filter(Boolean) as { name: string; email: string }[];
+  },
+});
+
 // Admin — paginated downloads for the leads page.
 export const getAllDownloads = query({
   args: { paginationOpts: paginationOptsValidator },

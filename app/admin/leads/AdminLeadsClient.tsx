@@ -1,15 +1,38 @@
 "use client";
 
-import { usePaginatedQuery, useConvexAuth } from "convex/react";
+import { usePaginatedQuery, useQuery, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Loader2, AlertTriangle } from "lucide-react";
+import { Users, Loader2, AlertTriangle, Download } from "lucide-react";
 
 const PAGE_SIZE = 25;
 
 export default function AdminLeadsClient() {
   const { isLoading: authLoading, isAuthenticated } = useConvexAuth();
+
+  const subscribers = useQuery(
+    api.downloads.getSubscribersForExport,
+    authLoading || !isAuthenticated ? "skip" : {}
+  );
+
+  function exportCSV() {
+    if (!subscribers) return;
+    const rows = [["Email", "Name"], ...subscribers.map((s) => [s.email, s.name])];
+    const sanitize = (v: string) => {
+      const escaped = v.replace(/"/g, '""');
+      const safe = /^[=+\-@]/.test(escaped) ? `'${escaped}` : escaped;
+      return `"${safe}"`;
+    };
+    const csv = rows.map((r) => r.map(sanitize).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "subscribers.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   const {
     results: downloads,
@@ -52,11 +75,21 @@ export default function AdminLeadsClient() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-walnut sm:text-3xl">Leads</h1>
-        <p className="mt-2 text-charcoal-light">
-          Contact information collected from plan downloads.
-        </p>
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-walnut sm:text-3xl">Leads</h1>
+          <p className="mt-2 text-charcoal-light">
+            Contact information collected from plan downloads.
+          </p>
+        </div>
+        <Button
+          onClick={exportCSV}
+          disabled={!subscribers || subscribers.length === 0}
+          className="flex items-center gap-2 rounded-full bg-amber px-4 py-2 text-sm font-medium text-white hover:bg-amber/90"
+        >
+          <Download className="h-4 w-4" />
+          Export Subscribers ({subscribers?.length ?? "…"})
+        </Button>
       </div>
 
       {/* Leads List */}
