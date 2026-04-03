@@ -9,6 +9,8 @@ import PlanViewTracker from "@/components/customer/PlanViewTracker";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Clock, TreePine } from "lucide-react";
+import { urlFor } from "@/src/sanity/lib/image";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 interface PlanPageProps {
   params: Promise<{ slug: string }>;
@@ -29,8 +31,8 @@ export const generateMetadata = async ({ params }: PlanPageProps) => {
     return { title: "Plan Not Found" };
   }
 
-  const ogImage = plan.images?.[0]?.asset?.url
-    ? `${plan.images[0].asset.url}?w=1200&h=630&fit=crop&auto=format`
+  const ogImage = plan.images?.[0]
+    ? urlFor(plan.images[0]).width(1200).height(630).fit("crop").auto("format").url()
     : undefined;
 
   return {
@@ -51,6 +53,10 @@ export const generateMetadata = async ({ params }: PlanPageProps) => {
   };
 };
 
+// Escapes "<" so "</script>" in CMS content can't break out of the JSON-LD block.
+const safeJsonLd = (data: object) =>
+  JSON.stringify(data).replace(/</g, "\\u003c");
+
 const DIFFICULTY_STYLES: Record<string, string> = {
   beginner: "border-sage/30 bg-sage/10 text-sage",
   intermediate: "border-amber/30 bg-amber/10 text-amber",
@@ -65,8 +71,7 @@ const PlanPage = async ({ params }: PlanPageProps) => {
     notFound();
   }
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://woodgrainandsawdust.com";
+  const siteUrl = getSiteUrl();
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -75,8 +80,8 @@ const PlanPage = async ({ params }: PlanPageProps) => {
     description: plan.description,
     url: `${siteUrl}/plans/${slug}`,
     ...(plan.estimatedTime && { totalTime: plan.estimatedTime }),
-    ...(plan.images?.[0]?.asset?.url && {
-      image: `${plan.images[0].asset.url}?w=1200&h=630&fit=crop&auto=format`,
+    ...(plan.images?.[0] && {
+      image: urlFor(plan.images[0]).width(1200).height(630).fit("crop").auto("format").url(),
     }),
     ...(plan.materialsRequired &&
       plan.materialsRequired.length > 0 && {
@@ -97,7 +102,7 @@ const PlanPage = async ({ params }: PlanPageProps) => {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
       {/* Breadcrumb */}
       <nav className="mb-8" aria-label="Breadcrumb">

@@ -1,10 +1,10 @@
 import { Resend } from 'resend'
+import { getSiteUrl } from '@/lib/siteUrl'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const FROM = 'hello@woodgrainandsawdust.com'
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://woodgrainandsawdust.com'
+const SITE_URL = getSiteUrl()
 const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/woodgrainandsawdust'
 
 export async function sendDownloadConfirmation({

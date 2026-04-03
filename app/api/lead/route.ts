@@ -7,6 +7,7 @@ import {
   sendSubscriberNotification,
 } from '@/lib/resend'
 import { generateUnsubscribeToken } from '@/lib/unsubscribe-token'
+import { getSiteUrl } from '@/lib/siteUrl'
 
 if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
   throw new Error(
@@ -122,7 +123,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://woodgrainandsawdust.com'
+    const siteUrl = getSiteUrl()
     let unsubscribeUrl = `${siteUrl}/plans`
     try {
       const unsubscribeToken = generateUnsubscribeToken(email)

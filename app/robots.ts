@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/siteUrl";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://woodgrainandsawdust.com";
+const BASE_URL = getSiteUrl();
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -9,7 +9,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/studio/"],
+        disallow: ["/admin", "/studio"],
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,
