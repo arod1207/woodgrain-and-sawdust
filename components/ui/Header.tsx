@@ -37,6 +37,12 @@ const Header = () => {
           >
             Plans
           </Link>
+          <Link
+            href="/sawdust-stories"
+            className="relative text-sm font-medium text-charcoal-light transition-colors hover:text-amber after:absolute after:-bottom-0.5 after:left-0 after:h-px after:w-0 after:bg-amber after:transition-all hover:after:w-full"
+          >
+            Community Builds
+          </Link>
         </nav>
       </div>
     </header>

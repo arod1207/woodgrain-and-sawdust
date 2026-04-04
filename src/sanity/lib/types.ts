@@ -101,6 +101,21 @@ export interface FeaturedPlansSection {
   emptyStateText?: string;
 }
 
+export interface CommunityBuild {
+  _id: string;
+  builderName: string;
+  location?: string;
+  caption?: string;
+  featured: boolean;
+  publishedAt: string;
+  images: SanityImage[];
+  relatedPlan?: {
+    _id: string;
+    name: string;
+    slug: string;
+  };
+}
+
 export interface AboutStat {
   value: string;
   label: string;
