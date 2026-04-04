@@ -72,6 +72,9 @@ const PlanPage = async ({ params }: PlanPageProps) => {
   }
 
   const siteUrl = getSiteUrl();
+  const ogImageUrl = plan.images?.[0]
+    ? urlFor(plan.images[0]).width(1200).height(630).fit("crop").auto("format").url()
+    : undefined;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -158,6 +161,7 @@ const PlanPage = async ({ params }: PlanPageProps) => {
             planId={plan._id}
             planName={plan.name}
             planSlug={slug}
+            ogImageUrl={ogImageUrl}
             comingSoon={plan.comingSoon}
           >
             {/* Difficulty badge */}
