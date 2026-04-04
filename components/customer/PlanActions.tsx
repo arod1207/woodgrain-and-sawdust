@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,10 @@ export default function PlanActions({
 }: PlanActionsProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const recordEvent = useMutation(api.events.recordEvent);
+
+  useEffect(() => { setMounted(true); }, []);
 
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(window.location.href).catch(() => {});
@@ -104,8 +107,8 @@ export default function PlanActions({
               Enjoy this plan? Buy me a coffee!
             </a>
 
-            {/* Share row */}
-            <div className="pt-2">
+            {/* Share row — client-only, window/navigator not safe on server */}
+            {mounted && <div className="pt-2">
               <p className="mb-2 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-charcoal-light">
                 <Share2 className="h-3.5 w-3.5" />
                 Share this plan
@@ -139,7 +142,7 @@ export default function PlanActions({
                   Email
                 </button>
               </div>
-            </div>
+            </div>}
           </>
         )}
       </div>
