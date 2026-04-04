@@ -155,6 +155,31 @@ export const CUT_PLANS_BY_CATEGORY_QUERY = `*[_type == "cutPlan" && category->sl
   }
 }`;
 
+export const COMMUNITY_BUILDS_QUERY = `*[_type == "communityBuild"] | order(featured desc, publishedAt desc) {
+  _id,
+  builderName,
+  location,
+  caption,
+  featured,
+  publishedAt,
+  "images": images[] {
+    asset->{
+      _id,
+      url,
+      metadata {
+        lqip,
+        dimensions { width, height }
+      }
+    },
+    alt
+  },
+  relatedPlan->{
+    _id,
+    name,
+    "slug": slug.current
+  }
+}`;
+
 export const ABOUT_SECTION_QUERY = `*[_type == "aboutSection" && _id == "aboutSection"][0] {
   heading,
   subheading,
