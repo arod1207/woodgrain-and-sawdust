@@ -145,7 +145,8 @@ const PlansPage = async ({ searchParams }: PlansPageProps) => {
         <p className='mt-3 text-cream/80 max-w-xl mx-auto'>
           Send me a picture of your build — I&apos;d love to show it off on the
           site! There&apos;s nothing better than seeing these plans come to life
-          in someone&apos;s shop.
+          in someone&apos;s shop. Your name, location, and a caption are totally
+          optional — just a pic works too.
         </p>
         <p className='mt-5 text-sm text-cream/60'>
           Drop me a line at{' '}
