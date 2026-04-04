@@ -3,6 +3,7 @@ import { Playfair_Display, Lora } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider";
 import "./globals.css";
+import { getSiteUrl } from "@/lib/siteUrl";
 
 const playfair = Playfair_Display({
   variable: "--font-heading",
@@ -19,8 +20,7 @@ const lora = Lora({
   display: "swap",
 });
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://woodgrainandsawdust.com";
+const SITE_URL = getSiteUrl();
 
 const DEFAULT_TITLE = "Woodgrain & Sawdust | Woodworking Cut Plans";
 const DEFAULT_DESCRIPTION =
