@@ -7,7 +7,7 @@ const FALLBACK = "https://woodgrainandsawdust.com";
  *   This prevents new URL(siteUrl) from throwing in layout.tsx.
  */
 export function getSiteUrl(): string {
-  const raw = (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim();
+  const raw = (process.env.NEXT_PUBLIC_SITE_URL ?? "").trim().replace(/\/+$/, "");
   if (!raw) return FALLBACK;
   if (!/^https?:\/\//i.test(raw)) return `https://${raw}`;
   return raw;
