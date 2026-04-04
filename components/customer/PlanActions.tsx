@@ -41,21 +41,9 @@ export default function PlanActions({
   const recordEvent = useMutation(api.events.recordEvent);
 
   const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // fallback: select a temp input
-      const input = document.createElement("input");
-      input.value = window.location.href;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      document.body.removeChild(input);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    await navigator.clipboard.writeText(window.location.href).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const getPinterestUrl = () => {
@@ -135,23 +123,21 @@ export default function PlanActions({
                   {copied ? "Copied!" : "Copy link"}
                 </button>
 
-                <a
-                  href={getPinterestUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={() => window.open(getPinterestUrl(), "_blank", "noopener,noreferrer")}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-cream-dark bg-cream px-3 py-2 text-xs font-medium text-charcoal transition-colors hover:border-[#e60023] hover:text-[#e60023]"
                 >
                   <PinterestIcon className="h-3.5 w-3.5" />
                   Pinterest
-                </a>
+                </button>
 
-                <a
-                  href={getEmailUrl()}
+                <button
+                  onClick={() => { window.location.href = getEmailUrl(); }}
                   className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-cream-dark bg-cream px-3 py-2 text-xs font-medium text-charcoal transition-colors hover:border-amber hover:text-amber"
                 >
                   <Mail className="h-3.5 w-3.5" />
                   Email
-                </a>
+                </button>
               </div>
             </div>
           </>
