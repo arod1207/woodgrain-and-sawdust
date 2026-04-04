@@ -161,6 +161,7 @@ const PlanPage = async ({ params }: PlanPageProps) => {
             planId={plan._id}
             planName={plan.name}
             planSlug={slug}
+            shareUrl={`${siteUrl}/plans/${slug}`}
             ogImageUrl={ogImageUrl}
             comingSoon={plan.comingSoon}
           >
