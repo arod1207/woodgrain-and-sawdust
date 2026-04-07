@@ -1,7 +1,17 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalAction } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import type { UserIdentity } from "convex/server";
+
+// Returns a non-identifying token for log messages (e.g. "ar***@***.com").
+function redactEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  const redactedLocal = local.slice(0, 2).padEnd(local.length, "*");
+  const domainParts = (domain ?? "").split(".");
+  const tld = domainParts.at(-1) ?? "";
+  return `${redactedLocal}@***.${tld}`;
+}
 
 function assertAdmin(identity: UserIdentity | null): asserts identity is UserIdentity {
   if (!identity) throw new Error("Unauthorized");
@@ -34,7 +44,7 @@ export const recordDownload = mutation({
 
     const email = args.email.trim().toLowerCase()
 
-    return await ctx.db.insert("downloads", {
+    await ctx.db.insert("downloads", {
       name: args.name.trim(),
       email,
       planId: args.planId,
@@ -43,6 +53,75 @@ export const recordDownload = mutation({
       emailConsent: args.subscribe,
       createdAt: Date.now(),
     });
+
+    if (args.subscribe) {
+      await ctx.scheduler.runAfter(0, internal.downloads.syncToButtondown, {
+        name: args.name.trim(),
+        email,
+      });
+    }
+  },
+});
+
+// Internal — syncs a new opt-in subscriber to Buttondown.
+export const syncToButtondown = internalAction({
+  args: { name: v.string(), email: v.string() },
+  handler: async (_ctx, { name, email }) => {
+    const apiKey = process.env.BUTTONDOWN_API_KEY;
+    if (!apiKey) {
+      console.error("BUTTONDOWN_API_KEY is not set — skipping Buttondown sync");
+      return;
+    }
+
+    const res = await fetch("https://api.buttondown.email/v1/subscribers", {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email_address: email,
+        type: "regular",
+        metadata: { name },
+      }),
+    });
+
+    if (!res.ok) {
+      const body = await res.text();
+      // 400 "already exists" means the email is in Buttondown but may be
+      // unsubscribed — PATCH to re-activate them.
+      if (res.status === 400 && (body.includes("already subscribed") || body.includes("already exists"))) {
+        const get = await fetch(
+          `https://api.buttondown.email/v1/subscribers/${encodeURIComponent(email)}`,
+          { headers: { Authorization: `Token ${apiKey}` } }
+        );
+        if (!get.ok) {
+          console.error(`Buttondown GET failed (${get.status}) for ${redactEmail(email)}`);
+          return;
+        }
+        const subscriber = await get.json() as { type?: string };
+        if (subscriber.type !== "unsubscribed") {
+          console.error(`Buttondown unexpected type "${subscriber.type}" for ${redactEmail(email)} — skipping PATCH`);
+          return;
+        }
+        const patch = await fetch(
+          `https://api.buttondown.email/v1/subscribers/${encodeURIComponent(email)}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Token ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ type: "regular", metadata: { name } }),
+          }
+        );
+        if (!patch.ok) {
+          console.error(`Buttondown upsert (PATCH) failed (${patch.status}) for ${redactEmail(email)}`);
+        }
+        return;
+      }
+      console.error(`Buttondown sync failed (${res.status}) for ${redactEmail(email)}`);
+    }
   },
 });
 
@@ -78,9 +157,36 @@ export const unsubscribeByEmail = mutation({
     await Promise.all(
       records.map((r) => ctx.db.patch(r._id, { subscribe: false }))
     )
+    await ctx.scheduler.runAfter(0, internal.downloads.removeFromButtondown, { email })
     return { unsubscribed: records.length }
   },
 })
+
+// Internal — removes a subscriber from Buttondown.
+export const removeFromButtondown = internalAction({
+  args: { email: v.string() },
+  handler: async (_ctx, { email }) => {
+    const apiKey = process.env.BUTTONDOWN_API_KEY;
+    if (!apiKey) {
+      console.error("BUTTONDOWN_API_KEY is not set — skipping Buttondown removal");
+      return;
+    }
+
+    const res = await fetch(`https://api.buttondown.email/v1/subscribers/${encodeURIComponent(email)}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Token ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ type: "unsubscribed" }),
+    });
+
+    // 404 means they weren't in Buttondown — not an error.
+    if (!res.ok && res.status !== 404) {
+      console.error(`Buttondown removal failed (${res.status}) for ${redactEmail(email)}`);
+    }
+  },
+});
 
 // Admin — unique subscribers (subscribe=true) for CSV export.
 export const getSubscribersForExport = query({
