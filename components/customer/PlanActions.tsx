@@ -5,7 +5,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import DownloadForm from "@/components/customer/DownloadForm";
-import { Download, Coffee, Link2, Check, Mail, Share2 } from "lucide-react";
+import { Download, Beer, Link2, Check, Mail, Share2 } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface PlanActionsProps {
@@ -107,10 +107,10 @@ export default function PlanActions({
               href={BUY_ME_A_COFFEE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-full border-2 border-amber/30 px-6 py-3 text-sm font-medium text-amber transition-colors hover:border-amber hover:bg-amber/5"
+              className="flex items-center justify-center gap-2 rounded-full bg-yellow-400 px-6 py-3 text-sm font-bold text-yellow-900 transition-colors hover:bg-yellow-300"
             >
-              <Coffee className="h-4 w-4" />
-              Enjoy this plan? Buy me a coffee!
+              <Beer className="h-4 w-4" />
+              Enjoy this plan? Buy me a beer!
             </a>
 
             {/* Share row — client-only, window/navigator not safe on server */}

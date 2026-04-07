@@ -79,12 +79,12 @@ export async function sendDownloadConfirmation({
                 <hr style="border:none;border-top:1px solid #ede8de;margin:0 0 24px;" />
 
                 <p style="margin:0 0 16px;font-size:14px;color:#7a6a5a;line-height:1.7;text-align:center;">
-                  If this plan saves you some time (or just comes out awesome), consider buying me a coffee — it helps keep the free plans coming!
+                  If this plan saves you some time (or just comes out awesome), consider buying me a beer — it helps keep the free plans coming!
                 </p>
                 <div style="text-align:center;">
                   <a href="${BUY_ME_A_COFFEE_URL}"
-                     style="display:inline-block;color:#d4851a;font-size:14px;font-weight:bold;text-decoration:none;border:2px solid #d4851a;padding:10px 26px;border-radius:50px;">
-                    ☕ Buy Me a Coffee
+                     style="display:inline-block;color:#5a3e00;font-size:14px;font-weight:bold;text-decoration:none;background-color:#f5c842;border:2px solid #f5c842;padding:10px 26px;border-radius:50px;">
+                    🍺 Buy Me a Beer
                   </a>
                 </div>
 
