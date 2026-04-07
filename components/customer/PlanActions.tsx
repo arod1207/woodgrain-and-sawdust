@@ -107,7 +107,7 @@ export default function PlanActions({
               href={BUY_ME_A_COFFEE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-full border-2 border-amber/30 px-6 py-3 text-sm font-medium text-amber transition-colors hover:border-amber hover:bg-amber/5"
+              className="flex items-center justify-center gap-2 rounded-full bg-yellow-400 px-6 py-3 text-sm font-bold text-yellow-900 transition-colors hover:bg-yellow-300"
             >
               <Beer className="h-4 w-4" />
               Enjoy this plan? Buy me a beer!

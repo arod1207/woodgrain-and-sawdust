@@ -83,7 +83,7 @@ export async function sendDownloadConfirmation({
                 </p>
                 <div style="text-align:center;">
                   <a href="${BUY_ME_A_COFFEE_URL}"
-                     style="display:inline-block;color:#d4851a;font-size:14px;font-weight:bold;text-decoration:none;border:2px solid #d4851a;padding:10px 26px;border-radius:50px;">
+                     style="display:inline-block;color:#5a3e00;font-size:14px;font-weight:bold;text-decoration:none;background-color:#f5c842;border:2px solid #f5c842;padding:10px 26px;border-radius:50px;">
                     🍺 Buy Me a Beer
                   </a>
                 </div>
