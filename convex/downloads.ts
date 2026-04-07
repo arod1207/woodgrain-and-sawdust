@@ -4,6 +4,15 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import type { UserIdentity } from "convex/server";
 
+// Returns a non-identifying token for log messages (e.g. "ar***@***.com").
+function redactEmail(email: string): string {
+  const [local, domain] = email.split("@");
+  const redactedLocal = local.slice(0, 2).padEnd(local.length, "*");
+  const domainParts = (domain ?? "").split(".");
+  const tld = domainParts.at(-1) ?? "";
+  return `${redactedLocal}@***.${tld}`;
+}
+
 function assertAdmin(identity: UserIdentity | null): asserts identity is UserIdentity {
   if (!identity) throw new Error("Unauthorized");
   const role = (identity.publicMetadata as { role?: string } | undefined)?.role;
@@ -79,9 +88,26 @@ export const syncToButtondown = internalAction({
 
     if (!res.ok) {
       const body = await res.text();
-      // 400 with "already subscribed" is not a real error — ignore it.
-      if (res.status === 400 && (body.includes("already subscribed") || body.includes("already exists"))) return;
-      console.error(`Buttondown sync failed (${res.status}): ${body}`);
+      // 400 "already exists" means the email is in Buttondown but may be
+      // unsubscribed — PATCH to re-activate them.
+      if (res.status === 400 && (body.includes("already subscribed") || body.includes("already exists"))) {
+        const patch = await fetch(
+          `https://api.buttondown.email/v1/subscribers/${encodeURIComponent(email)}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Token ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ type: "regular", metadata: { name } }),
+          }
+        );
+        if (!patch.ok) {
+          console.error(`Buttondown upsert (PATCH) failed (${patch.status}) for ${redactEmail(email)}`);
+        }
+        return;
+      }
+      console.error(`Buttondown sync failed (${res.status}) for ${redactEmail(email)}`);
     }
   },
 });
@@ -140,7 +166,7 @@ export const removeFromButtondown = internalAction({
 
     // 404 means they weren't in Buttondown — not an error.
     if (!res.ok && res.status !== 404) {
-      console.error(`Buttondown removal failed (${res.status}) for ${email}`);
+      console.error(`Buttondown removal failed (${res.status}) for ${redactEmail(email)}`);
     }
   },
 });
