@@ -91,6 +91,19 @@ export const syncToButtondown = internalAction({
       // 400 "already exists" means the email is in Buttondown but may be
       // unsubscribed — PATCH to re-activate them.
       if (res.status === 400 && (body.includes("already subscribed") || body.includes("already exists"))) {
+        const get = await fetch(
+          `https://api.buttondown.email/v1/subscribers/${encodeURIComponent(email)}`,
+          { headers: { Authorization: `Token ${apiKey}` } }
+        );
+        if (!get.ok) {
+          console.error(`Buttondown GET failed (${get.status}) for ${redactEmail(email)}`);
+          return;
+        }
+        const subscriber = await get.json() as { type?: string };
+        if (subscriber.type !== "unsubscribed") {
+          console.error(`Buttondown unexpected type "${subscriber.type}" for ${redactEmail(email)} — skipping PATCH`);
+          return;
+        }
         const patch = await fetch(
           `https://api.buttondown.email/v1/subscribers/${encodeURIComponent(email)}`,
           {
@@ -160,8 +173,12 @@ export const removeFromButtondown = internalAction({
     }
 
     const res = await fetch(`https://api.buttondown.email/v1/subscribers/${encodeURIComponent(email)}`, {
-      method: "DELETE",
-      headers: { Authorization: `Token ${apiKey}` },
+      method: "PATCH",
+      headers: {
+        Authorization: `Token ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ type: "unsubscribed" }),
     });
 
     // 404 means they weren't in Buttondown — not an error.
