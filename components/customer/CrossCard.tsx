@@ -20,7 +20,7 @@ export default function CrossCard({ cross }: CrossCardProps) {
             src={image.asset.url}
             alt={image.alt ?? cross.name}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
             placeholder={image.asset.metadata?.lqip ? "blur" : "empty"}
             blurDataURL={image.asset.metadata?.lqip}
             sizes="(max-width: 768px) 100vw, 33vw"

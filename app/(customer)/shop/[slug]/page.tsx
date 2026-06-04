@@ -65,7 +65,7 @@ export default async function CrossDetailPage({
                 src={image.asset.url}
                 alt={image.alt ?? cross.name}
                 fill
-                className="object-cover"
+                className="object-contain"
                 placeholder={image.asset.metadata?.lqip ? "blur" : "empty"}
                 blurDataURL={image.asset.metadata?.lqip}
                 sizes="(max-width: 1024px) 100vw, 50vw"
