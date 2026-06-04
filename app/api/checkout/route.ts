@@ -61,15 +61,13 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Atomic reservation: only succeeds if no other request has modified the doc
-  // since we read it. A concurrent request will fail here with a revision mismatch.
   try {
     await serverClient
       .patch(cross._id)
       .set({ available: false })
-      .ifRevisionId(cross._rev)
       .commit();
-  } catch {
+  } catch (err) {
+    console.error("Sanity reservation patch failed:", err);
     return NextResponse.json(
       { error: "This cross is no longer available" },
       { status: 409 },
