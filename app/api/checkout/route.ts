@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
   const cross = await serverClient.fetch<CheckoutCross | null>(
     CHECKOUT_CROSS_QUERY,
     { id: crossId },
+    { cache: 'no-store' },
   );
 
   if (!cross) {
