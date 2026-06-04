@@ -1,5 +1,12 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import type { UserIdentity } from "convex/server";
+
+function assertAdmin(identity: UserIdentity | null): asserts identity is UserIdentity {
+  if (!identity) throw new Error("Unauthorized");
+  const role = (identity.publicMetadata as { role?: string } | undefined)?.role;
+  if (role !== "admin") throw new Error("Forbidden: admin role required");
+}
 
 export const createOrder = mutation({
   args: {
@@ -74,6 +81,7 @@ export const getOrderBySessionId = query({
 
 export const getAllOrdersAdmin = query({
   handler: async (ctx) => {
+    assertAdmin(await ctx.auth.getUserIdentity());
     return await ctx.db.query("orders").order("desc").collect();
   },
 });
@@ -89,6 +97,7 @@ export const updateShipping = mutation({
     trackingNumber: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    assertAdmin(await ctx.auth.getUserIdentity());
     await ctx.db.patch(args.orderId, {
       shippingStatus: args.shippingStatus,
       ...(args.trackingNumber !== undefined && {
