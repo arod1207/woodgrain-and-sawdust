@@ -112,6 +112,7 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       shipping_address_collection: { allowed_countries: ["US"] },
       shipping_options: shippingOptions,
       metadata: { crossId: cross._id, crossName: cross.name },
