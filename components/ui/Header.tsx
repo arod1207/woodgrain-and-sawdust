@@ -43,6 +43,12 @@ const Header = () => {
           >
             Community Builds
           </Link>
+          <Link
+            href="/shop"
+            className="rounded-full bg-amber px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-amber/90"
+          >
+            Shop
+          </Link>
         </nav>
       </div>
     </header>

@@ -250,6 +250,58 @@ const HomePage = async () => {
         </div>
       </section>
 
+      {/* Custom Crosses Section */}
+      <section className="bg-walnut py-16 sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
+            {/* Text */}
+            <div className="flex-1 text-center lg:text-left">
+              <span className="mb-4 inline-block text-xs font-semibold uppercase tracking-[0.2em] text-amber">
+                Now Available
+              </span>
+              <h2 className="font-heading mb-4 text-4xl font-bold text-cream lg:text-5xl">
+                Hand-Built Custom Crosses
+              </h2>
+              <p className="mb-8 max-w-lg leading-relaxed text-cream/70">
+                A few people reached out after seeing my builds and asked if I
+                sell them — so now I do. Each cross is built by me, one at a
+                time. What you see in the shop is exactly what&apos;s available
+                and ready to go home with you.
+              </p>
+              <Button
+                size="lg"
+                className="rounded-full bg-amber px-8 py-6 text-base text-white hover:bg-amber/90"
+                asChild
+              >
+                <Link href="/shop">
+                  Shop Crosses
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+
+            {/* Feature pills */}
+            <div className="flex shrink-0 flex-col gap-4">
+              {[
+                { icon: Hammer, label: "Built by hand, one at a time" },
+                { icon: Package, label: "Ships anywhere in the US" },
+                { icon: Heart, label: "Each one is a little different" },
+              ].map(({ icon: Icon, label }) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-4 rounded-2xl bg-walnut-dark/50 px-6 py-4"
+                >
+                  <Icon className="h-5 w-5 shrink-0 text-amber" />
+                  <span className="text-sm font-medium text-cream/80">
+                    {label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* About Section */}
       {aboutSection && <AboutSection data={aboutSection} />}
     </div>

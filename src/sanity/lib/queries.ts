@@ -180,6 +180,67 @@ export const COMMUNITY_BUILDS_QUERY = `*[_type == "communityBuild"] | order(feat
   }
 }`;
 
+// Shop — Custom Crosses
+
+export const CROSSES_QUERY = `*[_type == "cross"] | order(_createdAt desc) {
+  _id,
+  name,
+  "slug": slug.current,
+  description,
+  price,
+  shippingRate,
+  available,
+  dimensions,
+  woodType,
+  tiktokUrl,
+  "images": images[] {
+    asset->{
+      _id,
+      url,
+      metadata {
+        lqip,
+        dimensions { width, height }
+      }
+    },
+    alt
+  }
+}`;
+
+export const CROSS_QUERY = `*[_type == "cross" && slug.current == $slug][0] {
+  _id,
+  name,
+  "slug": slug.current,
+  description,
+  price,
+  shippingRate,
+  available,
+  dimensions,
+  woodType,
+  tiktokUrl,
+  "images": images[] {
+    asset->{
+      _id,
+      url,
+      metadata {
+        lqip,
+        dimensions { width, height }
+      }
+    },
+    alt
+  }
+}`;
+
+export const CROSS_SLUGS_QUERY = `*[_type == "cross" && defined(slug.current)]{ "slug": slug.current }`;
+
+export const CROSS_BY_ID_QUERY = `*[_type == "cross" && _id == $id][0] {
+  _id,
+  name,
+  price,
+  shippingRate,
+  available,
+  "imageUrl": images[0].asset->url
+}`;
+
 export const ABOUT_SECTION_QUERY = `*[_type == "aboutSection" && _id == "aboutSection"][0] {
   heading,
   subheading,
