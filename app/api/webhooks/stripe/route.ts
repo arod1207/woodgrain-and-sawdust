@@ -78,18 +78,24 @@ export async function POST(request: NextRequest) {
           }
         : undefined;
 
-    // Fulfill the order in Convex
-    const fulfilledId = await convex.mutation(api.orders.fulfillOrder, {
-      stripeSessionId: session.id,
-      stripePaymentIntentId:
-        typeof session.payment_intent === "string"
-          ? session.payment_intent
-          : undefined,
-      customerEmail: session.customer_details?.email ?? undefined,
-      customerName: session.customer_details?.name ?? shippingDetails?.name ?? undefined,
-      shippingMethod,
-      shippingAddress,
-    });
+    // Fulfill the order in Convex — return 500 on failure so Stripe retries
+    let fulfilledId: string | null;
+    try {
+      fulfilledId = await convex.mutation(api.orders.fulfillOrder, {
+        stripeSessionId: session.id,
+        stripePaymentIntentId:
+          typeof session.payment_intent === "string"
+            ? session.payment_intent
+            : undefined,
+        customerEmail: session.customer_details?.email ?? undefined,
+        customerName: session.customer_details?.name ?? shippingDetails?.name ?? undefined,
+        shippingMethod,
+        shippingAddress,
+      });
+    } catch (err) {
+      console.error("Failed to fulfill order in Convex:", err);
+      return NextResponse.json({ error: "Order fulfillment failed" }, { status: 500 });
+    }
 
     // Only mark the cross as sold in Sanity when fulfillOrder found the order
     if (fulfilledId && crossId) {
@@ -99,6 +105,27 @@ export async function POST(request: NextRequest) {
         console.error("Failed to mark cross as sold in Sanity:", err);
         // Don't fail the webhook — order is still recorded
       }
+    }
+  }
+
+  if (event.type === "checkout.session.expired") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const crossId = session.metadata?.crossId;
+
+    // Restore cross availability so it can be purchased again
+    if (crossId) {
+      try {
+        await serverClient.patch(crossId).set({ available: true }).commit();
+      } catch (err) {
+        console.error("Failed to restore cross availability on session expiry:", err);
+      }
+    }
+
+    // Cancel the pending Convex order
+    try {
+      await convex.mutation(api.orders.cancelOrder, { stripeSessionId: session.id });
+    } catch (err) {
+      console.error("Failed to cancel Convex order on session expiry:", err);
     }
   }
 

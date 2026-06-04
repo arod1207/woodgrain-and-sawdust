@@ -67,15 +67,19 @@ export const fulfillOrder = mutation({
   },
 });
 
-export const getOrderBySessionId = query({
+export const cancelOrder = mutation({
   args: { stripeSessionId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const order = await ctx.db
       .query("orders")
       .withIndex("by_stripeSessionId", (q) =>
         q.eq("stripeSessionId", args.stripeSessionId),
       )
       .first();
+
+    if (!order) return null;
+    await ctx.db.patch(order._id, { status: "cancelled" });
+    return order._id;
   },
 });
 
