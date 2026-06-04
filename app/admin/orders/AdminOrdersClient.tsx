@@ -10,12 +10,12 @@ import { Loader2, AlertTriangle, ShoppingBag, Truck } from "lucide-react";
 const paymentStatusStyles: Record<string, string> = {
   paid: "bg-sage/15 text-sage",
   pending: "bg-amber/15 text-amber",
-  cancelled: "bg-red-50 text-red-500",
+  cancelled: "bg-walnut-dark/10 text-walnut-dark",
 };
 
 const shippingStatusStyles: Record<string, string> = {
   not_shipped: "bg-cream-dark text-charcoal-light",
-  shipped: "bg-blue-50 text-blue-600",
+  shipped: "bg-amber/15 text-amber",
   delivered: "bg-sage/15 text-sage",
 };
 
@@ -85,7 +85,7 @@ export default function AdminOrdersClient() {
   return (
     <div>
       {actionError && (
-        <div className="mb-4 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="mb-4 flex items-center gap-3 rounded-lg border border-walnut-dark/20 bg-walnut-dark/10 px-4 py-3 text-sm text-walnut-dark">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           {actionError}
         </div>
