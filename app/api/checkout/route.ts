@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
   const siteUrl = getSiteUrl();
   const amountInCents = Math.round(cross.price * 100);
   const shippingRateInCents = Math.round((cross.shippingRate ?? 15) * 100);
+  const amountTotal = amountInCents + shippingRateInCents;
 
   const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] =
     [
@@ -138,7 +139,7 @@ export async function POST(request: NextRequest) {
       crossName: cross.name,
       stripeSessionId: session.id,
       customerEmail: "",
-      amountTotal: amountInCents,
+      amountTotal,
       shippingMethod: "pending",
     });
   } catch (err) {
