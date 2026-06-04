@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
         : undefined;
 
     // Fulfill the order in Convex
-    await convex.mutation(api.orders.fulfillOrder, {
+    const fulfilledId = await convex.mutation(api.orders.fulfillOrder, {
       stripeSessionId: session.id,
       stripePaymentIntentId:
         typeof session.payment_intent === "string"
@@ -91,8 +91,8 @@ export async function POST(request: NextRequest) {
       shippingAddress,
     });
 
-    // Mark the cross as sold in Sanity
-    if (crossId) {
+    // Only mark the cross as sold in Sanity when fulfillOrder found the order
+    if (fulfilledId && crossId) {
       try {
         await serverClient.patch(crossId).set({ available: false }).commit();
       } catch (err) {
