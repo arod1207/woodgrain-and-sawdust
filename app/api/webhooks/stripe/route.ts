@@ -56,9 +56,13 @@ export async function POST(request: NextRequest) {
     // explicitly says so (future-proofing for when local pickup is added).
     let shippingMethod = "standard_shipping";
     if (typeof shippingOption === "string") {
-      const rate = await stripe.shippingRates.retrieve(shippingOption);
-      if (rate.display_name?.toLowerCase().includes("pickup")) {
-        shippingMethod = "local_pickup";
+      try {
+        const rate = await stripe.shippingRates.retrieve(shippingOption);
+        if (rate.display_name?.toLowerCase().includes("pickup")) {
+          shippingMethod = "local_pickup";
+        }
+      } catch (err) {
+        console.error("Failed to retrieve shipping rate; defaulting to standard_shipping:", err);
       }
     }
 
