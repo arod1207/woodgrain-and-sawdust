@@ -125,7 +125,7 @@ export default async function CrossDetailPage({
                   <Truck className="h-4 w-4 shrink-0 text-amber" />
                   <span className="text-sm text-charcoal-light">Shipping</span>
                   <span className="ml-auto text-sm font-medium text-charcoal">
-                    {cross.shippingRate === 0 ? "Local pickup only" : `$${cross.shippingRate.toFixed(2)}`}
+                    {`$${cross.shippingRate.toFixed(2)}`}
                   </span>
                 </div>
               )}
