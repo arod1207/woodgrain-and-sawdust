@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
     await serverClient
       .patch(cross._id)
       .set({ available: false })
-      .ifRevisionID(cross._rev)
+      .ifRevisionId(cross._rev)
       .commit();
   } catch {
     return NextResponse.json(
