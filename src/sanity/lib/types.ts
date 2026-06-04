@@ -1,4 +1,5 @@
 // TypeScript types for Sanity data
+import type { PortableTextBlock } from "@portabletext/react";
 
 export interface SanityImage {
   asset: {
@@ -114,6 +115,21 @@ export interface CommunityBuild {
     name: string;
     slug: string;
   };
+}
+
+export interface Cross {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: PortableTextBlock[];
+  price: number;
+  shippingRate?: number;
+  available: boolean;
+  dimensions?: string;
+  woodType?: string;
+  tiktokUrl?: string;
+  images?: SanityImage[];
+  imageUrl?: string;
 }
 
 export interface AboutStat {
