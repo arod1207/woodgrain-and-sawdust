@@ -49,6 +49,7 @@ export const cross = defineType({
       type: "number",
       description:
         "Flat rate shipping cost. Set to 0 to offer local pickup only.",
+      validation: (Rule) => Rule.min(0).error("Shipping rate cannot be negative"),
     }),
     defineField({
       name: "images",
