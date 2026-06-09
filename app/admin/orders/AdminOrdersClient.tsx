@@ -46,8 +46,8 @@ export default function AdminOrdersClient() {
       navigator.clipboard.writeText(address).catch(() => {});
       setCopiedOrderId(order._id);
       setTimeout(() => setCopiedOrderId(null), 2000);
+      window.open("https://ship.pirateship.com/ship", "_blank", "noopener,noreferrer");
     }
-    window.open("https://ship.pirateship.com/ship", "_blank", "noopener");
   }
 
   async function handleMarkShipped(orderId: Id<"orders">) {
