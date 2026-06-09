@@ -5,7 +5,7 @@ import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { Loader2, AlertTriangle, ShoppingBag, Truck } from "lucide-react";
+import { Loader2, AlertTriangle, ShoppingBag, Truck, ExternalLink, Check } from "lucide-react";
 
 const shippingStatusStyles: Record<string, string> = {
   not_shipped: "bg-cream-dark text-charcoal-light",
@@ -24,12 +24,31 @@ export default function AdminOrdersClient() {
   const [shipFormOpen, setShipFormOpen] = useState<Id<"orders"> | null>(null);
   const [trackingInput, setTrackingInput] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
+  const [copiedOrderId, setCopiedOrderId] = useState<Id<"orders"> | null>(null);
 
   const orders = useQuery(
     api.orders.getAllOrdersAdmin,
     authLoading || !isAuthenticated ? "skip" : {},
   );
   const updateShipping = useMutation(api.orders.updateShipping);
+
+  function handlePirateShip(order: NonNullable<typeof orders>[number]) {
+    if (order.shippingAddress) {
+      const { line1, line2, city, state, postal_code } = order.shippingAddress;
+      const address = [
+        order.customerName,
+        line1,
+        line2,
+        `${city}, ${state} ${postal_code}`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+      navigator.clipboard.writeText(address).catch(() => {});
+      setCopiedOrderId(order._id);
+      setTimeout(() => setCopiedOrderId(null), 2000);
+    }
+    window.open("https://ship.pirateship.com/ship", "_blank", "noopener");
+  }
 
   async function handleMarkShipped(orderId: Id<"orders">) {
     const order = orders?.find((o) => o._id === orderId);
@@ -193,6 +212,25 @@ export default function AdminOrdersClient() {
                             minute: "2-digit",
                           })}
                         </p>
+
+                        {shippingStatus === "not_shipped" && !isLocalPickup && order.shippingAddress && (
+                          <button
+                            onClick={() => handlePirateShip(order)}
+                            className="flex items-center gap-1.5 rounded-full border border-cream-dark bg-white px-3 py-1.5 text-xs font-medium text-charcoal hover:border-amber hover:text-amber"
+                          >
+                            {copiedOrderId === order._id ? (
+                              <>
+                                <Check className="h-3 w-3 text-sage" />
+                                Address copied!
+                              </>
+                            ) : (
+                              <>
+                                <ExternalLink className="h-3 w-3" />
+                                PirateShip
+                              </>
+                            )}
+                          </button>
+                        )}
 
                         {shippingStatus === "not_shipped" && (
                           <button
