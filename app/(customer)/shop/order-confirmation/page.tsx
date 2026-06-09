@@ -1,10 +1,40 @@
 import Link from "next/link";
+import Stripe from "stripe";
 
 export const metadata = {
   title: "Order Confirmed — Woodgrain & Sawdust",
 };
 
-export default function OrderConfirmationPage() {
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
+
+async function getSessionDetails(sessionId: string): Promise<Stripe.Checkout.Session | null> {
+  if (!stripe) return null;
+  try {
+    return await stripe.checkout.sessions.retrieve(sessionId);
+  } catch (err) {
+    console.error("[order-confirmation] Failed to retrieve Stripe session:", err);
+    return null;
+  }
+}
+
+export default async function OrderConfirmationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ session_id?: string }>;
+}) {
+  const { session_id } = await searchParams;
+  const session = session_id ? await getSessionDetails(session_id) : null;
+
+  const name =
+    session?.collected_information?.shipping_details?.name ??
+    session?.customer_details?.name ??
+    null;
+  const addr =
+    session?.collected_information?.shipping_details?.address ??
+    null;
+
   return (
     <main className="mx-auto max-w-lg px-4 py-24 text-center sm:px-6">
       <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full bg-sage/20">
@@ -27,13 +57,31 @@ export default function OrderConfirmationPage() {
         You&apos;re all set!
       </h1>
       <p className="mb-2 text-charcoal-light">
-        Your order is confirmed and I&apos;ll be in touch soon with next steps —
-        whether that&apos;s coordinating local pickup or getting your cross
-        shipped out.
+        Your order is confirmed and I&apos;ll be in touch soon with shipping
+        details.
       </p>
       <p className="mb-8 text-sm text-charcoal-light">
         Check your email for a receipt from Stripe.
       </p>
+
+      {addr && (
+        <div className="mb-8 rounded-xl border border-cream-dark bg-cream px-6 py-5 text-left">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-charcoal-light">
+            Shipping to
+          </p>
+          {name && (
+            <p className="font-semibold text-walnut">{name}</p>
+          )}
+          <p className="text-sm text-charcoal-light">
+            {addr.line1}
+            {addr.line2 ? `, ${addr.line2}` : ""}
+          </p>
+          <p className="text-sm text-charcoal-light">
+            {[addr.city, addr.state].filter(Boolean).join(", ")}
+            {addr.postal_code ? ` ${addr.postal_code}` : ""}
+          </p>
+        </div>
+      )}
 
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
         <Link
