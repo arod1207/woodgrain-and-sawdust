@@ -98,39 +98,42 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Order fulfillment failed" }, { status: 500 });
     }
 
-    // Send order confirmation emails — don't block or fail the webhook on email errors
-    if (fulfilledId) {
-      const customerEmail = session.customer_details?.email
-      const customerName = session.customer_details?.name ?? shippingDetails?.name ?? "there"
-      const crossName = session.metadata?.crossName ?? "your cross"
-      const amountTotal = session.amount_total ?? 0
+    // If no pending order was found, return 500 so Stripe retries the webhook
+    if (!fulfilledId) {
+      console.error("fulfillOrder returned null — no pending order found for session:", session.id);
+      return NextResponse.json({ error: "Order not found" }, { status: 500 });
+    }
 
-      const emailTasks: Promise<void>[] = []
-      if (customerEmail) {
-        emailTasks.push(
-          sendOrderConfirmation({
-            toName: customerName,
-            toEmail: customerEmail,
-            crossName,
-            amountTotal,
-            shippingAddress,
-          })
-        )
-      }
+    // Send order confirmation emails — don't block or fail the webhook on email errors
+    const customerEmail = session.customer_details?.email
+    const customerName = session.customer_details?.name ?? shippingDetails?.name ?? "there"
+    const crossName = session.metadata?.crossName ?? "your cross"
+    const amountTotal = session.amount_total ?? 0
+
+    const emailTasks: Promise<void>[] = []
+    if (customerEmail) {
       emailTasks.push(
-        sendNewOrderNotification({
-          customerName,
-          customerEmail: customerEmail ?? "unknown",
+        sendOrderConfirmation({
+          toName: customerName,
+          toEmail: customerEmail,
           crossName,
           amountTotal,
           shippingAddress,
         })
       )
-      Promise.allSettled(emailTasks.map((p) => p.catch((err) => console.error("Order email failed:", err))))
     }
+    emailTasks.push(
+      sendNewOrderNotification({
+        customerName,
+        customerEmail: customerEmail ?? "unknown",
+        crossName,
+        amountTotal,
+        shippingAddress,
+      })
+    )
+    Promise.allSettled(emailTasks.map((p) => p.catch((err) => console.error("Order email failed:", err))))
 
-    // Only mark the cross as sold in Sanity when fulfillOrder found the order
-    if (fulfilledId && crossId) {
+    if (crossId) {
       try {
         await serverClient.patch(crossId).set({ available: false }).commit();
       } catch (err) {
