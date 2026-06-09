@@ -192,9 +192,14 @@ export default function AdminOrdersClient() {
                         {order.trackingNumber && (
                           <p className="text-xs text-charcoal-light">
                             Tracking:{" "}
-                            <span className="font-medium text-charcoal">
+                            <a
+                              href={`https://www.google.com/search?q=${encodeURIComponent(order.trackingNumber)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-amber hover:underline"
+                            >
                               {order.trackingNumber}
-                            </span>
+                            </a>
                           </p>
                         )}
                       </div>
