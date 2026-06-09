@@ -38,15 +38,26 @@ export default function AdminOrdersClient() {
   const updateShipping = useMutation(api.orders.updateShipping);
 
   async function handleMarkShipped(orderId: Id<"orders">) {
+    const order = orders?.find((o) => o._id === orderId);
     try {
       setActionError(null);
-      await updateShipping({
-        orderId,
-        shippingStatus: "shipped",
-        trackingNumber: trackingInput.trim() || undefined,
-      });
+      const tracking = trackingInput.trim() || undefined;
+      await updateShipping({ orderId, shippingStatus: "shipped", trackingNumber: tracking });
       setShipFormOpen(null);
       setTrackingInput("");
+
+      if (order?.customerEmail && order.customerName) {
+        fetch("/api/ship-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            toEmail: order.customerEmail,
+            toName: order.customerName,
+            crossName: order.crossName,
+            trackingNumber: tracking,
+          }),
+        }).catch((err) => console.error("Shipping email failed:", err));
+      }
     } catch {
       setActionError("Failed to update shipping status. Please try again.");
     }
