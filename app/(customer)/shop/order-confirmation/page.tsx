@@ -5,12 +5,16 @@ export const metadata = {
   title: "Order Confirmed — Woodgrain & Sawdust",
 };
 
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
+
 async function getSessionDetails(sessionId: string): Promise<Stripe.Checkout.Session | null> {
-  if (!process.env.STRIPE_SECRET_KEY) return null;
+  if (!stripe) return null;
   try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     return await stripe.checkout.sessions.retrieve(sessionId);
-  } catch {
+  } catch (err) {
+    console.error("[order-confirmation] Failed to retrieve Stripe session:", err);
     return null;
   }
 }
@@ -73,7 +77,8 @@ export default async function OrderConfirmationPage({
             {addr.line2 ? `, ${addr.line2}` : ""}
           </p>
           <p className="text-sm text-charcoal-light">
-            {addr.city}, {addr.state} {addr.postal_code}
+            {[addr.city, addr.state].filter(Boolean).join(", ")}
+            {addr.postal_code ? ` ${addr.postal_code}` : ""}
           </p>
         </div>
       )}
