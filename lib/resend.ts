@@ -3,6 +3,15 @@ import { getSiteUrl } from '@/lib/siteUrl'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+interface ShippingAddress {
+  line1: string
+  line2?: string
+  city: string
+  state: string
+  postal_code: string
+  country: string
+}
+
 const FROM = 'hello@woodgrainandsawdust.com'
 const SITE_URL = getSiteUrl()
 const BUY_ME_A_COFFEE_URL = 'https://buymeacoffee.com/woodgrainandsawdust'
@@ -128,14 +137,7 @@ export async function sendOrderConfirmation({
   toEmail: string
   crossName: string
   amountTotal: number // cents
-  shippingAddress?: {
-    line1: string
-    line2?: string
-    city: string
-    state: string
-    postal_code: string
-    country: string
-  }
+  shippingAddress?: ShippingAddress
 }) {
   const dollars = (amountTotal / 100).toLocaleString('en-US', {
     style: 'currency',
@@ -256,14 +258,7 @@ export async function sendNewOrderNotification({
   customerEmail: string
   crossName: string
   amountTotal: number // cents
-  shippingAddress?: {
-    line1: string
-    line2?: string
-    city: string
-    state: string
-    postal_code: string
-    country: string
-  }
+  shippingAddress?: ShippingAddress
 }) {
   const dollars = (amountTotal / 100).toLocaleString('en-US', {
     style: 'currency',
