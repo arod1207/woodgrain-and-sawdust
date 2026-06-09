@@ -7,12 +7,6 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Loader2, AlertTriangle, ShoppingBag, Truck } from "lucide-react";
 
-const paymentStatusStyles: Record<string, string> = {
-  paid: "bg-sage/15 text-sage",
-  pending: "bg-amber/15 text-amber",
-  cancelled: "bg-walnut-dark/10 text-walnut-dark",
-};
-
 const shippingStatusStyles: Record<string, string> = {
   not_shipped: "bg-cream-dark text-charcoal-light",
   shipped: "bg-amber/15 text-amber",
@@ -92,6 +86,7 @@ export default function AdminOrdersClient() {
 
   const paid = orders.filter((o) => o.status === "paid");
   const revenue = paid.reduce((sum, o) => sum + o.amountTotal, 0) / 100;
+  const shipped = paid.filter((o) => (o.shippingStatus ?? "not_shipped") !== "not_shipped").length;
 
   return (
     <div>
@@ -114,6 +109,10 @@ export default function AdminOrdersClient() {
             <p className="text-2xl font-bold text-walnut">{paid.length}</p>
           </div>
           <div className="rounded-lg border border-cream-dark bg-white px-4 py-3">
+            <p className="text-charcoal-light">Shipped</p>
+            <p className="text-2xl font-bold text-sage">{shipped}</p>
+          </div>
+          <div className="rounded-lg border border-cream-dark bg-white px-4 py-3">
             <p className="text-charcoal-light">Revenue</p>
             <p className="text-2xl font-bold text-amber">
               ${revenue.toFixed(2)}
@@ -124,22 +123,21 @@ export default function AdminOrdersClient() {
 
       <Card className="border-cream-dark">
         <CardContent className="p-0">
-          {orders.length === 0 ? (
+          {paid.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cream-dark text-charcoal-light">
                 <ShoppingBag className="h-8 w-8" />
               </div>
-              <h3 className="mb-1 font-medium text-charcoal">No orders yet</h3>
+              <h3 className="mb-1 font-medium text-charcoal">No paid orders yet</h3>
               <CardDescription>
                 Orders will appear here once someone buys a cross.
               </CardDescription>
             </div>
           ) : (
             <div className="divide-y divide-cream-dark">
-              {orders.map((order) => {
+              {paid.map((order) => {
                 const shippingStatus = order.shippingStatus ?? "not_shipped";
                 const isFormOpen = shipFormOpen === order._id;
-                const isPaid = order.status === "paid";
                 const isLocalPickup = order.shippingMethod === "local_pickup";
 
                 return (
@@ -151,19 +149,12 @@ export default function AdminOrdersClient() {
                             {order.crossName}
                           </p>
                           <span
-                            className={`rounded-full px-2 py-0.5 text-xs font-medium capitalize ${paymentStatusStyles[order.status] ?? "bg-cream text-charcoal-light"}`}
+                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${shippingStatusStyles[shippingStatus]}`}
                           >
-                            {order.status}
+                            {isLocalPickup && shippingStatus === "not_shipped"
+                              ? "Awaiting Pickup"
+                              : shippingStatusLabel[shippingStatus]}
                           </span>
-                          {isPaid && (
-                            <span
-                              className={`rounded-full px-2 py-0.5 text-xs font-medium ${shippingStatusStyles[shippingStatus]}`}
-                            >
-                              {isLocalPickup && shippingStatus === "not_shipped"
-                                ? "Awaiting Pickup"
-                                : shippingStatusLabel[shippingStatus]}
-                            </span>
-                          )}
                         </div>
                         <p className="text-sm text-charcoal-light">
                           {order.customerEmail}
@@ -200,7 +191,7 @@ export default function AdminOrdersClient() {
                           })}
                         </p>
 
-                        {isPaid && shippingStatus === "not_shipped" && (
+                        {shippingStatus === "not_shipped" && (
                           <button
                             onClick={() => {
                               setShipFormOpen(isFormOpen ? null : order._id);
@@ -213,7 +204,7 @@ export default function AdminOrdersClient() {
                           </button>
                         )}
 
-                        {isPaid && shippingStatus === "shipped" && (
+                        {shippingStatus === "shipped" && (
                           <button
                             onClick={() => handleMarkDelivered(order._id)}
                             className="rounded-full bg-sage/20 px-3 py-1.5 text-xs font-medium text-sage hover:bg-sage/30"
