@@ -113,6 +113,7 @@ export const updateShipping = mutation({
 
 export const getOrderStats = query({
   handler: async (ctx) => {
+    assertAdmin(await ctx.auth.getUserIdentity());
     const orders = await ctx.db.query("orders").collect();
     const paid = orders.filter((o) => o.status === "paid");
     return {
