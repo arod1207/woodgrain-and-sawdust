@@ -128,7 +128,7 @@ export default function AdminOrdersClient() {
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-cream-dark text-charcoal-light">
                 <ShoppingBag className="h-8 w-8" />
               </div>
-              <h3 className="mb-1 font-medium text-charcoal">No orders yet</h3>
+              <h3 className="mb-1 font-medium text-charcoal">No paid orders yet</h3>
               <CardDescription>
                 Orders will appear here once someone buys a cross.
               </CardDescription>
