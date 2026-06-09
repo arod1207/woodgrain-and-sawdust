@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { serverClient } from "@/src/sanity/lib/client";
+import { sendOrderConfirmation, sendNewOrderNotification } from "@/lib/resend";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Missing required environment variable: STRIPE_SECRET_KEY");
@@ -95,6 +96,37 @@ export async function POST(request: NextRequest) {
     } catch (err) {
       console.error("Failed to fulfill order in Convex:", err);
       return NextResponse.json({ error: "Order fulfillment failed" }, { status: 500 });
+    }
+
+    // Send order confirmation emails — don't block or fail the webhook on email errors
+    if (fulfilledId) {
+      const customerEmail = session.customer_details?.email
+      const customerName = session.customer_details?.name ?? shippingDetails?.name ?? "there"
+      const crossName = session.metadata?.crossName ?? "your cross"
+      const amountTotal = session.amount_total ?? 0
+
+      const emailTasks: Promise<void>[] = []
+      if (customerEmail) {
+        emailTasks.push(
+          sendOrderConfirmation({
+            toName: customerName,
+            toEmail: customerEmail,
+            crossName,
+            amountTotal,
+            shippingAddress,
+          })
+        )
+      }
+      emailTasks.push(
+        sendNewOrderNotification({
+          customerName,
+          customerEmail: customerEmail ?? "unknown",
+          crossName,
+          amountTotal,
+          shippingAddress,
+        })
+      )
+      Promise.allSettled(emailTasks.map((p) => p.catch((err) => console.error("Order email failed:", err))))
     }
 
     // Only mark the cross as sold in Sanity when fulfillOrder found the order
