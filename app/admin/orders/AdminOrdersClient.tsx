@@ -160,13 +160,16 @@ export default function AdminOrdersClient() {
                           {order.customerEmail}
                           {order.customerName ? ` · ${order.customerName}` : ""}
                         </p>
-                        <p className="text-xs text-charcoal-light">
-                          {isLocalPickup
-                            ? "Local pickup"
-                            : order.shippingAddress
-                              ? `Ship to ${order.shippingAddress.city}, ${order.shippingAddress.state}`
-                              : "Standard shipping"}
-                        </p>
+                        {isLocalPickup ? (
+                          <p className="text-xs text-charcoal-light">Local pickup</p>
+                        ) : order.shippingAddress ? (
+                          <div className="text-xs text-charcoal-light">
+                            <p>{order.shippingAddress.line1}{order.shippingAddress.line2 ? `, ${order.shippingAddress.line2}` : ""}</p>
+                            <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postal_code}</p>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-charcoal-light">Standard shipping</p>
+                        )}
                         {order.trackingNumber && (
                           <p className="text-xs text-charcoal-light">
                             Tracking:{" "}
