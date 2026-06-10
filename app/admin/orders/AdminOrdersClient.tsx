@@ -193,7 +193,7 @@ export default function AdminOrdersClient() {
                           <p className="text-xs text-charcoal-light">
                             Tracking:{" "}
                             <a
-                              href={`https://www.google.com/search?q=${encodeURIComponent(order.trackingNumber)}`}
+                              href={`https://tools.usps.com/go/TrackConfirmAction?tLabels=${encodeURIComponent(order.trackingNumber)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="font-medium text-amber hover:underline"
