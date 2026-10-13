@@ -62,23 +62,26 @@ export interface CutPlanCard {
   category?: Category;
 }
 
+export interface SectionImage {
+  asset: {
+    _id: string;
+    url: string;
+    metadata?: { dimensions?: { width: number; height: number } };
+  };
+  alt?: string;
+}
+
 export interface HeroSection {
-  // Left panel (brand panel)
-  brandNameLine1?: string;
-  brandNameConnector?: string;
-  brandNameLine2?: string;
-  establishedText?: string;
-  // Right panel (hero content)
   brandLabel?: string;
   heading: string;
   headingAccent?: string;
   subheading?: string;
   ctaText?: string;
   ctaLink?: string;
-  backgroundImage?: {
-    asset: { _id: string; url: string };
-    alt?: string;
-  };
+  secondaryCtaText?: string;
+  secondaryCtaLink?: string;
+  footnote?: string;
+  heroImage?: SectionImage;
   // SEO
   seoTitle?: string;
   seoDescription?: string;
@@ -94,12 +97,26 @@ export interface FeaturesSection {
   features: Feature[];
 }
 
-export interface FeaturedPlansSection {
+export interface HowItWorksStep {
+  title: string;
+  description: string;
+}
+
+export interface HowItWorksSection {
+  label?: string;
   heading: string;
+  steps?: HowItWorksStep[];
+  ctaText?: string;
+  ctaLink?: string;
+  image?: SectionImage;
+}
+
+export interface FeaturedPlansSection {
+  label?: string;
+  heading: string;
+  description?: string;
   viewAllText?: string;
   viewAllLink?: string;
-  emptyStateHeading?: string;
-  emptyStateText?: string;
 }
 
 export interface CommunityBuild {
