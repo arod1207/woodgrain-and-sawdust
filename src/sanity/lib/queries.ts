@@ -1,20 +1,20 @@
 export const HERO_SECTION_QUERY = `*[_type == "heroSection" && _id == "heroSection"][0] {
-  brandNameLine1,
-  brandNameConnector,
-  brandNameLine2,
-  establishedText,
   brandLabel,
   heading,
   headingAccent,
   subheading,
   ctaText,
   ctaLink,
+  secondaryCtaText,
+  secondaryCtaLink,
+  footnote,
   seoTitle,
   seoDescription,
-  backgroundImage {
+  heroImage {
     asset->{
       _id,
-      url
+      url,
+      metadata { dimensions { width, height } }
     },
     alt
   }
@@ -28,12 +28,31 @@ export const FEATURES_SECTION_QUERY = `*[_type == "featuresSection" && _id == "f
   }
 }`;
 
-export const FEATURED_PLANS_SECTION_QUERY = `*[_type == "featuredPlansSection" && _id == "featuredPlansSection"][0] {
+export const HOW_IT_WORKS_SECTION_QUERY = `*[_type == "howItWorksSection" && _id == "howItWorksSection"][0] {
+  label,
   heading,
+  steps[] {
+    title,
+    description
+  },
+  ctaText,
+  ctaLink,
+  image {
+    asset->{
+      _id,
+      url,
+      metadata { dimensions { width, height } }
+    },
+    alt
+  }
+}`;
+
+export const FEATURED_PLANS_SECTION_QUERY = `*[_type == "featuredPlansSection" && _id == "featuredPlansSection"][0] {
+  label,
+  heading,
+  description,
   viewAllText,
-  viewAllLink,
-  emptyStateHeading,
-  emptyStateText
+  viewAllLink
 }`;
 
 // Cut plan queries

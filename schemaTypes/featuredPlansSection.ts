@@ -8,36 +8,36 @@ export const featuredPlansSection = defineType({
   icon: StarIcon,
   fields: [
     defineField({
+      name: "label",
+      title: "Label",
+      type: "string",
+      description: 'Small uppercase text above the heading. e.g., "Free plans"',
+    }),
+    defineField({
       name: "heading",
       title: "Section Heading",
       type: "string",
-      description: 'e.g., "Featured Plans"',
+      description: 'e.g., "Prefer a head start?"',
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "description",
+      title: "Description",
+      type: "text",
+      rows: 2,
+      description: "Short paragraph under the heading",
     }),
     defineField({
       name: "viewAllText",
       title: "View All Link Text",
       type: "string",
-      description: 'e.g., "View All"',
+      description: 'e.g., "View all plans"',
     }),
     defineField({
       name: "viewAllLink",
       title: "View All Link URL",
       type: "string",
       description: 'e.g., "/plans"',
-    }),
-    defineField({
-      name: "emptyStateHeading",
-      title: "Empty State Heading",
-      type: "string",
-      description: 'Shown when no plans are featured. e.g., "No featured plans yet"',
-    }),
-    defineField({
-      name: "emptyStateText",
-      title: "Empty State Description",
-      type: "text",
-      rows: 2,
-      description: "Shown when no plans are featured.",
     }),
   ],
   preview: {

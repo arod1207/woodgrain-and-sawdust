@@ -5,6 +5,7 @@ import { Cross } from "@/src/sanity/lib/types";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { getSiteUrl } from "@/lib/siteUrl";
+import { isShopEnabled } from "@/lib/features";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error("Missing required environment variable: STRIPE_SECRET_KEY");
@@ -32,6 +33,10 @@ const CHECKOUT_CROSS_QUERY = `*[_type == "cross" && _id == $id][0] {
 type CheckoutCross = Cross & { _rev: string };
 
 export async function POST(request: NextRequest) {
+  if (!isShopEnabled()) {
+    return NextResponse.json({ error: "The shop is closed right now." }, { status: 404 });
+  }
+
   let body: { crossId?: string };
   try {
     body = await request.json();

@@ -9,6 +9,7 @@ const singletonTypes = [
   "heroSection",
   "aboutSection",
   "featuresSection",
+  "howItWorksSection",
   "featuredPlansSection",
 ];
 
@@ -42,6 +43,14 @@ export default defineConfig({
                 S.document()
                   .schemaType("featuresSection")
                   .documentId("featuresSection")
+              ),
+            S.listItem()
+              .title("How It Works Section")
+              .id("howItWorksSection")
+              .child(
+                S.document()
+                  .schemaType("howItWorksSection")
+                  .documentId("howItWorksSection")
               ),
             S.listItem()
               .title("Featured Plans Section")

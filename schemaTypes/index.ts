@@ -4,6 +4,7 @@ import { aboutSection } from "./aboutSection";
 import { heroSection } from "./heroSection";
 import { featuresSection } from "./featuresSection";
 import { featuredPlansSection } from "./featuredPlansSection";
+import { howItWorksSection } from "./howItWorksSection";
 import { communityBuild } from "./communityBuild";
 import { cross } from "./cross";
 
@@ -15,5 +16,6 @@ export const schemaTypes = [
   aboutSection,
   heroSection,
   featuresSection,
+  howItWorksSection,
   featuredPlansSection,
 ];

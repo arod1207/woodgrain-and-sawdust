@@ -5,7 +5,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import DownloadForm from "@/components/customer/DownloadForm";
-import { Download, Beer, Link2, Check, Mail, Share2 } from "lucide-react";
+import { Download, Beer, Link2, Check, Mail, Share2, PencilRuler } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface PlanActionsProps {
@@ -19,6 +19,15 @@ interface PlanActionsProps {
 }
 
 const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/woodgrainandsawdust";
+
+/** Plans the Designer can open (keep in step with the Designer's src/templates). */
+const DESIGNER_PLANS = new Set<string>([
+  "cedar-picket-planter",
+  "24-x-24-raised-planter",
+  "raised-cedar-planter-box",
+  "cedar-string-light-planter",
+]);
+const DESIGNER_URL = "https://designer.woodgrainandsawdust.com";
 
 interface PinterestIconProps {
   className?: string;
@@ -102,6 +111,16 @@ export default function PlanActions({
               <Download className="mr-2 h-5 w-5" />
               Download Plan
             </Button>
+
+            {DESIGNER_PLANS.has(planSlug) && (
+              <a
+                href={`${DESIGNER_URL}/new?template=${planSlug}`}
+                className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-amber px-8 py-4 text-base font-semibold text-amber transition-colors hover:bg-amber hover:text-white"
+              >
+                <PencilRuler className="h-5 w-5" />
+                Open in Designer — change the size, get your cut list
+              </a>
+            )}
 
             <a
               href={BUY_ME_A_COFFEE_URL}

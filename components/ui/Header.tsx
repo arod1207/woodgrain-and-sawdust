@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { isShopEnabled } from "@/lib/features";
 
 const Header = () => {
   return (
@@ -44,11 +45,19 @@ const Header = () => {
             Community Builds
           </Link>
           <Link
-            href="/shop"
-            className="rounded-full bg-amber px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-amber/90"
+            href="https://designer.woodgrainandsawdust.com"
+            className="relative text-sm font-medium text-charcoal-light transition-colors hover:text-amber after:absolute after:bottom-[-2px] after:left-0 after:h-px after:w-0 after:bg-amber after:transition-all hover:after:w-full"
           >
-            Shop
+            Designer
           </Link>
+          {isShopEnabled() && (
+            <Link
+              href="/shop"
+              className="rounded-full bg-amber px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-amber/90"
+            >
+              Shop
+            </Link>
+          )}
         </nav>
       </div>
     </header>

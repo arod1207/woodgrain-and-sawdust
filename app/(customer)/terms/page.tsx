@@ -13,7 +13,7 @@ export default function TermsOfServicePage() {
         Terms of Service
       </h1>
       <p className='mt-2 text-sm text-charcoal-light'>
-        Last updated: March 26, 2026
+        Last updated: October 13, 2026
       </p>
 
       <div className='mt-10 space-y-8 font-body text-charcoal leading-relaxed'>
@@ -67,6 +67,95 @@ export default function TermsOfServicePage() {
             All content on this site — including cut plans, images, text, and
             design — is the property of Woodgrain &amp; Sawdust and is protected
             by copyright law.
+          </p>
+        </div>
+
+        <div>
+          <h2 className='text-xl font-semibold text-walnut'>
+            The Woodgrain &amp; Sawdust Designer
+          </h2>
+          <p className='mt-2'>
+            These terms also cover the Designer at{' '}
+            <a
+              href='https://designer.woodgrainandsawdust.com'
+              className='text-amber underline hover:text-amber-light'
+            >
+              designer.woodgrainandsawdust.com
+            </a>
+            . You can use it as a guest or with an optional free account. A
+            Free account can keep up to 3 projects and download 3 PDFs.
+          </p>
+          {/* TODO(owner): add what happens if someone misuses the Designer (e.g. whether accounts can be suspended). Not covered by the facts provided. */}
+        </div>
+
+        <div>
+          <h2 className='text-xl font-semibold text-walnut'>
+            Designer Pro Subscriptions
+          </h2>
+          <ul className='mt-2 list-disc space-y-1 pl-6'>
+            <li>
+              Pro costs <strong>$3.99/month</strong> or{' '}
+              <strong>$35.88/year</strong> (USD). It&rsquo;s billed through
+              Clerk Billing, and payments are processed by Stripe.
+            </li>
+            <li>
+              Pro starts with a <strong>7-day free trial</strong>. A card is
+              required to start it. Cancel any time before the 7 days end and
+              you won&rsquo;t be charged.
+            </li>
+            <li>
+              After the trial, Pro <strong>renews automatically</strong> each
+              month or year until you cancel.
+            </li>
+            <li>
+              You can cancel any time from the pricing page (&ldquo;Manage your
+              subscription&rdquo;). Pro stays on until the end of the period
+              you&rsquo;ve paid for.
+            </li>
+            <li>
+              If Pro ends, you keep all your projects. Any projects beyond the
+              free limit of 3 become read-only. They&rsquo;re never deleted.
+            </li>
+          </ul>
+          {/* TODO(owner): say whether and how you'll give notice before changing Pro prices. Not covered by the facts provided. */}
+        </div>
+
+        <div>
+          <h2 className='text-xl font-semibold text-walnut'>Refunds</h2>
+          <p className='mt-2'>
+            If you ask within <strong>14 days of your first payment</strong>{' '}
+            (the first charge after your free trial), you&rsquo;ll get a full
+            refund. After that, payments aren&rsquo;t refunded, but you can
+            cancel any time to stop future charges. To request a refund, email{' '}
+            <a
+              href='mailto:hello@woodgrainandsawdust.com'
+              className='text-amber underline hover:text-amber-light'
+            >
+              hello@woodgrainandsawdust.com
+            </a>
+            .
+          </p>
+        </div>
+
+        <div>
+          <h2 className='text-xl font-semibold text-walnut'>Your Designs</h2>
+          <ul className='mt-2 list-disc space-y-1 pl-6'>
+            <li>You own the projects you create in the Designer.</li>
+            <li>
+              Starter templates and the Woodgrain &amp; Sawdust plans are
+              provided for you to customize for personal use.
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h2 className='text-xl font-semibold text-walnut'>
+            Designer Estimates
+          </h2>
+          <p className='mt-2'>
+            The Designer gives planning estimates: sizes, cut lists, and
+            prices. You&rsquo;re responsible for checking your measurements
+            before you cut and for building safely.
           </p>
         </div>
 
