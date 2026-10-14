@@ -26,6 +26,7 @@ const DESIGNER_PLANS = new Set<string>([
   "24-x-24-raised-planter",
   "raised-cedar-planter-box",
   "cedar-string-light-planter",
+  "woven-cross",
 ]);
 const DESIGNER_URL = "https://designer.woodgrainandsawdust.com";
 
@@ -95,9 +96,21 @@ export default function PlanActions({
       {/* Action buttons */}
       <div className="space-y-3">
         {comingSoon ? (
-          <div className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-walnut/20 bg-walnut/5 px-8 py-4 text-base font-semibold text-walnut/50">
-            Download Coming Soon
-          </div>
+          <>
+            <div className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-walnut/20 bg-walnut/5 px-8 py-4 text-base font-semibold text-walnut/50">
+              Download Coming Soon
+            </div>
+            {/* The Designer can already open it while the PDF is coming. */}
+            {DESIGNER_PLANS.has(planSlug) && (
+              <a
+                href={`${DESIGNER_URL}/new?template=${planSlug}`}
+                className="flex w-full items-center justify-center gap-2 rounded-full bg-amber px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-amber-light"
+              >
+                <PencilRuler className="h-5 w-5" />
+                Design it now in the Designer — get your cut list
+              </a>
+            )}
+          </>
         ) : (
           <>
             <Button
