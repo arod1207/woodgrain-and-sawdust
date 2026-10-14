@@ -54,8 +54,9 @@ const PlansPage = async ({ searchParams }: PlansPageProps) => {
           Cut Plans
         </h1>
         <p className='mt-4 max-w-2xl text-lg text-charcoal-light'>
-          Detailed PDF cut plans for woodworking projects of all skill levels.
-          All plans are free to download.
+          Free woodworking plans for every skill level. Open any plan in the
+          Designer for step-by-step instructions, a cut list and a shopping list —
+          and change the size to fit your space.
         </p>
       </div>
 

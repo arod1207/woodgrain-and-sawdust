@@ -25,7 +25,7 @@ const SITE_URL = getSiteUrl();
 
 const DEFAULT_TITLE = "Woodgrain & Sawdust | Woodworking Cut Plans";
 const DEFAULT_DESCRIPTION =
-  "Free PDF cut plans for woodworking projects of all skill levels. Download instantly — no account required.";
+  "Free woodworking plans you can open in the Designer: step-by-step instructions, cut lists and shopping lists, sized to fit your space.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

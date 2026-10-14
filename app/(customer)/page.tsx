@@ -378,7 +378,7 @@ const HomePage = async () => {
                 </h2>
                 <p className="mt-2 max-w-xl text-charcoal-light">
                   {featuredPlansConfig?.description ??
-                    "Grab a free PDF plan as-is, or open it in the Designer and tweak it to fit your patio, porch or that one weird corner."}
+                    "Open a free plan in the Designer and tweak it to fit your patio, porch or that one weird corner — steps, cut list and shopping list included."}
                 </p>
               </div>
               <Button

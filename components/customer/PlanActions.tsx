@@ -56,6 +56,9 @@ export default function PlanActions({
   const [copied, setCopied] = useState(false);
   const [mounted, setMounted] = useState(false);
   const recordEvent = useMutation(api.events.recordEvent);
+  // Plans the Designer has are built there (steps, cut list, shopping list) — no PDF download.
+  const inDesigner = DESIGNER_PLANS.has(planSlug);
+  const soon = comingSoon && !inDesigner;
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -82,7 +85,7 @@ export default function PlanActions({
     <>
       {/* Plan label */}
       <div className="mb-6">
-        {comingSoon ? (
+        {soon ? (
           <span className="inline-block rounded-full bg-walnut/10 px-4 py-1 text-sm font-semibold uppercase tracking-widest text-walnut">
             Coming Soon
           </span>
@@ -95,44 +98,37 @@ export default function PlanActions({
 
       {/* Action buttons */}
       <div className="space-y-3">
-        {comingSoon ? (
-          <>
-            <div className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-walnut/20 bg-walnut/5 px-8 py-4 text-base font-semibold text-walnut/50">
-              Download Coming Soon
-            </div>
-            {/* The Designer can already open it while the PDF is coming. */}
-            {DESIGNER_PLANS.has(planSlug) && (
-              <a
-                href={`${DESIGNER_URL}/new?template=${planSlug}`}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-amber px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-amber-light"
-              >
-                <PencilRuler className="h-5 w-5" />
-                Design it now in the Designer — get your cut list
-              </a>
-            )}
-          </>
+        {soon ? (
+          <div className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-walnut/20 bg-walnut/5 px-8 py-4 text-base font-semibold text-walnut/50">
+            Download Coming Soon
+          </div>
         ) : (
           <>
-            <Button
-              size="lg"
-              className="w-full rounded-full bg-amber px-8 py-6 text-base text-white hover:bg-amber-light"
-              onClick={() => {
-                setDialogOpen(true);
-                recordEvent({ event: "form_open", planId, planName }).catch(() => {});
-              }}
-            >
-              <Download className="mr-2 h-5 w-5" />
-              Download Plan
-            </Button>
-
-            {DESIGNER_PLANS.has(planSlug) && (
-              <a
-                href={`${DESIGNER_URL}/new?template=${planSlug}`}
-                className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-amber px-8 py-4 text-base font-semibold text-amber transition-colors hover:bg-amber hover:text-white"
+            {inDesigner ? (
+              <>
+                <a
+                  href={`${DESIGNER_URL}/new?template=${planSlug}`}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-amber px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-amber-light"
+                >
+                  <PencilRuler className="h-5 w-5" />
+                  Open in the Designer — free
+                </a>
+                <p className="text-center text-xs text-charcoal-light">
+                  Step-by-step instructions, cut list and shopping list — change the size to fit your space, then print it.
+                </p>
+              </>
+            ) : (
+              <Button
+                size="lg"
+                className="w-full rounded-full bg-amber px-8 py-6 text-base text-white hover:bg-amber-light"
+                onClick={() => {
+                  setDialogOpen(true);
+                  recordEvent({ event: "form_open", planId, planName }).catch(() => {});
+                }}
               >
-                <PencilRuler className="h-5 w-5" />
-                Open in Designer — change the size, get your cut list
-              </a>
+                <Download className="mr-2 h-5 w-5" />
+                Download Plan
+              </Button>
             )}
 
             <a
@@ -185,7 +181,7 @@ export default function PlanActions({
         )}
       </div>
 
-      {!comingSoon && (
+      {!soon && !inDesigner && (
         <DownloadForm
           planId={planId}
           planName={planName}
