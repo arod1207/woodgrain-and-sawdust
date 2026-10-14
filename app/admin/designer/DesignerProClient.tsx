@@ -7,7 +7,7 @@ import { ConvexReactClient, useConvexAuth, useMutation, useQuery } from "convex/
 import { makeFunctionReference } from "convex/server";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Gift, Loader2, Search, Sparkles, UserX } from "lucide-react";
+import { AlertTriangle, Download, Gift, Loader2, Search, Sparkles, UserX } from "lucide-react";
 
 /**
  * The Designer keeps its accounts in its own Convex deployment. This page talks
@@ -33,6 +33,7 @@ const fn = {
   findByEmail: makeFunctionReference<"query", { email: string }, Account[]>("admin:findByEmail"),
   grantPro: makeFunctionReference<"mutation", { userId: string; note: string }, null>("admin:grantPro"),
   revokePro: makeFunctionReference<"mutation", { userId: string }, null>("admin:revokePro"),
+  subscribers: makeFunctionReference<"query", Record<string, never>, { email: string; name: string; since: number }[]>("admin:subscribers"),
 };
 
 const errorText = (err: unknown) => {
@@ -140,6 +141,8 @@ function DesignerPro() {
         </CardContent>
       </Card>
 
+      <EmailList ready={ready} />
+
       <h2 className="mb-3 text-lg font-semibold text-walnut">Free Pro you&apos;ve given</h2>
       {overview && overview.granted.length === 0 && <p className="text-sm text-charcoal-light">Nobody yet.</p>}
       <ul className="flex flex-col gap-3">
@@ -220,5 +223,58 @@ function AccountRow({ account: a }: { account: Account }) {
       </div>
       {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </li>
+  );
+}
+
+/** Designer users who said yes to "Email me new free plans" — with a CSV export. */
+function EmailList({ ready }: { ready: boolean }) {
+  const list = useQuery(fn.subscribers, ready ? {} : "skip");
+  const exportCSV = () => {
+    if (!list) return;
+    const cell = (v: string) => {
+      const escaped = v.replace(/"/g, '""');
+      return `"${/^[=+\-@]/.test(escaped) ? `'${escaped}` : escaped}"`;
+    };
+    const csv = [["Email", "Name", "Since"], ...list.map((s) => [s.email, s.name, new Date(s.since).toISOString().slice(0, 10)])]
+      .map((r) => r.map(cell).join(","))
+      .join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "designer-subscribers.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  return (
+    <Card className="mb-8 border-cream-dark">
+      <CardHeader className="flex flex-row items-start justify-between gap-4">
+        <div>
+          <CardTitle className="text-walnut">Designer email list</CardTitle>
+          <CardDescription>People who said yes to &ldquo;Email me new free plans&rdquo; in the Designer.</CardDescription>
+        </div>
+        <Button variant="outline" size="sm" disabled={!list?.length} onClick={exportCSV} className="gap-1.5">
+          <Download className="h-4 w-4" /> Export CSV
+        </Button>
+      </CardHeader>
+      <CardContent>
+        {list === undefined ? (
+          <p className="text-sm text-charcoal-light">Loading…</p>
+        ) : list.length === 0 ? (
+          <p className="text-sm text-charcoal-light">Nobody yet.</p>
+        ) : (
+          <>
+            <p className="mb-2 text-sm text-charcoal-light">{list.length} subscribed</p>
+            <ul className="max-h-64 divide-y divide-cream-dark overflow-y-auto text-sm">
+              {list.map((s) => (
+                <li key={s.email} className="flex justify-between gap-4 py-1.5">
+                  <span className="text-charcoal">{s.email}</span>
+                  <span className="text-charcoal-light">{s.name}</span>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
