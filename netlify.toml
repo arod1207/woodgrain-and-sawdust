@@ -1,0 +1,17 @@
+# Netlify site for woodgrainandsawdust.com.
+# Next.js runtime is detected automatically (OpenNext adapter); no plugin config needed.
+[build]
+  # Production (main): deploys the Convex backend first, then builds the site against it, so
+  # merged Convex changes go live with the site. Needs CONVEX_DEPLOY_KEY (Convex → Settings →
+  # Deploy keys → Production) in Netlify's environment variables; it also sets
+  # NEXT_PUBLIC_CONVEX_URL for the build.
+  command = "npx convex deploy --cmd 'npm run build'"
+  publish = ".next"
+
+# Deploy previews and branch deploys only build the site. They must never push unmerged
+# Convex functions to the production backend.
+[context.deploy-preview]
+  command = "npm run build"
+
+[context.branch-deploy]
+  command = "npm run build"
