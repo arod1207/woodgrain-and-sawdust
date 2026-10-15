@@ -11,6 +11,7 @@
 import type * as downloads from "../downloads.js";
 import type * as events from "../events.js";
 import type * as orders from "../orders.js";
+import type * as resendContacts from "../resendContacts.js";
 
 import type {
   ApiFromModules,
@@ -22,6 +23,7 @@ declare const fullApi: ApiFromModules<{
   downloads: typeof downloads;
   events: typeof events;
   orders: typeof orders;
+  resendContacts: typeof resendContacts;
 }>;
 
 /**
