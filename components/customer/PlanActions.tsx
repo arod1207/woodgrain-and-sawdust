@@ -8,6 +8,7 @@ import DownloadForm from "@/components/customer/DownloadForm";
 import { Download, Beer, Link2, Check, Mail, Share2, PencilRuler } from "lucide-react";
 import type { ReactNode } from "react";
 import { DESIGNER_PLANS, designerPlanUrl, PRO_PLANS } from "@/lib/designerPlans";
+import ProBadge from "@/components/customer/ProBadge";
 
 interface PlanActionsProps {
   planId: string;
@@ -83,7 +84,13 @@ export default function PlanActions({
             Coming Soon
           </span>
         ) : (
-          <p className="text-3xl font-bold text-amber">{pro ? "Designer Pro" : "Free"}</p>
+          pro ? (
+            <p className="flex items-center gap-3 text-3xl font-bold text-amber">
+              Designer Pro <ProBadge className="bg-amber/15 text-xs" />
+            </p>
+          ) : (
+            <p className="text-3xl font-bold text-amber">Free</p>
+          )
         )}
       </div>
 

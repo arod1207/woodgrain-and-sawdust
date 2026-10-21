@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import type { CutPlanCard as CutPlanCardType } from "@/src/sanity/lib/types";
 import { ImageIcon } from "lucide-react";
 import { designerPlanUrl, PRO_PLANS } from "@/lib/designerPlans";
+import ProBadge from "@/components/customer/ProBadge";
 
 interface Props {
   plan: CutPlanCardType;
@@ -38,6 +39,7 @@ export default function CutPlanCard({ plan }: Props) {
             <ImageIcon className="h-16 w-16" />
           </div>
         )}
+        {PRO_PLANS.has(slug) && <ProBadge className="absolute left-3 top-3 bg-white shadow-sm" />}
         {comingSoon && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="rounded-full bg-walnut/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-cream">
@@ -51,11 +53,6 @@ export default function CutPlanCard({ plan }: Props) {
         <h3 className="truncate text-base font-semibold text-walnut transition-colors group-hover:text-amber">
           {name}
         </h3>
-        {PRO_PLANS.has(slug) && (
-          <Badge variant="outline" className="mr-1 mt-1 border-walnut/30 bg-walnut/10 text-[10px] text-walnut">
-            Designer Pro
-          </Badge>
-        )}
         {difficulty && (
           <Badge
             variant="outline"
