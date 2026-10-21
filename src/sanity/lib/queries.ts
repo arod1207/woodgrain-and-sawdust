@@ -1,3 +1,5 @@
+import { DESIGNER_PLANS_FILTER } from "@/lib/designerPlans";
+
 export const HERO_SECTION_QUERY = `*[_type == "heroSection" && _id == "heroSection"][0] {
   brandLabel,
   heading,
@@ -57,7 +59,7 @@ export const FEATURED_PLANS_SECTION_QUERY = `*[_type == "featuredPlansSection" &
 
 // Cut plan queries
 
-export const CUT_PLANS_QUERY = `*[_type == "cutPlan" && defined(slug.current)] | order(_createdAt desc) {
+export const CUT_PLANS_QUERY = `*[_type == "cutPlan" && ${DESIGNER_PLANS_FILTER}] | order(_createdAt desc) {
   _id,
   name,
   "slug": slug.current,
@@ -82,7 +84,7 @@ export const CUT_PLANS_QUERY = `*[_type == "cutPlan" && defined(slug.current)] |
   }
 }`;
 
-export const FEATURED_CUT_PLANS_QUERY = `*[_type == "cutPlan" && featured == true && defined(slug.current)] | order(_createdAt desc) [0...6] {
+export const FEATURED_CUT_PLANS_QUERY = `*[_type == "cutPlan" && featured == true && ${DESIGNER_PLANS_FILTER}] | order(_createdAt desc) [0...6] {
   _id,
   name,
   "slug": slug.current,
@@ -140,7 +142,7 @@ export const CUT_PLAN_PDF_QUERY = `*[_type == "cutPlan" && _id == $id][0] {
   "pdfOriginalFilename": pdfFile.asset->originalFilename
 }`;
 
-export const CUT_PLAN_SLUGS_QUERY = `*[_type == "cutPlan" && defined(slug.current)]{ "slug": slug.current }`;
+export const CUT_PLAN_SLUGS_QUERY = `*[_type == "cutPlan" && ${DESIGNER_PLANS_FILTER}]{ "slug": slug.current }`;
 
 export const CATEGORIES_QUERY = `*[_type == "category" && isVisible != false] | order(name asc) {
   _id,
@@ -149,7 +151,7 @@ export const CATEGORIES_QUERY = `*[_type == "category" && isVisible != false] | 
   description
 }`;
 
-export const CUT_PLANS_BY_CATEGORY_QUERY = `*[_type == "cutPlan" && category->slug.current == $category && defined(slug.current)] | order(_createdAt desc) {
+export const CUT_PLANS_BY_CATEGORY_QUERY = `*[_type == "cutPlan" && category->slug.current == $category && ${DESIGNER_PLANS_FILTER}] | order(_createdAt desc) {
   _id,
   name,
   "slug": slug.current,
