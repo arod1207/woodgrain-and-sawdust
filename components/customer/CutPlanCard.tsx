@@ -1,9 +1,10 @@
 import Image from "next/image";
-import Link from "next/link";
 import { urlFor } from "@/src/sanity/lib/image";
 import { Badge } from "@/components/ui/badge";
 import type { CutPlanCard as CutPlanCardType } from "@/src/sanity/lib/types";
 import { ImageIcon } from "lucide-react";
+import { designerPlanUrl, PRO_PLANS } from "@/lib/designerPlans";
+import ProBadge from "@/components/customer/ProBadge";
 
 interface Props {
   plan: CutPlanCardType;
@@ -19,7 +20,8 @@ export default function CutPlanCard({ plan }: Props) {
   const { name, slug, difficulty, image, comingSoon } = plan;
 
   return (
-    <Link href={`/plans/${slug}`} className="group block focus:outline-none">
+    // Every plan opens straight in the Designer, ready to edit (its /plans page stays for search and shares).
+    <a href={designerPlanUrl(slug)} className="group block focus:outline-none">
       <div className="relative aspect-square overflow-hidden rounded-lg bg-white">
         {image?.asset ? (
           <Image
@@ -37,6 +39,7 @@ export default function CutPlanCard({ plan }: Props) {
             <ImageIcon className="h-16 w-16" />
           </div>
         )}
+        {PRO_PLANS.has(slug) && <ProBadge className="absolute left-3 top-3 bg-white shadow-sm" />}
         {comingSoon && (
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="rounded-full bg-walnut/90 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-cream">
@@ -59,6 +62,6 @@ export default function CutPlanCard({ plan }: Props) {
           </Badge>
         )}
       </div>
-    </Link>
+    </a>
   );
 }

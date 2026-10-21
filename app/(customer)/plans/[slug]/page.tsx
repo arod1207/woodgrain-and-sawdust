@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, Clock, TreePine } from "lucide-react";
 import { urlFor } from "@/src/sanity/lib/image";
+import { PRO_PLANS } from "@/lib/designerPlans";
 import { getSiteUrl } from "@/lib/siteUrl";
 
 interface PlanPageProps {
@@ -93,7 +94,7 @@ const PlanPage = async ({ params }: PlanPageProps) => {
           name: m,
         })),
       }),
-    isAccessibleForFree: true,
+    isAccessibleForFree: !PRO_PLANS.has(plan.slug),
     provider: {
       "@type": "Organization",
       name: "Woodgrain & Sawdust",

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import DownloadForm from "@/components/customer/DownloadForm";
 import { Download, Beer, Link2, Check, Mail, Share2, PencilRuler } from "lucide-react";
 import type { ReactNode } from "react";
+import { DESIGNER_PLANS, designerPlanUrl, PRO_PLANS } from "@/lib/designerPlans";
+import ProBadge from "@/components/customer/ProBadge";
 
 interface PlanActionsProps {
   planId: string;
@@ -20,17 +22,6 @@ interface PlanActionsProps {
 
 const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/woodgrainandsawdust";
 
-/** Plans the Designer can open (keep in step with the Designer's src/templates). */
-const DESIGNER_PLANS = new Set<string>([
-  "cedar-picket-planter",
-  "24-x-24-raised-planter",
-  "raised-cedar-planter-box",
-  "cedar-string-light-planter",
-  "cedar-bench-planter",
-  "mobile-saw-station-workbench",
-  "woven-cross",
-]);
-const DESIGNER_URL = "https://designer.woodgrainandsawdust.com";
 
 interface PinterestIconProps {
   className?: string;
@@ -59,7 +50,8 @@ export default function PlanActions({
   const [mounted, setMounted] = useState(false);
   const recordEvent = useMutation(api.events.recordEvent);
   // Plans the Designer has are built there (steps, cut list, shopping list) — no PDF download.
-  const inDesigner = DESIGNER_PLANS.has(planSlug);
+  const inDesigner = (DESIGNER_PLANS as readonly string[]).includes(planSlug);
+  const pro = PRO_PLANS.has(planSlug);
   const soon = comingSoon && !inDesigner;
 
   useEffect(() => { setMounted(true); }, []);
@@ -92,7 +84,13 @@ export default function PlanActions({
             Coming Soon
           </span>
         ) : (
-          <p className="text-3xl font-bold text-amber">Free</p>
+          pro ? (
+            <p className="flex items-center gap-3 text-3xl font-bold text-amber">
+              Designer Pro <ProBadge className="bg-amber/15 text-xs" />
+            </p>
+          ) : (
+            <p className="text-3xl font-bold text-amber">Free</p>
+          )
         )}
       </div>
 
@@ -109,14 +107,14 @@ export default function PlanActions({
             {inDesigner ? (
               <>
                 <a
-                  href={`${DESIGNER_URL}/new?template=${planSlug}`}
+                  href={designerPlanUrl(planSlug)}
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-amber px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-amber-light"
                 >
                   <PencilRuler className="h-5 w-5" />
-                  Open in the Designer — free
+                  {pro ? "Open in the Designer" : "Open in the Designer — free"}
                 </a>
                 <p className="text-center text-xs text-charcoal-light">
-                  Step-by-step instructions, cut list and shopping list — change the size to fit your space, then print it.
+                  {pro && "Part of Designer Pro (try it free for 7 days). "}Step-by-step instructions, cut list and shopping list — change the size to fit your space, then print it.
                 </p>
               </>
             ) : (
