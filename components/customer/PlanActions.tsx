@@ -26,6 +26,7 @@ const DESIGNER_PLANS = new Set<string>([
   "24-x-24-raised-planter",
   "raised-cedar-planter-box",
   "cedar-string-light-planter",
+  "mobile-saw-station-workbench",
   "woven-cross",
 ]);
 const DESIGNER_URL = "https://designer.woodgrainandsawdust.com";
