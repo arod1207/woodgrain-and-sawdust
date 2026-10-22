@@ -6,6 +6,8 @@ import { api } from "@/convex/_generated/api";
 import { client } from "@/src/sanity/lib/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
+import VisitorsCard from "./VisitorsCard";
 import {
   Download,
   Users,
@@ -143,6 +145,11 @@ const AdminDashboard = async () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Visitors (Cloudflare) — streams in so a slow Cloudflare answer doesn't hold up the page */}
+      <Suspense fallback={<div className="mb-8 h-40 animate-pulse rounded-xl bg-cream-dark/40" />}>
+        <VisitorsCard />
+      </Suspense>
 
       {/* Quick Actions */}
       <div className="mb-8">
