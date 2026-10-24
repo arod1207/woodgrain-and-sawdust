@@ -100,8 +100,9 @@ export default function PrivacyPolicyPage() {
           </h2>
           <ul className='mt-2 list-disc space-y-1 pl-6'>
             <li>
-              An account is optional. You can use the Designer as a guest, and
-              your project is saved only in your own browser.
+              You can try the Designer as a guest, and your project is saved
+              only in your own browser. Opening a plan or starter project
+              needs a free account.
             </li>
             <li>
               Accounts are handled by Clerk (clerk.com). You can sign up with

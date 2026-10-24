@@ -111,10 +111,10 @@ export default function PlanActions({
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-amber px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-amber-light"
                 >
                   <PencilRuler className="h-5 w-5" />
-                  {pro ? "Open in the Designer" : "Open in the Designer — free"}
+                  {pro ? "Open in the Designer" : "Open in the Designer — free account"}
                 </a>
                 <p className="text-center text-xs text-charcoal-light">
-                  {pro && "Part of Designer Pro (try it free for 7 days). "}Step-by-step instructions, cut list and shopping list — change the size to fit your space, then print it.
+                  {pro ? "Part of Designer Pro (try it free for 7 days). " : "Sign up free (no card needed) to open it. "}Step-by-step instructions, cut list and shopping list — change the size to fit your space, then print it.
                 </p>
               </>
             ) : (
