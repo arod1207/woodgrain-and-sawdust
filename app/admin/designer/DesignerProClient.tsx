@@ -23,13 +23,15 @@ interface Account {
   name: string | null;
   plan: "free" | "pro";
   subscribed: boolean;
+  /** Canceled, but still Pro until their month or trial runs out. (Missing on older Designer versions.) */
+  canceled?: boolean;
   allowList: boolean;
   grant: { note: string; at: number; by: string } | null;
   joined: number;
 }
 
 const fn = {
-  overview: makeFunctionReference<"query", Record<string, never>, { users: number; subscribed: number; granted: Account[] }>("admin:overview"),
+  overview: makeFunctionReference<"query", Record<string, never>, { users: number; subscribed: number; canceled?: number; granted: Account[] }>("admin:overview"),
   findByEmail: makeFunctionReference<"query", { email: string }, Account[]>("admin:findByEmail"),
   grantPro: makeFunctionReference<"mutation", { userId: string; note: string }, null>("admin:grantPro"),
   revokePro: makeFunctionReference<"mutation", { userId: string }, null>("admin:revokePro"),
@@ -83,10 +85,11 @@ function DesignerPro() {
         </p>
       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["Designer accounts", overview?.users],
           ["Paying / on trial", overview?.subscribed],
+          ["Canceled (Pro until it runs out)", overview && (overview.canceled ?? 0)],
           ["Free Pro given", overview?.granted.length],
         ].map(([label, n]) => (
           <Card key={label as string} className="border-cream-dark">
@@ -188,6 +191,7 @@ function AccountRow({ account: a }: { account: Account }) {
       <p className="mt-1 text-xs text-charcoal-light">
         Joined {new Date(a.joined).toLocaleDateString()}
         {a.subscribed && " · paying or on trial"}
+        {a.canceled && " · canceled (Pro until it runs out)"}
         {a.allowList && " · always Pro (owner list)"}
         {a.grant && ` · free Pro given ${new Date(a.grant.at).toLocaleDateString()}${a.grant.note ? ` — “${a.grant.note}”` : ""}`}
       </p>
