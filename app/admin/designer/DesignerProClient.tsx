@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient, useConvexAuth, useMutation, useQuery } from "convex/react";
@@ -23,17 +23,38 @@ interface Account {
   name: string | null;
   plan: "free" | "pro";
   subscribed: boolean;
+  /** Canceled, but still Pro until their month or trial runs out. (Missing on older Designer versions.) */
+  canceled?: boolean;
   allowList: boolean;
   grant: { note: string; at: number; by: string } | null;
   joined: number;
 }
 
+interface PackPurchase {
+  id: string;
+  email: string | null;
+  product: string;
+  amount: number;
+  currency: string;
+  status: "paid" | "refunded";
+  purchasedAt: number;
+  refundedAt: number | null;
+  paymentIntent: string | null;
+  firstOpened: { what: string; at: number } | null;
+  plansOpened: number;
+  downloads: { what: string; at: number }[];
+}
+
+/** Keep in step with REFUND_DAYS in the Designer (src/domain/plans.ts). */
+const REFUND_DAYS = 14;
+
 const fn = {
-  overview: makeFunctionReference<"query", Record<string, never>, { users: number; subscribed: number; granted: Account[] }>("admin:overview"),
+  overview: makeFunctionReference<"query", Record<string, never>, { users: number; subscribed: number; canceled?: number; granted: Account[] }>("admin:overview"),
   findByEmail: makeFunctionReference<"query", { email: string }, Account[]>("admin:findByEmail"),
   grantPro: makeFunctionReference<"mutation", { userId: string; note: string }, null>("admin:grantPro"),
   revokePro: makeFunctionReference<"mutation", { userId: string }, null>("admin:revokePro"),
   subscribers: makeFunctionReference<"query", Record<string, never>, { email: string; name: string; since: number }[]>("admin:subscribers"),
+  packPurchases: makeFunctionReference<"query", Record<string, never>, PackPurchase[]>("admin:packPurchases"),
 };
 
 const errorText = (err: unknown) => {
@@ -83,10 +104,11 @@ function DesignerPro() {
         </p>
       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["Designer accounts", overview?.users],
           ["Paying / on trial", overview?.subscribed],
+          ["Canceled (Pro until it runs out)", overview && (overview.canceled ?? 0)],
           ["Free Pro given", overview?.granted.length],
         ].map(([label, n]) => (
           <Card key={label as string} className="border-cream-dark">
@@ -141,6 +163,8 @@ function DesignerPro() {
         </CardContent>
       </Card>
 
+      <PackPurchases ready={ready} />
+
       <EmailList ready={ready} />
 
       <h2 className="mb-3 text-lg font-semibold text-walnut">Free Pro you&apos;ve given</h2>
@@ -188,6 +212,7 @@ function AccountRow({ account: a }: { account: Account }) {
       <p className="mt-1 text-xs text-charcoal-light">
         Joined {new Date(a.joined).toLocaleDateString()}
         {a.subscribed && " · paying or on trial"}
+        {a.canceled && " · canceled (Pro until it runs out)"}
         {a.allowList && " · always Pro (owner list)"}
         {a.grant && ` · free Pro given ${new Date(a.grant.at).toLocaleDateString()}${a.grant.note ? ` — “${a.grant.note}”` : ""}`}
       </p>
@@ -273,6 +298,75 @@ function EmailList({ ready }: { ready: boolean }) {
               ))}
             </ul>
           </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+const day = (t: number) => new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+
+/**
+ * Plan pack sales and what each buyer has done since, to answer a refund request (Stripe may refund
+ * on its own if a question goes unanswered for 48 hours). Policy: a full refund within REFUND_DAYS
+ * days while no plan has been opened or downloaded. Refunds are issued in the Stripe dashboard.
+ */
+function PackPurchases({ ready }: { ready: boolean }) {
+  const list = useQuery(fn.packPurchases, ready ? {} : "skip");
+  // Ticks every minute, so a page left open doesn't keep offering a refund past its window.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <Card className="mb-8 border-cream-dark">
+      <CardHeader>
+        <CardTitle className="text-walnut">Plan pack purchases</CardTitle>
+        <CardDescription>
+          Full refund within {REFUND_DAYS} days if they haven&apos;t opened or downloaded a plan. Refund in the Stripe dashboard; the pack leaves their account
+          on its own.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {list === undefined ? (
+          <p className="text-sm text-charcoal-light">Loading…</p>
+        ) : list.length === 0 ? (
+          <p className="text-sm text-charcoal-light">No sales yet.</p>
+        ) : (
+          <ul className="flex flex-col gap-3 text-sm">
+            {list.map((p) => {
+              const used = !!p.firstOpened || p.downloads.length > 0;
+              const inWindow = now - p.purchasedAt < REFUND_DAYS * 86_400_000;
+              const verdict =
+                p.status === "refunded"
+                  ? `Refunded ${p.refundedAt ? day(p.refundedAt) : ""}`
+                  : !used && inWindow
+                    ? "Full refund OK"
+                    : used
+                      ? "Used: no change-of-mind refund"
+                      : `Past ${REFUND_DAYS} days`;
+              return (
+                <li key={p.id} className="rounded-lg border border-cream-dark p-3">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="font-semibold text-charcoal">
+                      {p.email ?? "unknown email"} · {p.product}
+                    </span>
+                    <span className={p.status === "refunded" ? "text-charcoal-light" : !used && inWindow ? "font-semibold text-green-700" : "font-semibold text-amber"}>{verdict}</span>
+                  </div>
+                  <p className="mt-1 text-charcoal-light">
+                    Paid ${(p.amount / 100).toFixed(2)} on {day(p.purchasedAt)}
+                    {p.paymentIntent ? ` · ${p.paymentIntent}` : ""}
+                  </p>
+                  <p className="text-charcoal-light">
+                    {p.firstOpened ? `First opened ${p.firstOpened.what.replace("marquee-", "").replace("-", " ")} on ${day(p.firstOpened.at)} · ${p.plansOpened} plans opened` : "No plan opened"}
+                    {" · "}
+                    {p.downloads.length ? `${p.downloads.length} PDF${p.downloads.length === 1 ? "" : "s"}, first on ${day(p.downloads[0].at)}` : "No PDFs downloaded"}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
         )}
       </CardContent>
     </Card>
