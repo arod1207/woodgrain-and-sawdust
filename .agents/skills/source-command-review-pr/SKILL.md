@@ -11,7 +11,7 @@ Use this skill when the user asks to run the migrated source command `review-pr`
 
 Review my current git changes as if you were a strict code reviewer.
 
-Run `git diff main...HEAD` and check for:
+Run `git diff main...HEAD` (committed), `git diff --cached` (staged) and `git diff` (unstaged), and check for:
 
 - Bugs or logic errors
 - Security vulnerabilities

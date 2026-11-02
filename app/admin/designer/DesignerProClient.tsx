@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { ConvexReactClient, useConvexAuth, useMutation, useQuery } from "convex/react";
@@ -313,8 +313,12 @@ const day = (t: number) => new Date(t).toLocaleDateString(undefined, { month: "s
  */
 function PackPurchases({ ready }: { ready: boolean }) {
   const list = useQuery(fn.packPurchases, ready ? {} : "skip");
-  // Fixed when the page opens: good enough for a 14-day window.
-  const [now] = useState(() => Date.now());
+  // Ticks every minute, so a page left open doesn't keep offering a refund past its window.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(t);
+  }, []);
   return (
     <Card className="mb-8 border-cream-dark">
       <CardHeader>

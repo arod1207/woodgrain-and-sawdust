@@ -13,10 +13,10 @@ Woodworking cut plans site. Offers free digital PDF cut plans with a lead captur
 
 ## Key Architecture Decisions
 - **No sign-in for customers.** Auth is only for the admin dashboard.
-- **All plans are free.** No payments, no Stripe, no cart.
+- **All cut plans are free.** The one sale on this site is the physical crosses, through the Stripe checkout in `app/api/checkout`. Designer Pro and plan packs are sold in the separate Designer app; the admin page only reads its records.
 - **Lead capture:** A name + email form (shadcn Dialog) gates PDF downloads. Data stored in Convex `downloads` table.
 - **Sanity** manages cut plan content + PDF file storage; **Convex** manages download leads.
-- **ConvexProvider** (not ConvexProviderWithClerk) since downloads don't need auth.
+- **ConvexProvider** for the site's own Convex, since downloads don't need auth. The admin's Designer page is the exception: it uses `ConvexProviderWithClerk` to reach the Designer's Convex as a signed-in admin.
 - Plan images use Sanity's `urlFor()` builder from `@/src/sanity/lib/image`.
 - PDFs are served through `/api/download` which proxies from Sanity CDN.
 
